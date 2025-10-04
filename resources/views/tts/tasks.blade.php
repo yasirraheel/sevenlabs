@@ -498,63 +498,184 @@ $(document).ready(function() {
         }
     });
 
-    // Play audio function
+    // Custom Audio Player
     window.playAudio = function(audioUrl) {
-        // Stop any currently playing audio
-        const existingAudio = document.querySelector('audio[data-auto-play]');
-        if (existingAudio) {
-            existingAudio.pause();
-            existingAudio.remove();
+        // Stop any existing audio
+        const existingPlayer = document.getElementById('customAudioPlayer');
+        if (existingPlayer) {
+            existingPlayer.remove();
         }
 
-        // Create new audio element
-        const audio = document.createElement('audio');
-        audio.src = audioUrl;
-        audio.controls = true;
-        audio.setAttribute('data-auto-play', 'true');
-        audio.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; width: 300px; max-width: 90vw; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border-radius: 8px;';
-        
-        // Add close button
-        const closeBtn = document.createElement('button');
-        closeBtn.innerHTML = '×';
-        closeBtn.style.cssText = 'position: absolute; top: -10px; right: -10px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; font-size: 16px; cursor: pointer; z-index: 10000;';
-        closeBtn.onclick = function() {
-            audio.pause();
-            audio.remove();
-        };
-        
-        // Create container for audio and close button
-        const container = document.createElement('div');
-        container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
-        container.appendChild(audio);
-        container.appendChild(closeBtn);
-        
-        document.body.appendChild(container);
-        
-        // Auto-play the audio
-        audio.play().catch(function(error) {
-            console.log('Auto-play was prevented:', error);
-            // Show a message to user to click play
-            const playMessage = document.createElement('div');
-            playMessage.innerHTML = 'Click the play button to start audio';
-            playMessage.style.cssText = 'position: fixed; top: 60px; right: 20px; background: #007bff; color: white; padding: 10px; border-radius: 4px; z-index: 10001; font-size: 12px;';
-            container.appendChild(playMessage);
+        // Create custom audio player
+        const audioPlayer = document.createElement('div');
+        audioPlayer.id = 'customAudioPlayer';
+        audioPlayer.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1050;
+            min-width: 400px;
+            max-width: 90vw;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        `;
+
+        audioPlayer.innerHTML = `
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <div style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-music-note-beamed" style="font-size: 24px;"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; font-size: 16px; margin-bottom: 2px;">Generated Speech</div>
+                        <div style="font-size: 12px; opacity: 0.8;">SevenLabs AI Voice</div>
+                    </div>
+                </div>
+                <button class="btn btn-sm" onclick="this.closest('#customAudioPlayer').remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
             
-            setTimeout(() => {
-                if (playMessage.parentNode) {
-                    playMessage.remove();
-                }
-            }, 3000);
+            <div class="mb-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span id="currentTime" style="font-size: 12px; opacity: 0.8;">0:00</span>
+                    <span id="duration" style="font-size: 12px; opacity: 0.8;">0:00</span>
+                </div>
+                <div class="progress" style="height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; cursor: pointer;" id="progressBar">
+                    <div class="progress-bar" id="progress" style="background: white; border-radius: 3px; transition: width 0.1s;"></div>
+                </div>
+            </div>
+            
+            <div class="d-flex align-items-center justify-content-center">
+                <button class="btn me-3" id="playPauseBtn" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-play-fill" id="playIcon"></i>
+                </button>
+                <button class="btn me-2" id="volumeBtn" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-volume-up" id="volumeIcon"></i>
+                </button>
+                <div class="me-3" style="width: 80px;">
+                    <input type="range" class="form-range" id="volumeSlider" min="0" max="100" value="70" style="height: 4px;">
+                </div>
+                <button class="btn" id="downloadBtn" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-download"></i>
+                </button>
+            </div>
+            
+            <audio id="hiddenAudio" preload="metadata">
+                <source src="${audioUrl}" type="audio/mpeg">
+            </audio>
+        `;
+
+        document.body.appendChild(audioPlayer);
+
+        // Get elements
+        const audio = audioPlayer.querySelector('#hiddenAudio');
+        const playPauseBtn = audioPlayer.querySelector('#playPauseBtn');
+        const playIcon = audioPlayer.querySelector('#playIcon');
+        const progressBar = audioPlayer.querySelector('#progressBar');
+        const progress = audioPlayer.querySelector('#progress');
+        const currentTimeEl = audioPlayer.querySelector('#currentTime');
+        const durationEl = audioPlayer.querySelector('#duration');
+        const volumeBtn = audioPlayer.querySelector('#volumeBtn');
+        const volumeIcon = audioPlayer.querySelector('#volumeIcon');
+        const volumeSlider = audioPlayer.querySelector('#volumeSlider');
+        const downloadBtn = audioPlayer.querySelector('#downloadBtn');
+
+        // Format time
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Update progress
+        function updateProgress() {
+            const progressPercent = (audio.currentTime / audio.duration) * 100;
+            progress.style.width = progressPercent + '%';
+            currentTimeEl.textContent = formatTime(audio.currentTime);
+        }
+
+        // Update duration
+        function updateDuration() {
+            durationEl.textContent = formatTime(audio.duration);
+        }
+
+        // Play/Pause functionality
+        playPauseBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playIcon.className = 'bi bi-pause-fill';
+            } else {
+                audio.pause();
+                playIcon.className = 'bi bi-play-fill';
+            }
         });
-        
-        // Remove audio element when finished
-        audio.addEventListener('ended', function() {
-            setTimeout(() => {
-                if (container.parentNode) {
-                    container.remove();
-                }
-            }, 2000);
+
+        // Progress bar click
+        progressBar.addEventListener('click', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const width = rect.width;
+            const clickPercent = clickX / width;
+            audio.currentTime = clickPercent * audio.duration;
         });
+
+        // Volume control
+        volumeSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value / 100;
+            if (audio.volume === 0) {
+                volumeIcon.className = 'bi bi-volume-mute';
+            } else if (audio.volume < 0.5) {
+                volumeIcon.className = 'bi bi-volume-down';
+            } else {
+                volumeIcon.className = 'bi bi-volume-up';
+            }
+        });
+
+        volumeBtn.addEventListener('click', () => {
+            if (audio.volume > 0) {
+                audio.volume = 0;
+                volumeSlider.value = 0;
+                volumeIcon.className = 'bi bi-volume-mute';
+            } else {
+                audio.volume = 0.7;
+                volumeSlider.value = 70;
+                volumeIcon.className = 'bi bi-volume-up';
+            }
+        });
+
+        // Download functionality
+        downloadBtn.addEventListener('click', () => {
+            const a = document.createElement('a');
+            a.href = audioUrl;
+            a.download = 'sevenlabs-speech.mp3';
+            a.click();
+        });
+
+        // Audio event listeners
+        audio.addEventListener('loadedmetadata', updateDuration);
+        audio.addEventListener('timeupdate', updateProgress);
+        audio.addEventListener('ended', () => {
+            playIcon.className = 'bi bi-play-fill';
+            progress.style.width = '0%';
+            currentTimeEl.textContent = '0:00';
+        });
+
+        // Auto-play
+        audio.play().catch(e => {
+            console.log('Auto-play prevented:', e);
+            // Don't show alert, just let user click play
+        });
+
+        // Set initial volume
+        audio.volume = 0.7;
     };
 });
 </script>

@@ -525,6 +525,103 @@ audio {
     opacity: 0.5;
 }
 
+/* Custom Audio Player Styles */
+#customAudioPlayer {
+    animation: slideUp 0.3s ease-out;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateX(-50%) translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+#customAudioPlayer .btn {
+    transition: all 0.2s ease;
+}
+
+#customAudioPlayer .btn:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    transform: scale(1.05);
+}
+
+#customAudioPlayer .btn:active {
+    transform: scale(0.95);
+}
+
+#customAudioPlayer .progress {
+    transition: all 0.2s ease;
+}
+
+#customAudioPlayer .progress:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+}
+
+#customAudioPlayer .form-range {
+    background: transparent;
+}
+
+#customAudioPlayer .form-range::-webkit-slider-track {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    height: 4px;
+}
+
+#customAudioPlayer .form-range::-webkit-slider-thumb {
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#customAudioPlayer .form-range::-moz-range-track {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    height: 4px;
+    border: none;
+}
+
+#customAudioPlayer .form-range::-moz-range-thumb {
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Mobile responsiveness for audio player */
+@media (max-width: 576px) {
+    #customAudioPlayer {
+        min-width: 90vw;
+        padding: 15px;
+        bottom: 10px;
+    }
+    
+    #customAudioPlayer .d-flex.align-items-center.justify-content-center {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    #customAudioPlayer .btn {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    #customAudioPlayer .me-3 {
+        margin-right: 0.5rem !important;
+    }
+}
+
 /* Dark Mode Support */
 
 @media (prefers-color-scheme: dark) {
