@@ -91,7 +91,7 @@
             <div class="col-12 col-md-4 mb-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body text-center">
-                        <i class="bi bi-eye display-4 text-primary mb-3"></i>
+                        <i class="bi bi-eye display-4 mb-3" style="color: {{ $settings->color_default }};"></i>
                         <h5 class="card-title">View Details</h5>
                         <p class="card-text">Click on any task to view detailed information including voice settings and generated audio.</p>
                     </div>
@@ -100,7 +100,7 @@
             <div class="col-12 col-md-4 mb-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body text-center">
-                        <i class="bi bi-download display-4 text-primary mb-3"></i>
+                        <i class="bi bi-download display-4 mb-3" style="color: {{ $settings->color_default }};"></i>
                         <h5 class="card-title">Download Audio</h5>
                         <p class="card-text">Download completed speech files directly from the task list or detailed view.</p>
                     </div>
@@ -109,7 +109,7 @@
             <div class="col-12 col-md-4 mb-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body text-center">
-                        <i class="bi bi-trash display-4 text-primary mb-3"></i>
+                        <i class="bi bi-trash display-4 mb-3" style="color: {{ $settings->color_default }};"></i>
                         <h5 class="card-title">Manage Tasks</h5>
                         <p class="card-text">Delete completed or failed tasks to keep your workspace organized and clean.</p>
                     </div>

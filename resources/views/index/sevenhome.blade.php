@@ -40,7 +40,7 @@
 
                 <!-- TTS Form -->
                 <div class="card shadow-lg border-0">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header text-white" style="background-color: {{ $settings->color_default }};">
                         <h4 class="mb-0"><i class="bi bi-mic me-2"></i>Text-to-Speech Generator</h4>
                     </div>
                     <div class="card-body p-4">
@@ -231,7 +231,7 @@
 
                             <!-- Submit Button -->
                             <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary btn-lg" id="generateBtn">
+                                <button type="submit" class="btn btn-custom btn-lg" id="generateBtn">
                                     <i class="bi bi-play-circle me-2"></i>Generate Speech
                                 </button>
                                 <div class="d-flex justify-content-center gap-2 mt-2">
@@ -268,7 +268,7 @@
 
                 <!-- Loading Spinner -->
                 <div class="text-center mt-4" id="loadingSpinner" style="display: none;">
-                    <div class="spinner-border text-primary" role="status">
+                    <div class="spinner-border" role="status" style="color: {{ $settings->color_default }};">
                         <span class="visually-hidden">Generating...</span>
     </div>
                     <p class="mt-2">Generating your speech, please wait...</p>
@@ -291,7 +291,7 @@
             <div class="col-12 col-md-4 mb-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body text-center">
-                        <i class="bi bi-globe display-4 text-primary mb-3"></i>
+                        <i class="bi bi-globe display-4 mb-3" style="color: {{ $settings->color_default }};"></i>
                         <h5 class="card-title">Multilingual Support</h5>
                         <p class="card-text">Generate speech in multiple languages with natural pronunciation and accent.</p>
                     </div>
@@ -300,7 +300,7 @@
             <div class="col-12 col-md-4 mb-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body text-center">
-                        <i class="bi bi-lightning display-4 text-primary mb-3"></i>
+                        <i class="bi bi-lightning display-4 mb-3" style="color: {{ $settings->color_default }};"></i>
                         <h5 class="card-title">Fast Generation</h5>
                         <p class="card-text">Get high-quality speech output in seconds with our optimized AI models.</p>
           </div>
@@ -309,7 +309,7 @@
             <div class="col-12 col-md-4 mb-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body text-center">
-                        <i class="bi bi-sliders display-4 text-primary mb-3"></i>
+                        <i class="bi bi-sliders display-4 mb-3" style="color: {{ $settings->color_default }};"></i>
                         <h5 class="card-title">Customizable</h5>
                         <p class="card-text">Fine-tune voice parameters including speed, style, and stability.</p>
           </div>
@@ -360,7 +360,7 @@
 
                 <!-- Loading Spinner -->
                 <div class="text-center" id="voiceLoading" style="display: none;">
-                    <div class="spinner-border text-primary" role="status">
+                    <div class="spinner-border" role="status" style="color: {{ $settings->color_default }};">
                         <span class="visually-hidden">Loading voices...</span>
                     </div>
                     <p class="mt-2">Loading voices...</p>
@@ -479,7 +479,7 @@ $(document).ready(function() {
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h6 class="card-title mb-0">${voice.name}</h6>
-                            <span class="badge bg-primary">${voice.voice_id.substring(0, 8)}...</span>
+                            <span class="badge" style="background-color: {{ $settings->color_default }};">${voice.voice_id.substring(0, 8)}...</span>
                         </div>
 
                         <div class="mb-2">
@@ -498,10 +498,10 @@ $(document).ready(function() {
                         </div>
 
                         <div class="d-flex gap-2">
-                            <button class="btn btn-outline-primary btn-sm flex-fill preview-btn" data-voice-id="${voice.voice_id}" data-preview-url="${voice.preview_url}">
+                            <button class="btn btn-outline-custom btn-sm flex-fill preview-btn" data-voice-id="${voice.voice_id}" data-preview-url="${voice.preview_url}">
                                 <i class="bi bi-play-circle me-1"></i>Preview
                             </button>
-                            <button class="btn btn-primary btn-sm select-voice-btn" data-voice-id="${voice.voice_id}" data-voice-name="${voice.name}">
+                            <button class="btn btn-custom btn-sm select-voice-btn" data-voice-id="${voice.voice_id}" data-voice-name="${voice.name}">
                                 <i class="bi bi-check"></i>Select
                             </button>
                         </div>
