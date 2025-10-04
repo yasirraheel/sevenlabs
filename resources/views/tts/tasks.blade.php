@@ -5,20 +5,40 @@
 @endsection
 
 @section('content')
+<!-- Hero Section -->
+<div class="container-fluid home-cover">
+    <div class="mb-4 position-relative custom-pt-6">
+        <div class="container px-3 px-md-5">
+            <div class="text-center text-md-start">
+                <h1 class="display-4 display-md-3 fw-bold text-white mb-3">
+                    <i class="bi bi-list-task me-3"></i>Your TTS Tasks
+                </h1>
+                <p class="col-md-8 fs-5 fw-bold text-white mb-4">
+                    Manage and monitor your text-to-speech generation tasks
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
 <div class="container-fluid py-5">
     <div class="container">
-        <div class="row">
-            <div class="col-12">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10 col-xl-8">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2><i class="bi bi-list-task me-2"></i>Your TTS Tasks</h2>
+                    <h3><i class="bi bi-list-task me-2"></i>Task History</h3>
                     <a href="{{ url('/') }}" class="btn btn-primary">
                         <i class="bi bi-plus-circle me-2"></i>Create New Task
                     </a>
                 </div>
 
                 <!-- Task List -->
-                <div class="card">
-                    <div class="card-body">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="bi bi-list-task me-2"></i>Task Management</h4>
+                    </div>
+                    <div class="card-body p-4">
                         <div class="table-responsive">
                             <table class="table table-hover" id="tasksTable">
                                 <thead>
@@ -37,13 +57,53 @@
                                 </tbody>
                             </table>
                         </div>
-                        
+
                         <!-- Pagination -->
-                        <nav aria-label="Task pagination">
+                        <nav aria-label="Task pagination" class="mt-4">
                             <ul class="pagination justify-content-center" id="pagination">
                                 <!-- Pagination will be loaded here -->
                             </ul>
                         </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container-fluid py-5 bg-light">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-12">
+                <h2 class="mb-5">Task Management Features</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-eye display-4 text-primary mb-3"></i>
+                        <h5 class="card-title">View Details</h5>
+                        <p class="card-text">Click on any task to view detailed information including voice settings and generated audio.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-download display-4 text-primary mb-3"></i>
+                        <h5 class="card-title">Download Audio</h5>
+                        <p class="card-text">Download completed speech files directly from the task list or detailed view.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-trash display-4 text-primary mb-3"></i>
+                        <h5 class="card-title">Manage Tasks</h5>
+                        <p class="card-text">Delete completed or failed tasks to keep your workspace organized and clean.</p>
                     </div>
                 </div>
             </div>
@@ -133,7 +193,7 @@ $(document).ready(function() {
                         <button class="btn btn-sm btn-outline-primary" onclick="viewTask('${task.id}')">
                             <i class="bi bi-eye"></i>
                         </button>
-                        ${task.status === 'completed' && task.result ? 
+                        ${task.status === 'completed' && task.result ?
                             `<a href="${task.result}" class="btn btn-sm btn-outline-success" download>
                                 <i class="bi bi-download"></i>
                             </a>` : ''
@@ -191,7 +251,7 @@ $(document).ready(function() {
     // View task details
     window.viewTask = function(taskId) {
         currentTaskId = taskId;
-        
+
         $.ajax({
             url: '{{ url("api/tts/task") }}/' + taskId,
             method: 'GET',

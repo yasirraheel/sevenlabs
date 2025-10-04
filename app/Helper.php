@@ -735,11 +735,17 @@ class Helper
 	// SevenLabs API Helper
 	public static function getSevenLabsApiKey()
 	{
-		return config('settings.sevenlabs_api_key');
+		try {
+			$settings = \App\Models\AdminSettings::first();
+			return $settings ? $settings->sevenlabs_api_key : null;
+		} catch (\Exception $e) {
+			return null;
+		}
 	}
 
 	public static function hasSevenLabsApiKey()
 	{
-		return !empty(config('settings.sevenlabs_api_key'));
+		$apiKey = self::getSevenLabsApiKey();
+		return !empty($apiKey);
 	}
 }//<--- End Class
