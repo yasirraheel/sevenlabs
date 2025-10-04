@@ -48,28 +48,25 @@
                             @csrf
 
                             <!-- Text Input -->
-                            <div class="mb-4">
-                                <label for="input" class="form-label fw-bold">
-                                    <i class="bi bi-chat-text me-2"></i>Text to Convert
-                                </label>
+                            <div class="form-floating mb-4">
                                 <textarea
                                     class="form-control"
                                     id="input"
                                     name="input"
-                                    rows="4"
+                                    style="height: 120px;"
                                     placeholder="Enter the text you want to convert to speech..."
                                     required
                                 ></textarea>
+                                <label for="input">
+                                    <i class="bi bi-chat-text me-2"></i>Text to Convert
+                                </label>
                                 <div class="form-text">Enter the text you want to convert to speech</div>
                             </div>
 
                             <!-- Voice Selection -->
                             <div class="row mb-4">
                                 <div class="col-12 col-md-6">
-                                    <label for="voice_id" class="form-label fw-bold">
-                                        <i class="bi bi-person-voice me-2"></i>Select Voice
-                                    </label>
-                                    <div class="input-group">
+                                    <div class="form-floating">
                                         <input
                                             type="text"
                                             class="form-control"
@@ -79,28 +76,35 @@
                                             readonly
                                             required
                                         >
+                                        <label for="voice_display">
+                                            <i class="bi bi-person-voice me-2"></i>Select Voice
+                                        </label>
                                         <input
                                             type="hidden"
                                             id="voice_id"
                                             name="voice_id"
                                             value=""
                                         >
-                                        <button class="btn btn-outline-primary" type="button" id="voiceSelectBtn">
+                                    </div>
+                                    <div class="d-grid mt-2">
+                                        <button class="btn btn-outline-custom" type="button" id="voiceSelectBtn">
                                             <i class="bi bi-search me-2"></i>Browse Voices
                                         </button>
                                     </div>
                                     <div class="form-text">Choose from available voices with preview</div>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <label for="model_id" class="form-label fw-bold">
-                                        <i class="bi bi-cpu me-2"></i>Model
-                                    </label>
-                                    <select class="form-select" id="model_id" name="model_id" required>
-                                        <option value="eleven_multilingual_v2">Eleven Multilingual v2</option>
-                                        <option value="eleven_turbo_v2_5" selected>Eleven Turbo v2.5</option>
-                                        <option value="eleven_flash_v2_5">Eleven Flash v2.5</option>
-                                        <option value="eleven_v3">Eleven v3</option>
-                                    </select>
+                                    <div class="form-floating">
+                                        <select class="form-select" id="model_id" name="model_id" required>
+                                            <option value="eleven_multilingual_v2">Eleven Multilingual v2</option>
+                                            <option value="eleven_turbo_v2_5" selected>Eleven Turbo v2.5</option>
+                                            <option value="eleven_flash_v2_5">Eleven Flash v2.5</option>
+                                            <option value="eleven_v3">Eleven v3</option>
+                                        </select>
+                                        <label for="model_id">
+                                            <i class="bi bi-cpu me-2"></i>Model
+                                        </label>
+                                    </div>
                                     <div class="form-text">Select the AI model for voice generation</div>
                                 </div>
                             </div>
@@ -213,14 +217,16 @@
 
                                                 <!-- Callback URL -->
                                                 <div class="col-12 col-md-6 mb-3">
-                                                    <label for="call_back_url" class="form-label fw-bold">Callback URL (Optional)</label>
-                                                    <input
-                                                        type="url"
-                                                        class="form-control"
-                                                        id="call_back_url"
-                                                        name="call_back_url"
-                                                        placeholder="https://your-domain.com/callback"
-                                                    >
+                                                    <div class="form-floating">
+                                                        <input
+                                                            type="url"
+                                                            class="form-control"
+                                                            id="call_back_url"
+                                                            name="call_back_url"
+                                                            placeholder="https://your-domain.com/callback"
+                                                        >
+                                                        <label for="call_back_url">Callback URL (Optional)</label>
+                                                    </div>
                                                     <div class="form-text">URL to receive completion notification</div>
                                                 </div>
                                             </div>

@@ -358,6 +358,34 @@ audio {
     font-weight: bold;
 }
 
+/* Floating label adjustments */
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    opacity: 0.65;
+    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+.form-floating > .form-control:focus {
+    border-color: var(--color-default);
+    box-shadow: 0 0 0 0.2rem rgba(var(--color-default-rgb), 0.25);
+}
+
+/* Voice selection button styling */
+.btn-outline-custom {
+    color: var(--color-default);
+    border-color: var(--color-default);
+}
+
+.btn-outline-custom:hover {
+    color: #fff;
+    background-color: var(--color-default);
+    border-color: var(--color-default);
+}
+
+.btn-outline-custom:focus {
+    box-shadow: 0 0 0 0.2rem rgba(var(--color-default-rgb), 0.25);
+}
+
 /* Task History Header Layout */
 .task-history-header {
     display: flex;
