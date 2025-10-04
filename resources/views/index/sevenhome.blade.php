@@ -383,7 +383,7 @@ $(document).ready(function() {
             error: function(xhr) {
                 $('#loadingSpinner').hide();
                 $('#generateBtn').prop('disabled', false);
-                
+
                 let errorMessage = 'An error occurred while generating speech.';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
@@ -392,7 +392,7 @@ $(document).ready(function() {
                 } else if (xhr.status === 429) {
                     errorMessage = 'Rate limit exceeded. Please try again later.';
                 }
-                
+
                 alert('Error: ' + errorMessage);
             }
         });
@@ -425,10 +425,10 @@ $(document).ready(function() {
     function pollTaskStatus(taskId) {
         const maxAttempts = 60; // 60 seconds max wait
         let attempts = 0;
-        
+
         const pollInterval = setInterval(function() {
             attempts++;
-            
+
             $.ajax({
                 url: '{{ url("api/tts/task") }}/' + taskId,
                 method: 'GET',
@@ -440,17 +440,17 @@ $(document).ready(function() {
                 success: function(response) {
                     if (response.success && response.task) {
                         const task = response.task;
-                        
+
                         if (task.status === 'completed' && task.result) {
                             // Task completed successfully
                             clearInterval(pollInterval);
                             $('#loadingSpinner').hide();
                             $('#generateBtn').prop('disabled', false);
-                            
+
                             // Show results
                             $('#audioPlayer').attr('src', task.result);
                             $('#resultsCard').show();
-                            
+
                             // Set download link
                             $('#downloadBtn').off('click').on('click', function() {
                                 const link = document.createElement('a');
@@ -458,7 +458,7 @@ $(document).ready(function() {
                                 link.download = 'generated_speech_' + Date.now() + '.mp3';
                                 link.click();
                             });
-                            
+
                             // Reset form
                             $('#resetBtn').off('click').on('click', function() {
                                 $('#ttsForm')[0].reset();
@@ -468,14 +468,14 @@ $(document).ready(function() {
                                 $('#similarityValue').text('0.75');
                                 $('#stabilityValue').text('0.5');
                             });
-                            
+
                         } else if (task.status === 'failed') {
                             // Task failed
                             clearInterval(pollInterval);
                             $('#loadingSpinner').hide();
                             $('#generateBtn').prop('disabled', false);
                             alert('Task failed: ' + (task.error || 'Unknown error'));
-                            
+
                         } else if (attempts >= maxAttempts) {
                             // Timeout
                             clearInterval(pollInterval);
