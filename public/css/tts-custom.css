@@ -358,6 +358,103 @@ audio {
     font-weight: bold;
 }
 
+/* Task History Responsive Styles */
+@media (max-width: 991.98px) {
+    .mobile-task-card {
+        transition: all 0.3s ease;
+    }
+    
+    .mobile-task-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+    }
+    
+    .mobile-task-card .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    .mobile-task-card .card-title {
+        font-size: 0.9rem;
+        line-height: 1.2;
+    }
+    
+    .mobile-task-card .card-text {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+}
+
+/* Modal Responsive Improvements */
+@media (max-width: 575.98px) {
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+    
+    .modal-content {
+        border-radius: 0.5rem;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+    }
+    
+    .modal-footer .btn {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Table Responsive Improvements */
+@media (min-width: 992px) {
+    .table-responsive {
+        border-radius: 0.375rem;
+    }
+    
+    .table th {
+        font-weight: 600;
+        font-size: 0.9rem;
+        border-top: none;
+    }
+    
+    .table td {
+        vertical-align: middle;
+        font-size: 0.85rem;
+    }
+    
+    .btn-group .btn {
+        margin-right: 0.25rem;
+    }
+    
+    .btn-group .btn:last-child {
+        margin-right: 0;
+    }
+}
+
+/* Pagination Responsive */
+@media (max-width: 575.98px) {
+    .pagination {
+        font-size: 0.8rem;
+    }
+    
+    .pagination .page-link {
+        padding: 0.375rem 0.5rem;
+    }
+}
+
+/* Empty State Styling */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
 /* Dark Mode Support */
 
 @media (prefers-color-scheme: dark) {

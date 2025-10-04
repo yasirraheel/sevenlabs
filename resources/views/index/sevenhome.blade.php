@@ -587,16 +587,16 @@ $(document).ready(function() {
     $(document).on('click', '.select-voice-btn', function() {
         const voiceId = $(this).data('voice-id');
         const voiceName = $(this).data('voice-name');
-        
+
         // Update the hidden input with voice ID (for backend)
         $('#voice_id').val(voiceId);
-        
+
         // Update the display input with voice name (for user)
         $('#voice_display').val(voiceName);
-        
+
         // Close modal
         $('#voiceSelectModal').modal('hide');
-        
+
         // Show success message
         const toast = $(`
             <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
@@ -608,11 +608,11 @@ $(document).ready(function() {
                 </div>
             </div>
         `);
-        
+
         $('body').append(toast);
         const bsToast = new bootstrap.Toast(toast[0]);
         bsToast.show();
-        
+
         // Remove toast after it's hidden
         toast.on('hidden.bs.toast', function() {
             $(this).remove();

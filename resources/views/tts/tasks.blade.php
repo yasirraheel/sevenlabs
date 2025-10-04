@@ -26,9 +26,9 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-12 col-lg-10 col-xl-8">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3><i class="bi bi-list-task me-2"></i>Task History</h3>
-                    <a href="{{ url('/') }}" class="btn btn-primary">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+                    <h3 class="mb-0"><i class="bi bi-list-task me-2"></i>Task History</h3>
+                    <a href="{{ url('/') }}" class="btn btn-primary w-100 w-md-auto">
                         <i class="bi bi-plus-circle me-2"></i>Create New Task
                     </a>
                 </div>
@@ -39,23 +39,31 @@
                         <h4 class="mb-0"><i class="bi bi-list-task me-2"></i>Task Management</h4>
                     </div>
                     <div class="card-body p-4">
-                        <div class="table-responsive">
-                            <table class="table table-hover" id="tasksTable">
-                                <thead>
-                                    <tr>
-                                        <th>Task ID</th>
-                                        <th>Input Text</th>
-                                        <th>Voice ID</th>
-                                        <th>Model</th>
-                                        <th>Status</th>
-                                        <th>Created</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Tasks will be loaded here -->
-                                </tbody>
-                            </table>
+                        <!-- Desktop Table View -->
+                        <div class="d-none d-lg-block">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="tasksTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Task ID</th>
+                                            <th>Input Text</th>
+                                            <th>Voice ID</th>
+                                            <th>Model</th>
+                                            <th>Status</th>
+                                            <th>Created</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Tasks will be loaded here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Mobile Card View -->
+                        <div class="d-lg-none" id="mobileTasksContainer">
+                            <!-- Mobile task cards will be loaded here -->
                         </div>
 
                         <!-- Pagination -->
@@ -113,18 +121,24 @@
 
 <!-- Task Details Modal -->
 <div class="modal fade" id="taskModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Task Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title">
+                    <i class="bi bi-list-task me-2"></i>Task Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="taskDetails">
                 <!-- Task details will be loaded here -->
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-danger" id="deleteTaskBtn" style="display: none;">Delete Task</button>
+            <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
+                <button type="button" class="btn btn-secondary w-100 w-sm-auto" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-2"></i>Close
+                </button>
+                <button type="button" class="btn btn-danger w-100 w-sm-auto" id="deleteTaskBtn" style="display: none;">
+                    <i class="bi bi-trash me-2"></i>Delete Task
+                </button>
             </div>
         </div>
     </div>
@@ -168,11 +182,17 @@ $(document).ready(function() {
 
     // Display tasks in table
     function displayTasks(tasks) {
+        // Desktop table view
         const tbody = $('#tasksTable tbody');
         tbody.empty();
 
+        // Mobile card view
+        const mobileContainer = $('#mobileTasksContainer');
+        mobileContainer.empty();
+
         if (tasks.length === 0) {
             tbody.html('<tr><td colspan="7" class="text-center">No tasks found</td></tr>');
+            mobileContainer.html('<div class="text-center text-muted py-4"><i class="bi bi-inbox display-4"></i><p class="mt-2">No tasks found</p></div>');
             return;
         }
 
@@ -181,6 +201,7 @@ $(document).ready(function() {
             const createdDate = new Date(task.created_at).toLocaleString();
             const shortInput = task.input.length > 50 ? task.input.substring(0, 50) + '...' : task.input;
 
+            // Desktop table row
             const row = `
                 <tr>
                     <td><code>${task.id.substring(0, 8)}...</code></td>
@@ -190,21 +211,70 @@ $(document).ready(function() {
                     <td>${statusBadge}</td>
                     <td>${createdDate}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-primary" onclick="viewTask('${task.id}')">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                        ${task.status === 'completed' && task.result ?
-                            `<a href="${task.result}" class="btn btn-sm btn-outline-success" download>
-                                <i class="bi bi-download"></i>
-                            </a>` : ''
-                        }
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteTask('${task.id}')">
-                            <i class="bi bi-trash"></i>
-                        </button>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewTask('${task.id}')" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            ${task.status === 'completed' && task.result ?
+                                `<a href="${task.result}" class="btn btn-sm btn-outline-success" download title="Download Audio">
+                                    <i class="bi bi-download"></i>
+                                </a>` : ''
+                            }
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTask('${task.id}')" title="Delete Task">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `;
             tbody.append(row);
+
+            // Mobile card
+            const card = `
+                <div class="card mb-3 border-0 shadow-sm mobile-task-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="card-title mb-0">
+                                <code class="text-muted">${task.id.substring(0, 12)}...</code>
+                            </h6>
+                            ${statusBadge}
+                        </div>
+                        <p class="card-text text-muted small mb-2">
+                            <i class="bi bi-calendar me-1"></i>${createdDate}
+                        </p>
+                        <p class="card-text mb-3" title="${task.input}">
+                            ${shortInput}
+                        </p>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <small class="text-muted d-block">Voice</small>
+                                <code class="small">${task.voice_id.substring(0, 8)}...</code>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted d-block">Model</small>
+                                <span class="small">${task.model_id}</span>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted d-block">Actions</small>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button class="btn btn-outline-primary btn-sm" onclick="viewTask('${task.id}')" title="View Details">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    ${task.status === 'completed' && task.result ?
+                                        `<a href="${task.result}" class="btn btn-outline-success btn-sm" download title="Download Audio">
+                                            <i class="bi bi-download"></i>
+                                        </a>` : ''
+                                    }
+                                    <button class="btn btn-outline-danger btn-sm" onclick="deleteTask('${task.id}')" title="Delete Task">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            mobileContainer.append(card);
         });
     }
 
@@ -277,52 +347,106 @@ $(document).ready(function() {
     // Display task details in modal
     function displayTaskDetails(task) {
         const details = `
-            <div class="row">
-                <div class="col-md-6">
-                    <h6>Task Information</h6>
-                    <p><strong>ID:</strong> <code>${task.id}</code></p>
-                    <p><strong>Status:</strong> ${getStatusBadge(task.status)}</p>
-                    <p><strong>Created:</strong> ${new Date(task.created_at).toLocaleString()}</p>
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-info-circle me-2"></i>Task Information
+                            </h6>
+                            <div class="mb-2">
+                                <small class="text-muted d-block">Task ID</small>
+                                <code class="small">${task.id}</code>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted d-block">Status</small>
+                                ${getStatusBadge(task.status)}
+                            </div>
+                            <div class="mb-0">
+                                <small class="text-muted d-block">Created</small>
+                                <span class="small">${new Date(task.created_at).toLocaleString()}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <h6>Voice Settings</h6>
-                    <p><strong>Voice ID:</strong> <code>${task.voice_id}</code></p>
-                    <p><strong>Model:</strong> ${task.model_id}</p>
-                    <p><strong>Style:</strong> ${task.style}</p>
-                    <p><strong>Speed:</strong> ${task.speed}</p>
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-12">
-                    <h6>Input Text</h6>
-                    <div class="bg-light p-3 rounded">
-                        ${task.input}
+                <div class="col-12 col-md-6">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-gear me-2"></i>Voice Settings
+                            </h6>
+                            <div class="mb-2">
+                                <small class="text-muted d-block">Voice ID</small>
+                                <code class="small">${task.voice_id}</code>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted d-block">Model</small>
+                                <span class="small">${task.model_id}</span>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted d-block">Style</small>
+                                <span class="small">${task.style}</span>
+                            </div>
+                            <div class="mb-0">
+                                <small class="text-muted d-block">Speed</small>
+                                <span class="small">${task.speed}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+            
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="card border-0">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-chat-text me-2"></i>Input Text
+                            </h6>
+                            <div class="bg-light p-3 rounded">
+                                <p class="mb-0">${task.input}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             ${task.result ? `
                 <div class="row mt-3">
                     <div class="col-12">
-                        <h6>Generated Audio</h6>
-                        <audio controls class="w-100">
-                            <source src="${task.result}" type="audio/mpeg">
-                            Your browser does not support the audio element.
-                        </audio>
-                        <div class="mt-2">
-                            <a href="${task.result}" class="btn btn-success" download>
-                                <i class="bi bi-download me-2"></i>Download Audio
-                            </a>
+                        <div class="card border-0">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="bi bi-volume-up me-2"></i>Generated Audio
+                                </h6>
+                                <audio controls class="w-100 mb-3">
+                                    <source src="${task.result}" type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>
+                                <div class="d-grid gap-2 d-md-flex">
+                                    <a href="${task.result}" class="btn btn-success" download>
+                                        <i class="bi bi-download me-2"></i>Download Audio
+                                    </a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             ` : ''}
+            
             ${task.subtitle ? `
                 <div class="row mt-3">
                     <div class="col-12">
-                        <h6>Subtitle</h6>
-                        <a href="${task.subtitle}" class="btn btn-outline-primary" download>
-                            <i class="bi bi-file-text me-2"></i>Download Subtitle
-                        </a>
+                        <div class="card border-0">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="bi bi-file-text me-2"></i>Subtitle
+                                </h6>
+                                <a href="${task.subtitle}" class="btn btn-outline-primary" download>
+                                    <i class="bi bi-file-text me-2"></i>Download Subtitle
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             ` : ''}
