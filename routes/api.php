@@ -25,7 +25,19 @@ Route::get('device/delete', [PushNotificationsController::class, 'deleteDevice']
 
 // TTS API Routes
 Route::prefix('tts')->group(function () {
+    // Generate TTS
     Route::post('generate', [TtsController::class, 'generate']);
+    
+    // Task Management
+    Route::get('task/{taskId}', [TtsController::class, 'getTask']);
+    Route::get('tasks', [TtsController::class, 'getTasks']);
+    Route::delete('task/{taskId}', [TtsController::class, 'deleteTask']);
+    Route::post('task/{taskId}/subtitle', [TtsController::class, 'exportSubtitle']);
+    
+    // Callback endpoint (no auth required)
+    Route::post('callback', [TtsController::class, 'callback']);
+    
+    // Voice and Model info
     Route::get('voices', [TtsController::class, 'getVoices']);
     Route::get('models', [TtsController::class, 'getModels']);
 });

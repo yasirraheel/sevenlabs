@@ -48,9 +48,12 @@ class TtsController extends Controller
                 'stability' => $request->input('stability', 0.5),
             ];
 
-            // Add callback URL if provided
+            // Add callback URL if provided, otherwise use default
             if ($request->call_back_url) {
                 $requestData['call_back_url'] = $request->call_back_url;
+            } else {
+                // Generate callback URL using current host
+                $requestData['call_back_url'] = url('/api/tts/callback');
             }
 
             // Make API call to GenAI Pro
@@ -61,19 +64,16 @@ class TtsController extends Controller
 
             if ($response->successful()) {
                 $responseData = $response->json();
-
-                // Handle different response formats
-                if (isset($responseData['audio_url'])) {
-                    // Direct audio URL provided
+                
+                // Handle the response format: {"task_id": "task-uuid"}
+                if (isset($responseData['task_id'])) {
+                    // Task created successfully, return task ID for polling
                     return response()->json([
                         'success' => true,
-                        'audio_url' => $responseData['audio_url'],
-                        'task_id' => $responseData['task_id'] ?? null,
-                        'message' => 'Speech generated successfully'
+                        'task_id' => $responseData['task_id'],
+                        'message' => 'Task created successfully. Use task_id to check status.',
+                        'callback_url' => $requestData['call_back_url']
                     ]);
-                } elseif (isset($responseData['task_id'])) {
-                    // Task created, need to poll for completion
-                    return $this->handleAsyncTask($responseData['task_id']);
                 } else {
                     return response()->json([
                         'success' => false,
@@ -97,7 +97,7 @@ class TtsController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('TTS Generation Error: ' . $e->getMessage());
-
+            
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while generating speech: ' . $e->getMessage()
@@ -105,53 +105,205 @@ class TtsController extends Controller
         }
     }
 
-    private function handleAsyncTask($taskId)
+    public function getTask($taskId)
     {
-        // For async tasks, we'll implement polling
-        // This is a simplified version - in production, you might want to use queues
-        $maxAttempts = 30; // 30 seconds max wait
-        $attempt = 0;
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . Helper::getSevenLabsApiKey(),
+                'Content-Type' => 'application/json',
+            ])->get($this->apiBaseUrl . '/labs/task/' . $taskId);
 
-        while ($attempt < $maxAttempts) {
-            try {
-                $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . Helper::getSevenLabsApiKey(),
-                    'Content-Type' => 'application/json',
-                ])->get($this->apiBaseUrl . '/labs/task/' . $taskId);
-
-                if ($response->successful()) {
-                    $taskData = $response->json();
-
-                    if (isset($taskData['status'])) {
-                        if ($taskData['status'] === 'completed' && isset($taskData['audio_url'])) {
-                            return response()->json([
-                                'success' => true,
-                                'audio_url' => $taskData['audio_url'],
-                                'task_id' => $taskId,
-                                'message' => 'Speech generated successfully'
-                            ]);
-                        } elseif ($taskData['status'] === 'failed') {
-                            return response()->json([
-                                'success' => false,
-                                'message' => 'Task failed: ' . ($taskData['error'] ?? 'Unknown error')
-                            ], 500);
-                        }
-                    }
-                }
-
-                sleep(1); // Wait 1 second before next attempt
-                $attempt++;
-
-            } catch (\Exception $e) {
-                \Log::error('TTS Task Polling Error: ' . $e->getMessage());
-                break;
+            if ($response->successful()) {
+                $taskData = $response->json();
+                
+                return response()->json([
+                    'success' => true,
+                    'task' => $taskData
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to fetch task details',
+                    'status_code' => $response->status()
+                ], $response->status());
             }
-        }
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Task timeout - please try again later'
-        ], 408);
+        } catch (\Exception $e) {
+            \Log::error('TTS Get Task Error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching task: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getTasks(Request $request)
+    {
+        try {
+            $page = $request->input('page', 1);
+            $limit = $request->input('limit', 20);
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . Helper::getSevenLabsApiKey(),
+                'Content-Type' => 'application/json',
+            ])->get($this->apiBaseUrl . '/labs/task', [
+                'page' => $page,
+                'limit' => $limit
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                
+                return response()->json([
+                    'success' => true,
+                    'data' => $data
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to fetch tasks',
+                    'status_code' => $response->status()
+                ], $response->status());
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('TTS Get Tasks Error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching tasks: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function deleteTask($taskId)
+    {
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . Helper::getSevenLabsApiKey(),
+                'Content-Type' => 'application/json',
+            ])->delete($this->apiBaseUrl . '/labs/task/' . $taskId);
+
+            if ($response->successful()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Task deleted successfully'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to delete task',
+                    'status_code' => $response->status()
+                ], $response->status());
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('TTS Delete Task Error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting task: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function exportSubtitle($taskId, Request $request)
+    {
+        try {
+            $requestData = [
+                'max_characters_per_line' => $request->input('max_characters_per_line', 40),
+                'max_lines_per_cue' => $request->input('max_lines_per_cue', 2),
+                'max_seconds_per_cue' => $request->input('max_seconds_per_cue', 5)
+            ];
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . Helper::getSevenLabsApiKey(),
+                'Content-Type' => 'application/json',
+            ])->post($this->apiBaseUrl . '/labs/task/subtitle/' . $taskId, $requestData);
+
+            if ($response->successful()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Subtitle export initiated successfully'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to export subtitle',
+                    'status_code' => $response->status()
+                ], $response->status());
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('TTS Export Subtitle Error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error exporting subtitle: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function callback(Request $request)
+    {
+        try {
+            // Log the callback for debugging
+            \Log::info('TTS Callback received:', $request->all());
+
+            // Validate callback payload
+            $request->validate([
+                'id' => 'required|string',
+                'input' => 'required|string',
+                'result' => 'required|url',
+                'subtitle' => 'nullable|url',
+                'error' => 'nullable|string'
+            ]);
+
+            $taskId = $request->input('id');
+            $result = $request->input('result');
+            $subtitle = $request->input('subtitle');
+            $error = $request->input('error');
+
+            if ($error) {
+                \Log::error('TTS Task failed: ' . $error, ['task_id' => $taskId]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Task failed: ' . $error
+                ], 400);
+            }
+
+            // Store the result (you might want to save this to database)
+            // For now, we'll just log it
+            \Log::info('TTS Task completed successfully', [
+                'task_id' => $taskId,
+                'result_url' => $result,
+                'subtitle_url' => $subtitle
+            ]);
+
+            // You can store this in database, send notifications, etc.
+            // Example: Store in cache for immediate access
+            \Cache::put('tts_result_' . $taskId, [
+                'task_id' => $taskId,
+                'result' => $result,
+                'subtitle' => $subtitle,
+                'completed_at' => now()
+            ], 3600); // Cache for 1 hour
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Callback processed successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('TTS Callback Error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error processing callback: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function getVoices()

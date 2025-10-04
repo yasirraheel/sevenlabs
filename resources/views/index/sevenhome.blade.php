@@ -223,6 +223,11 @@
                                 <button type="submit" class="btn btn-primary btn-lg" id="generateBtn">
                                     <i class="bi bi-play-circle me-2"></i>Generate Speech
                                 </button>
+                                <div class="d-flex justify-content-center gap-2 mt-2">
+                                    <a href="{{ url('tts/tasks') }}" class="btn btn-outline-secondary">
+                                        <i class="bi bi-list-task me-2"></i>View Tasks
+                                    </a>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -306,7 +311,7 @@
 @endsection
 
 @section('javascript')
-<script type="text/javascript">
+	<script type="text/javascript">
 $(document).ready(function() {
     // Range slider value updates
     $('#style').on('input', function() {
@@ -366,39 +371,19 @@ $(document).ready(function() {
             },
             data: JSON.stringify(formData),
             success: function(response) {
-                $('#loadingSpinner').hide();
-                $('#generateBtn').prop('disabled', false);
-
-                if (response.success && response.audio_url) {
-                    // Show results
-                    $('#audioPlayer').attr('src', response.audio_url);
-                    $('#resultsCard').show();
-
-                    // Set download link
-                    $('#downloadBtn').off('click').on('click', function() {
-                        const link = document.createElement('a');
-                        link.href = response.audio_url;
-                        link.download = 'generated_speech_' + Date.now() + '.mp3';
-                        link.click();
-                    });
-
-                    // Reset form
-                    $('#resetBtn').off('click').on('click', function() {
-                        $('#ttsForm')[0].reset();
-                        $('#resultsCard').hide();
-                        $('#styleValue').text('0.0');
-                        $('#speedValue').text('1.0x');
-                        $('#similarityValue').text('0.75');
-                        $('#stabilityValue').text('0.5');
-                    });
+                if (response.success && response.task_id) {
+                    // Task created successfully, start polling
+                    pollTaskStatus(response.task_id);
                 } else {
-                    alert('Error: ' + (response.message || 'Failed to generate speech'));
+                    $('#loadingSpinner').hide();
+                    $('#generateBtn').prop('disabled', false);
+                    alert('Error: ' + (response.message || 'Failed to create task'));
                 }
             },
             error: function(xhr) {
                 $('#loadingSpinner').hide();
                 $('#generateBtn').prop('disabled', false);
-
+                
                 let errorMessage = 'An error occurred while generating speech.';
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
@@ -407,7 +392,7 @@ $(document).ready(function() {
                 } else if (xhr.status === 429) {
                     errorMessage = 'Rate limit exceeded. Please try again later.';
                 }
-
+                
                 alert('Error: ' + errorMessage);
             }
         });
@@ -435,25 +420,112 @@ $(document).ready(function() {
         this.style.height = 'auto';
         this.style.height = (this.scrollHeight) + 'px';
     });
+
+    // Poll task status function
+    function pollTaskStatus(taskId) {
+        const maxAttempts = 60; // 60 seconds max wait
+        let attempts = 0;
+        
+        const pollInterval = setInterval(function() {
+            attempts++;
+            
+            $.ajax({
+                url: '{{ url("api/tts/task") }}/' + taskId,
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer {{ Helper::getSevenLabsApiKey() }}',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success && response.task) {
+                        const task = response.task;
+                        
+                        if (task.status === 'completed' && task.result) {
+                            // Task completed successfully
+                            clearInterval(pollInterval);
+                            $('#loadingSpinner').hide();
+                            $('#generateBtn').prop('disabled', false);
+                            
+                            // Show results
+                            $('#audioPlayer').attr('src', task.result);
+                            $('#resultsCard').show();
+                            
+                            // Set download link
+                            $('#downloadBtn').off('click').on('click', function() {
+                                const link = document.createElement('a');
+                                link.href = task.result;
+                                link.download = 'generated_speech_' + Date.now() + '.mp3';
+                                link.click();
+                            });
+                            
+                            // Reset form
+                            $('#resetBtn').off('click').on('click', function() {
+                                $('#ttsForm')[0].reset();
+                                $('#resultsCard').hide();
+                                $('#styleValue').text('0.0');
+                                $('#speedValue').text('1.0x');
+                                $('#similarityValue').text('0.75');
+                                $('#stabilityValue').text('0.5');
+                            });
+                            
+                        } else if (task.status === 'failed') {
+                            // Task failed
+                            clearInterval(pollInterval);
+                            $('#loadingSpinner').hide();
+                            $('#generateBtn').prop('disabled', false);
+                            alert('Task failed: ' + (task.error || 'Unknown error'));
+                            
+                        } else if (attempts >= maxAttempts) {
+                            // Timeout
+                            clearInterval(pollInterval);
+                            $('#loadingSpinner').hide();
+                            $('#generateBtn').prop('disabled', false);
+                            alert('Task timeout - please try again later');
+                        }
+                        // If status is 'pending' or 'processing', continue polling
+                    } else {
+                        // Error in response
+                        clearInterval(pollInterval);
+                        $('#loadingSpinner').hide();
+                        $('#generateBtn').prop('disabled', false);
+                        alert('Error checking task status: ' + (response.message || 'Unknown error'));
+                    }
+                },
+                error: function(xhr) {
+                    clearInterval(pollInterval);
+                    $('#loadingSpinner').hide();
+                    $('#generateBtn').prop('disabled', false);
+                    alert('Error checking task status: ' + (xhr.responseJSON?.message || 'Network error'));
+                }
+            });
+        }, 1000); // Poll every 1 second
+    }
+
+    // Check for cached results on page load
+    function checkCachedResults() {
+        // This would check for any cached results from callbacks
+        // Implementation depends on your caching strategy
+    }
 });
 
 // Session messages
-@if (session('success_verify'))
-swal({
-    title: "{{ __('misc.welcome') }}",
-    text: "{{ __('users.account_validated') }}",
-    type: "success",
-    confirmButtonText: "{{ __('users.ok') }}"
-});
-@endif
+		@if (session('success_verify'))
+		swal({
+			title: "{{ __('misc.welcome') }}",
+			text: "{{ __('users.account_validated') }}",
+			type: "success",
+			confirmButtonText: "{{ __('users.ok') }}"
+			});
+		@endif
 
-@if (session('error_verify'))
-swal({
-    title: "{{ __('misc.error_oops') }}",
-    text: "{{ __('users.code_not_valid') }}",
-    type: "error",
-    confirmButtonText: "{{ __('users.ok') }}"
-});
-@endif
-</script>
+		@if (session('error_verify'))
+		swal({
+			title: "{{ __('misc.error_oops') }}",
+			text: "{{ __('users.code_not_valid') }}",
+			type: "error",
+			confirmButtonText: "{{ __('users.ok') }}"
+			});
+		@endif
+	</script>
 @endsection

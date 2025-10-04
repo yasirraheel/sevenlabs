@@ -72,6 +72,11 @@ Route::get('search', [HomeController::class, 'getSearch']);
 Route::get('contact',[HomeController::class, 'contact']);
 Route::post('contact',[HomeController::class, 'contactStore']);
 
+// TTS Routes
+Route::get('tts/tasks', function() {
+    return view('tts.tasks');
+})->name('tts.tasks');
+
 // Account Verification
 Route::get('verify/account/{confirmation_code}', [HomeController::class, 'getVerifyAccount'])->where('confirmation_code','[A-Za-z0-9]+');
 
