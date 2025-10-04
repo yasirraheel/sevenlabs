@@ -409,23 +409,37 @@ $(document).ready(function() {
         }
     });
 
-    // Load voices from JSON
+    // Load voices from API
     function loadVoices() {
         $('#voiceLoading').show();
         $('#voiceGrid').empty();
         $('#noVoicesFound').hide();
 
-        $.get('{{ asset("voices/page_1.json") }}')
-            .done(function(data) {
-                voices = data.voices || [];
-                filteredVoices = [...voices];
-                displayVoices();
+        $.ajax({
+            url: '{{ url("api/tts/voices/local") }}',
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success && response.data && response.data.voices) {
+                    voices = response.data.voices;
+                    filteredVoices = [...voices];
+                    displayVoices();
+                } else {
+                    $('#voiceGrid').html('<div class="col-12 text-center text-warning"><i class="bi bi-exclamation-triangle"></i> No voices available</div>');
+                }
                 $('#voiceLoading').hide();
-            })
-            .fail(function() {
+            },
+            error: function(xhr) {
                 $('#voiceLoading').hide();
-                $('#voiceGrid').html('<div class="col-12 text-center text-danger"><i class="bi bi-exclamation-triangle"></i> Failed to load voices</div>');
-            });
+                let errorMessage = 'Failed to load voices';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+                $('#voiceGrid').html(`<div class="col-12 text-center text-danger"><i class="bi bi-exclamation-triangle"></i> ${errorMessage}</div>`);
+            }
+        });
     }
 
     // Display voices in grid
@@ -462,11 +476,11 @@ $(document).ready(function() {
                             <h6 class="card-title mb-0">${voice.name}</h6>
                             <span class="badge bg-primary">${voice.voice_id.substring(0, 8)}...</span>
                         </div>
-                        
+
                         <div class="mb-2">
                             <small class="text-muted">
-                                <i class="bi bi-person"></i> ${gender} • 
-                                <i class="bi bi-globe"></i> ${accent} • 
+                                <i class="bi bi-person"></i> ${gender} •
+                                <i class="bi bi-globe"></i> ${accent} •
                                 <i class="bi bi-clock"></i> ${age}
                             </small>
                         </div>
@@ -518,15 +532,15 @@ $(document).ready(function() {
             const useCase = (labels.use_case || '').toLowerCase();
             const descriptive = (labels.descriptive || '').toLowerCase();
 
-            const matchesSearch = searchTerm === '' || 
-                name.includes(searchTerm) || 
+            const matchesSearch = searchTerm === '' ||
+                name.includes(searchTerm) ||
                 description.includes(searchTerm) ||
                 accent.includes(searchTerm) ||
                 gender.includes(searchTerm) ||
                 useCase.includes(searchTerm) ||
                 descriptive.includes(searchTerm);
 
-            const matchesFilter = filter === 'all' || 
+            const matchesFilter = filter === 'all' ||
                 gender.includes(filter) ||
                 accent.includes(filter) ||
                 useCase.includes(filter);
@@ -541,7 +555,7 @@ $(document).ready(function() {
     $(document).on('click', '.preview-btn', function() {
         const previewUrl = $(this).data('preview-url');
         const voiceId = $(this).data('voice-id');
-        
+
         // Stop any currently playing audio
         $('audio').each(function() {
             this.pause();
@@ -568,13 +582,13 @@ $(document).ready(function() {
     $(document).on('click', '.select-voice-btn', function() {
         const voiceId = $(this).data('voice-id');
         const voiceName = $(this).data('voice-name');
-        
+
         // Update the form input
         $('#voice_id').val(voiceId);
-        
+
         // Close modal
         $('#voiceSelectModal').modal('hide');
-        
+
         // Show success message
         const toast = $(`
             <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
@@ -586,11 +600,11 @@ $(document).ready(function() {
                 </div>
             </div>
         `);
-        
+
         $('body').append(toast);
         const bsToast = new bootstrap.Toast(toast[0]);
         bsToast.show();
-        
+
         // Remove toast after it's hidden
         toast.on('hidden.bs.toast', function() {
             $(this).remove();

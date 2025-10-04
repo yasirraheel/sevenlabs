@@ -334,6 +334,43 @@ class TtsController extends Controller
         }
     }
 
+    public function getLocalVoices()
+    {
+        try {
+            $jsonPath = public_path('voices/page_1.json');
+            
+            if (!file_exists($jsonPath)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Voices file not found'
+                ], 404);
+            }
+
+            $jsonContent = file_get_contents($jsonPath);
+            $voicesData = json_decode($jsonContent, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid JSON format in voices file'
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $voicesData
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('TTS Get Local Voices Error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading voices: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function getModels()
     {
         return response()->json([
