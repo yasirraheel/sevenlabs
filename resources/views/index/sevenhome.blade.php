@@ -65,7 +65,7 @@
 
                             <!-- Voice Selection -->
                             <div class="row mb-4">
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-lg-6 mb-3 mb-lg-0">
                                     <div class="form-floating">
                                         <input
                                             type="text"
@@ -93,7 +93,7 @@
                                     </div>
                                     <div class="form-text">Choose from available voices with preview</div>
                                 </div>
-                                <div class="col-12 col-md-6">
+                                <div class="col-12 col-lg-6">
                                     <div class="form-floating">
                                         <select class="form-select" id="model_id" name="model_id" required>
                                             <option value="eleven_multilingual_v2">Eleven Multilingual v2</option>
@@ -121,7 +121,7 @@
                                         <div class="accordion-body">
                                             <div class="row">
                                                 <!-- Style -->
-                                                <div class="col-12 col-md-6 mb-3">
+                                                <div class="col-12 col-lg-6 mb-3">
                                                     <label for="style" class="form-label fw-bold">Style</label>
                                                     <input
                                                         type="range"
@@ -139,10 +139,10 @@
                                                         <small>1.0</small>
                                                     </div>
                                                     <div class="form-text">Voice style variation (0.0 - 1.0)</div>
-  </div>
+                                                </div>
 
                                                 <!-- Speed -->
-                                                <div class="col-12 col-md-6 mb-3">
+                                                <div class="col-12 col-lg-6 mb-3">
                                                     <label for="speed" class="form-label fw-bold">Speed</label>
                                                     <input
                                                         type="range"
@@ -163,7 +163,7 @@
                                                 </div>
 
                                                 <!-- Similarity -->
-                                                <div class="col-12 col-md-6 mb-3">
+                                                <div class="col-12 col-lg-6 mb-3">
                                                     <label for="similarity" class="form-label fw-bold">Similarity</label>
                                                     <input
                                                         type="range"
@@ -184,7 +184,7 @@
   </div>
 
                                                 <!-- Stability -->
-                                                <div class="col-12 col-md-6 mb-3">
+                                                <div class="col-12 col-lg-6 mb-3">
                                                     <label for="stability" class="form-label fw-bold">Stability</label>
                                                     <input
                                                         type="range"
@@ -205,7 +205,7 @@
   </div>
 
                                                 <!-- Speaker Boost -->
-                                                <div class="col-12 col-md-6 mb-3">
+                                                <div class="col-12 col-lg-6 mb-3">
                                                     <div class="form-check form-switch">
                                                         <input class="form-check-input" type="checkbox" id="use_speaker_boost" name="use_speaker_boost">
                                                         <label class="form-check-label fw-bold" for="use_speaker_boost">
@@ -216,7 +216,7 @@
                                                 </div>
 
                                                 <!-- Callback URL -->
-                                                <div class="col-12 col-md-6 mb-3">
+                                                <div class="col-12 col-lg-6 mb-3">
                                                     <div class="form-floating">
                                                         <input
                                                             type="url"

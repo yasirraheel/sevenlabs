@@ -511,61 +511,62 @@ $(document).ready(function() {
         audioPlayer.id = 'customAudioPlayer';
         audioPlayer.style.cssText = `
             position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--color-default, #007bff);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 20px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
             z-index: 1050;
-            min-width: 400px;
-            max-width: 90vw;
             color: white;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         `;
 
         audioPlayer.innerHTML = `
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center justify-content-between">
+                <!-- Track Info -->
+                <div class="d-flex align-items-center" style="min-width: 200px;">
                     <div class="me-3">
-                        <div style="width: 50px; height: 50px; background: rgba(255,255,255,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                            <i class="bi bi-music-note-beamed" style="font-size: 24px;"></i>
+                        <div style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-music-note-beamed" style="font-size: 18px;"></i>
                         </div>
                     </div>
                     <div>
-                        <div style="font-weight: 600; font-size: 16px; margin-bottom: 2px;">Generated Speech</div>
-                        <div style="font-size: 12px; opacity: 0.8;">SevenLabs AI Voice</div>
+                        <div style="font-weight: 600; font-size: 14px; margin-bottom: 2px;">Generated Speech</div>
+                        <div style="font-size: 11px; opacity: 0.8;">SevenLabs AI Voice</div>
                     </div>
                 </div>
-                <button class="btn btn-sm" onclick="this.closest('#customAudioPlayer').remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-x"></i>
-                </button>
-            </div>
-            
-            <div class="mb-3">
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <span id="currentTime" style="font-size: 12px; opacity: 0.8;">0:00</span>
-                    <span id="duration" style="font-size: 12px; opacity: 0.8;">0:00</span>
+                
+                <!-- Controls -->
+                <div class="d-flex align-items-center">
+                    <button class="btn me-2" id="playPauseBtn" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-play-fill" id="playIcon" style="font-size: 14px;"></i>
+                    </button>
+                    <button class="btn me-2" id="volumeBtn" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-volume-up" id="volumeIcon" style="font-size: 12px;"></i>
+                    </button>
+                    <div class="me-3" style="width: 60px;">
+                        <input type="range" class="form-range" id="volumeSlider" min="0" max="100" value="70" style="height: 3px;">
+                    </div>
+                    <button class="btn me-2" id="downloadBtn" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-download" style="font-size: 12px;"></i>
+                    </button>
+                    <button class="btn" onclick="this.closest('#customAudioPlayer').remove()" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-x" style="font-size: 12px;"></i>
+                    </button>
                 </div>
-                <div class="progress" style="height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; cursor: pointer;" id="progressBar">
-                    <div class="progress-bar" id="progress" style="background: white; border-radius: 3px; transition: width 0.1s;"></div>
+                
+                <!-- Progress Bar -->
+                <div class="flex-grow-1 mx-3" style="min-width: 200px;">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                        <span id="currentTime" style="font-size: 11px; opacity: 0.8;">0:00</span>
+                        <span id="duration" style="font-size: 11px; opacity: 0.8;">0:00</span>
+                    </div>
+                    <div class="progress" style="height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; cursor: pointer;" id="progressBar">
+                        <div class="progress-bar" id="progress" style="background: white; border-radius: 2px; transition: width 0.1s;"></div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="d-flex align-items-center justify-content-center">
-                <button class="btn me-3" id="playPauseBtn" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-play-fill" id="playIcon"></i>
-                </button>
-                <button class="btn me-2" id="volumeBtn" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-volume-up" id="volumeIcon"></i>
-                </button>
-                <div class="me-3" style="width: 80px;">
-                    <input type="range" class="form-range" id="volumeSlider" min="0" max="100" value="70" style="height: 4px;">
-                </div>
-                <button class="btn" id="downloadBtn" style="background: rgba(255,255,255,0.2); border: none; color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-download"></i>
-                </button>
             </div>
             
             <audio id="hiddenAudio" preload="metadata">
