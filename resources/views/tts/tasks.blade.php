@@ -26,16 +26,16 @@
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+                <div class="task-history-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
                     <h3 class="mb-0"><i class="bi bi-list-task me-2"></i>Task History</h3>
-                    <a href="{{ url('/') }}" class="btn btn-primary w-100 w-md-auto">
+                    <a href="{{ url('/') }}" class="btn btn-custom">
                         <i class="bi bi-plus-circle me-2"></i>Create New Task
                     </a>
                 </div>
 
                 <!-- Task List -->
                 <div class="card shadow-lg border-0">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header text-white" style="background-color: {{ $settings->color_default }};">
                         <h4 class="mb-0"><i class="bi bi-list-task me-2"></i>Task Management</h4>
                     </div>
                     <div class="card-body p-4">
@@ -133,7 +133,7 @@
                 <!-- Task details will be loaded here -->
             </div>
             <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
-                <button type="button" class="btn btn-secondary w-100 w-sm-auto" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-outline-custom w-100 w-sm-auto" data-bs-dismiss="modal">
                     <i class="bi bi-x-circle me-2"></i>Close
                 </button>
                 <button type="button" class="btn btn-danger w-100 w-sm-auto" id="deleteTaskBtn" style="display: none;">
@@ -212,7 +212,7 @@ $(document).ready(function() {
                     <td>${createdDate}</td>
                     <td>
                         <div class="btn-group" role="group">
-                            <button class="btn btn-sm btn-outline-primary" onclick="viewTask('${task.id}')" title="View Details">
+                            <button class="btn btn-sm btn-outline-custom" onclick="viewTask('${task.id}')" title="View Details">
                                 <i class="bi bi-eye"></i>
                             </button>
                             ${task.status === 'completed' && task.result ?
@@ -260,7 +260,7 @@ $(document).ready(function() {
                             <div class="col-4">
                                 <small class="text-muted d-block">Actions</small>
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <button class="btn btn-outline-primary btn-sm" onclick="viewTask('${task.id}')" title="View Details">
+                                    <button class="btn btn-outline-custom btn-sm" onclick="viewTask('${task.id}')" title="View Details">
                                         <i class="bi bi-eye"></i>
                                     </button>
                                     ${task.status === 'completed' && task.result ?
