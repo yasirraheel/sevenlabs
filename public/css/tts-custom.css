@@ -261,6 +261,90 @@ audio {
 }
 
 
+/* Voice Selection Modal Styles */
+.voice-item {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.voice-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.voice-card {
+    transition: all 0.3s ease;
+}
+
+.voice-card:hover .voice-item {
+    border-color: #0d6efd;
+}
+
+.preview-btn.playing {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: white !important;
+}
+
+.filter-btn.active {
+    background-color: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
+
+#voiceSearch:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.voice-item .card-title {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.voice-item .badge {
+    font-size: 0.75em;
+}
+
+.voice-item .card-text {
+    font-size: 0.85em;
+    line-height: 1.4;
+}
+
+/* Responsive adjustments for voice selection */
+@media (max-width: 768px) {
+    .voice-item .d-flex.gap-2 {
+        flex-direction: column;
+    }
+    
+    .voice-item .btn {
+        margin-bottom: 0.25rem;
+    }
+    
+    .voice-item .btn:last-child {
+        margin-bottom: 0;
+    }
+}
+
+/* Loading animation */
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.voice-card.loading {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Toast positioning */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1055;
+}
+
 /* Dark Mode Support */
 
 @media (prefers-color-scheme: dark) {

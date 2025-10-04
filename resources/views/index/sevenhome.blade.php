@@ -67,18 +67,24 @@
                             <div class="row mb-4">
                                 <div class="col-12 col-md-6">
                                     <label for="voice_id" class="form-label fw-bold">
-                                        <i class="bi bi-person-voice me-2"></i>Voice ID
+                                        <i class="bi bi-person-voice me-2"></i>Select Voice
                                     </label>
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        id="voice_id"
-                                        name="voice_id"
-                                        placeholder="e.g., uju3wxzG5OhpWcoi3SMy"
-                                        value="uju3wxzG5OhpWcoi3SMy"
-                                        required
-                                    >
-                                    <div class="form-text">Enter the voice ID for the speech</div>
+                                    <div class="input-group">
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="voice_id"
+                                            name="voice_id"
+                                            placeholder="Click to select a voice..."
+                                            value=""
+                                            readonly
+                                            required
+                                        >
+                                        <button class="btn btn-outline-primary" type="button" id="voiceSelectBtn">
+                                            <i class="bi bi-search me-2"></i>Browse Voices
+                                        </button>
+                                    </div>
+                                    <div class="form-text">Choose from available voices with preview</div>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <label for="model_id" class="form-label fw-bold">
@@ -308,11 +314,76 @@
         </div>
       </div>
 
+<!-- Voice Selection Modal -->
+<div class="modal fade" id="voiceSelectModal" tabindex="-1" aria-labelledby="voiceSelectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="voiceSelectModalLabel">
+                    <i class="bi bi-person-voice me-2"></i>Select Voice
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Search Bar -->
+                <div class="mb-4">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control" id="voiceSearch" placeholder="Search voices by name, accent, gender, or use case...">
+                    </div>
+                </div>
+
+                <!-- Filter Buttons -->
+                <div class="mb-4">
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-outline-secondary btn-sm filter-btn active" data-filter="all">All</button>
+                        <button class="btn btn-outline-secondary btn-sm filter-btn" data-filter="male">Male</button>
+                        <button class="btn btn-outline-secondary btn-sm filter-btn" data-filter="female">Female</button>
+                        <button class="btn btn-outline-secondary btn-sm filter-btn" data-filter="american">American</button>
+                        <button class="btn btn-outline-secondary btn-sm filter-btn" data-filter="british">British</button>
+                        <button class="btn btn-outline-secondary btn-sm filter-btn" data-filter="conversational">Conversational</button>
+                        <button class="btn btn-outline-secondary btn-sm filter-btn" data-filter="news">News</button>
+                    </div>
+                </div>
+
+                <!-- Voice Grid -->
+                <div class="row" id="voiceGrid">
+                    <!-- Voices will be loaded here -->
+                </div>
+
+                <!-- Loading Spinner -->
+                <div class="text-center" id="voiceLoading" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading voices...</span>
+                    </div>
+                    <p class="mt-2">Loading voices...</p>
+                </div>
+
+                <!-- No Results -->
+                <div class="text-center" id="noVoicesFound" style="display: none;">
+                    <i class="bi bi-search display-1 text-muted"></i>
+                    <h5 class="mt-3">No voices found</h5>
+                    <p class="text-muted">Try adjusting your search or filter criteria</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('javascript')
 	<script type="text/javascript">
 $(document).ready(function() {
+    let voices = [];
+    let filteredVoices = [];
+    let currentFilter = 'all';
+
     // Range slider value updates
     $('#style').on('input', function() {
         $('#styleValue').text($(this).val());
@@ -328,6 +399,202 @@ $(document).ready(function() {
 
     $('#stability').on('input', function() {
         $('#stabilityValue').text($(this).val());
+    });
+
+    // Voice Selection Modal
+    $('#voiceSelectBtn').on('click', function() {
+        $('#voiceSelectModal').modal('show');
+        if (voices.length === 0) {
+            loadVoices();
+        }
+    });
+
+    // Load voices from JSON
+    function loadVoices() {
+        $('#voiceLoading').show();
+        $('#voiceGrid').empty();
+        $('#noVoicesFound').hide();
+
+        $.get('{{ asset("voices/page_1.json") }}')
+            .done(function(data) {
+                voices = data.voices || [];
+                filteredVoices = [...voices];
+                displayVoices();
+                $('#voiceLoading').hide();
+            })
+            .fail(function() {
+                $('#voiceLoading').hide();
+                $('#voiceGrid').html('<div class="col-12 text-center text-danger"><i class="bi bi-exclamation-triangle"></i> Failed to load voices</div>');
+            });
+    }
+
+    // Display voices in grid
+    function displayVoices() {
+        const grid = $('#voiceGrid');
+        grid.empty();
+
+        if (filteredVoices.length === 0) {
+            $('#noVoicesFound').show();
+            return;
+        }
+
+        filteredVoices.forEach(function(voice) {
+            const voiceCard = createVoiceCard(voice);
+            grid.append(voiceCard);
+        });
+    }
+
+    // Create voice card HTML
+    function createVoiceCard(voice) {
+        const labels = voice.labels || {};
+        const description = voice.description || 'No description available';
+        const accent = labels.accent || 'Unknown';
+        const gender = labels.gender || 'Unknown';
+        const age = labels.age || 'Unknown';
+        const useCase = labels.use_case || 'General';
+        const descriptive = labels.descriptive || '';
+
+        return `
+            <div class="col-12 col-md-6 col-lg-4 mb-3 voice-card" data-gender="${gender}" data-accent="${accent}" data-use-case="${useCase}">
+                <div class="card h-100 voice-item" data-voice-id="${voice.voice_id}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="card-title mb-0">${voice.name}</h6>
+                            <span class="badge bg-primary">${voice.voice_id.substring(0, 8)}...</span>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <small class="text-muted">
+                                <i class="bi bi-person"></i> ${gender} • 
+                                <i class="bi bi-globe"></i> ${accent} • 
+                                <i class="bi bi-clock"></i> ${age}
+                            </small>
+                        </div>
+
+                        <p class="card-text small text-muted mb-3">${description}</p>
+
+                        <div class="mb-3">
+                            <span class="badge bg-light text-dark me-1">${useCase}</span>
+                            ${descriptive ? `<span class="badge bg-light text-dark">${descriptive}</span>` : ''}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary btn-sm flex-fill preview-btn" data-voice-id="${voice.voice_id}" data-preview-url="${voice.preview_url}">
+                                <i class="bi bi-play-circle me-1"></i>Preview
+                            </button>
+                            <button class="btn btn-primary btn-sm select-voice-btn" data-voice-id="${voice.voice_id}" data-voice-name="${voice.name}">
+                                <i class="bi bi-check"></i>Select
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Voice search functionality
+    $('#voiceSearch').on('input', function() {
+        const searchTerm = $(this).val().toLowerCase();
+        filterVoices(searchTerm, currentFilter);
+    });
+
+    // Filter buttons
+    $('.filter-btn').on('click', function() {
+        $('.filter-btn').removeClass('active');
+        $(this).addClass('active');
+        currentFilter = $(this).data('filter');
+        const searchTerm = $('#voiceSearch').val().toLowerCase();
+        filterVoices(searchTerm, currentFilter);
+    });
+
+    // Filter voices based on search and filter
+    function filterVoices(searchTerm, filter) {
+        filteredVoices = voices.filter(function(voice) {
+            const labels = voice.labels || {};
+            const name = voice.name.toLowerCase();
+            const description = (voice.description || '').toLowerCase();
+            const accent = (labels.accent || '').toLowerCase();
+            const gender = (labels.gender || '').toLowerCase();
+            const useCase = (labels.use_case || '').toLowerCase();
+            const descriptive = (labels.descriptive || '').toLowerCase();
+
+            const matchesSearch = searchTerm === '' || 
+                name.includes(searchTerm) || 
+                description.includes(searchTerm) ||
+                accent.includes(searchTerm) ||
+                gender.includes(searchTerm) ||
+                useCase.includes(searchTerm) ||
+                descriptive.includes(searchTerm);
+
+            const matchesFilter = filter === 'all' || 
+                gender.includes(filter) ||
+                accent.includes(filter) ||
+                useCase.includes(filter);
+
+            return matchesSearch && matchesFilter;
+        });
+
+        displayVoices();
+    }
+
+    // Preview voice functionality
+    $(document).on('click', '.preview-btn', function() {
+        const previewUrl = $(this).data('preview-url');
+        const voiceId = $(this).data('voice-id');
+        
+        // Stop any currently playing audio
+        $('audio').each(function() {
+            this.pause();
+            this.currentTime = 0;
+        });
+
+        // Create or update audio element
+        let audioElement = $('#previewAudio');
+        if (audioElement.length === 0) {
+            audioElement = $('<audio id="previewAudio" controls class="w-100 mt-2" style="display: none;"></audio>');
+            $('body').append(audioElement);
+        }
+
+        audioElement.attr('src', previewUrl);
+        audioElement.show();
+        audioElement[0].play();
+
+        // Update button state
+        $('.preview-btn').removeClass('btn-success').addClass('btn-outline-primary');
+        $(this).removeClass('btn-outline-primary').addClass('btn-success');
+    });
+
+    // Select voice functionality
+    $(document).on('click', '.select-voice-btn', function() {
+        const voiceId = $(this).data('voice-id');
+        const voiceName = $(this).data('voice-name');
+        
+        // Update the form input
+        $('#voice_id').val(voiceId);
+        
+        // Close modal
+        $('#voiceSelectModal').modal('hide');
+        
+        // Show success message
+        const toast = $(`
+            <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="bi bi-check-circle me-2"></i>Selected voice: ${voiceName}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        `);
+        
+        $('body').append(toast);
+        const bsToast = new bootstrap.Toast(toast[0]);
+        bsToast.show();
+        
+        // Remove toast after it's hidden
+        toast.on('hidden.bs.toast', function() {
+            $(this).remove();
+        });
     });
 
     // TTS Form submission
