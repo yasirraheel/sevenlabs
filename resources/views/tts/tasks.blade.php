@@ -24,8 +24,8 @@
 <!-- Main Content -->
 <div class="container-fluid py-5">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 col-lg-10 col-xl-8">
+        <div class="row">
+            <div class="col-12">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
                     <h3 class="mb-0"><i class="bi bi-list-task me-2"></i>Task History</h3>
                     <a href="{{ url('/') }}" class="btn btn-primary w-100 w-md-auto">
@@ -216,7 +216,10 @@ $(document).ready(function() {
                                 <i class="bi bi-eye"></i>
                             </button>
                             ${task.status === 'completed' && task.result ?
-                                `<a href="${task.result}" class="btn btn-sm btn-outline-success" download title="Download Audio">
+                                `<button class="btn btn-sm btn-outline-info" onclick="playAudio('${task.result}')" title="Play Audio">
+                                    <i class="bi bi-play-circle"></i>
+                                </button>
+                                <a href="${task.result}" class="btn btn-sm btn-outline-success" download title="Download Audio">
                                     <i class="bi bi-download"></i>
                                 </a>` : ''
                             }
@@ -261,7 +264,10 @@ $(document).ready(function() {
                                         <i class="bi bi-eye"></i>
                                     </button>
                                     ${task.status === 'completed' && task.result ?
-                                        `<a href="${task.result}" class="btn btn-outline-success btn-sm" download title="Download Audio">
+                                        `<button class="btn btn-outline-info btn-sm" onclick="playAudio('${task.result}')" title="Play Audio">
+                                            <i class="bi bi-play-circle"></i>
+                                        </button>
+                                        <a href="${task.result}" class="btn btn-outline-success btn-sm" download title="Download Audio">
                                             <i class="bi bi-download"></i>
                                         </a>` : ''
                                     }
@@ -491,6 +497,65 @@ $(document).ready(function() {
             deleteTask(currentTaskId);
         }
     });
+
+    // Play audio function
+    window.playAudio = function(audioUrl) {
+        // Stop any currently playing audio
+        const existingAudio = document.querySelector('audio[data-auto-play]');
+        if (existingAudio) {
+            existingAudio.pause();
+            existingAudio.remove();
+        }
+
+        // Create new audio element
+        const audio = document.createElement('audio');
+        audio.src = audioUrl;
+        audio.controls = true;
+        audio.setAttribute('data-auto-play', 'true');
+        audio.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; width: 300px; max-width: 90vw; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border-radius: 8px;';
+        
+        // Add close button
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '×';
+        closeBtn.style.cssText = 'position: absolute; top: -10px; right: -10px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; font-size: 16px; cursor: pointer; z-index: 10000;';
+        closeBtn.onclick = function() {
+            audio.pause();
+            audio.remove();
+        };
+        
+        // Create container for audio and close button
+        const container = document.createElement('div');
+        container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+        container.appendChild(audio);
+        container.appendChild(closeBtn);
+        
+        document.body.appendChild(container);
+        
+        // Auto-play the audio
+        audio.play().catch(function(error) {
+            console.log('Auto-play was prevented:', error);
+            // Show a message to user to click play
+            const playMessage = document.createElement('div');
+            playMessage.innerHTML = 'Click the play button to start audio';
+            playMessage.style.cssText = 'position: fixed; top: 60px; right: 20px; background: #007bff; color: white; padding: 10px; border-radius: 4px; z-index: 10001; font-size: 12px;';
+            container.appendChild(playMessage);
+            
+            setTimeout(() => {
+                if (playMessage.parentNode) {
+                    playMessage.remove();
+                }
+            }, 3000);
+        });
+        
+        // Remove audio element when finished
+        audio.addEventListener('ended', function() {
+            setTimeout(() => {
+                if (container.parentNode) {
+                    container.remove();
+                }
+            }, 2000);
+        });
+    };
 });
 </script>
 @endsection
