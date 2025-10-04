@@ -345,6 +345,19 @@ audio {
     z-index: 1055;
 }
 
+/* Voice selection display styling */
+#voice_display:not([value=""]) {
+    background-color: #e8f5e8;
+    border-color: #28a745;
+    color: #155724;
+}
+
+#voice_display:not([value=""])::before {
+    content: "✓ ";
+    color: #28a745;
+    font-weight: bold;
+}
+
 /* Dark Mode Support */
 
 @media (prefers-color-scheme: dark) {

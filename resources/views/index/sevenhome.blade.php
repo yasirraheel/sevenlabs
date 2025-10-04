@@ -73,12 +73,17 @@
                                         <input
                                             type="text"
                                             class="form-control"
-                                            id="voice_id"
-                                            name="voice_id"
+                                            id="voice_display"
                                             placeholder="Click to select a voice..."
                                             value=""
                                             readonly
                                             required
+                                        >
+                                        <input
+                                            type="hidden"
+                                            id="voice_id"
+                                            name="voice_id"
+                                            value=""
                                         >
                                         <button class="btn btn-outline-primary" type="button" id="voiceSelectBtn">
                                             <i class="bi bi-search me-2"></i>Browse Voices
@@ -582,13 +587,16 @@ $(document).ready(function() {
     $(document).on('click', '.select-voice-btn', function() {
         const voiceId = $(this).data('voice-id');
         const voiceName = $(this).data('voice-name');
-
-        // Update the form input
+        
+        // Update the hidden input with voice ID (for backend)
         $('#voice_id').val(voiceId);
-
+        
+        // Update the display input with voice name (for user)
+        $('#voice_display').val(voiceName);
+        
         // Close modal
         $('#voiceSelectModal').modal('hide');
-
+        
         // Show success message
         const toast = $(`
             <div class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
@@ -600,11 +608,11 @@ $(document).ready(function() {
                 </div>
             </div>
         `);
-
+        
         $('body').append(toast);
         const bsToast = new bootstrap.Toast(toast[0]);
         bsToast.show();
-
+        
         // Remove toast after it's hidden
         toast.on('hidden.bs.toast', function() {
             $(this).remove();
@@ -620,10 +628,17 @@ $(document).ready(function() {
         $('#resultsCard').hide();
         $('#generateBtn').prop('disabled', true);
 
+        // Validate voice selection
+        if (!$('#voice_id').val()) {
+            alert('Please select a voice before generating speech.');
+            $('#voiceSelectBtn').focus();
+            return;
+        }
+
         // Collect form data
         const formData = {
             input: $('#input').val(),
-            voice_id: $('#voice_id').val(),
+            voice_id: $('#voice_id').val(), // Hidden field with actual voice ID
             model_id: $('#model_id').val(),
             style: parseFloat($('#style').val()),
             speed: parseFloat($('#speed').val()),
@@ -743,6 +758,8 @@ $(document).ready(function() {
                             // Reset form
                             $('#resetBtn').off('click').on('click', function() {
                                 $('#ttsForm')[0].reset();
+                                $('#voice_display').val(''); // Clear display field
+                                $('#voice_id').val(''); // Clear hidden ID field
                                 $('#resultsCard').hide();
                                 $('#styleValue').text('0.0');
                                 $('#speedValue').text('1.0x');
