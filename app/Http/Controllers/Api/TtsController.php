@@ -462,9 +462,6 @@ class TtsController extends Controller
         try {
             $user = auth()->user();
             
-            \Log::info('Get User Credits - User ID: ' . $user->id);
-            \Log::info('Get User Credits - User Credits: ' . $user->credits);
-            
             // Get admin balance from SevenLabs API
             $adminBalance = 0;
             $apiKey = Helper::getSevenLabsApiKey();
@@ -481,15 +478,11 @@ class TtsController extends Controller
                 }
             }
 
-            $response = [
+            return response()->json([
                 'success' => true,
                 'admin_balance' => $adminBalance,
                 'user_credits' => $user->credits ?? 0
-            ];
-            
-            \Log::info('Get User Credits - Response: ' . json_encode($response));
-
-            return response()->json($response);
+            ]);
 
         } catch (\Exception $e) {
             \Log::error('Get User Credits Error: ' . $e->getMessage());
