@@ -120,69 +120,74 @@
 		</div><!-- col-lg-4 -->
 	</div><!-- row -->
 
-		<div class="col-lg-6 mt-3 py-4">
-			 <div class="card shadow-custom border-0">
-				 <div class="card-body">
-					 <h6 class="mb-4 fw-light">{{ trans('misc.earnings_raised_last') }}</h6>
-					 <div style="height: 350px">
+	<!-- Charts and Analytics Row -->
+	<div class="row">
+		<div class="col-lg-6 mb-4">
+			<div class="card shadow-custom border-0">
+				<div class="card-body">
+					<h6 class="mb-4 fw-light">{{ trans('misc.earnings_raised_last') }}</h6>
+					<div style="height: 350px">
 						<canvas id="Chart"></canvas>
 					</div>
-				 </div>
-			 </div>
+				</div>
+			</div>
 		</div>
 
-		<div class="col-lg-6 mt-0 mt-lg-3 py-4">
-			 <div class="card shadow-custom border-0">
-				 <div class="card-body">
-					 <h6 class="mb-4 fw-light">{{ trans('misc.sales_last_30_days') }}</h6>
-					 <div style="height: 350px">
+		<div class="col-lg-6 mb-4">
+			<div class="card shadow-custom border-0">
+				<div class="card-body">
+					<h6 class="mb-4 fw-light">{{ trans('misc.sales_last_30_days') }}</h6>
+					<div style="height: 350px">
 						<canvas id="ChartSales"></canvas>
 					</div>
-				 </div>
-			 </div>
+				</div>
+			</div>
 		</div>
+	</div><!-- row -->
 
-		<div class="col-lg-6 mt-0 mt-lg-3 py-4">
-			 <div class="card shadow-custom border-0">
-				 <div class="card-body">
-					 <h6 class="mb-4 fw-light">{{ trans('admin.latest_members') }}</h6>
+	<!-- Latest Members Row -->
+	<div class="row">
+		<div class="col-12 mb-4">
+			<div class="card shadow-custom border-0">
+				<div class="card-body">
+					<h6 class="mb-4 fw-light">{{ trans('admin.latest_members') }}</h6>
 
-					 @foreach (User::orderBy('id','DESC')->take(5)->get() as $user)
-						 <div class="d-flex mb-3">
-							  <div class="flex-shrink-0">
-							    <img src="{{ Storage::url(config('path.avatar').$user->avatar) }}" width="50" class="rounded-circle" />
-							  </div>
-							  <div class="flex-grow-1 ms-3">
-							    <h6 class="m-0 fw-light text-break">
-										<a href="{{ url($user->username) }}" target="_blank">
-											{{ $user->name ?: $user->username }}
-											</a>
-											<small class="float-end badge rounded-pill bg-{{ $user->status == 'active' ? 'success' : ($user->status == 'pending' ? 'info' : 'warning') }}">
-												{{ $user->status == 'active' ? trans('misc.active') : ($user->status == 'pending' ? trans('misc.pending') : trans('admin.suspended')) }}
-											</small>
-									</h6>
-									<div class="w-100 small">
-										{{ '@'.$user->username }} / {{ Helper::formatDate($user->date) }}
-									</div>
-							  </div>
+					@foreach (User::orderBy('id','DESC')->take(5)->get() as $user)
+						<div class="d-flex mb-3">
+							<div class="flex-shrink-0">
+								<img src="{{ Storage::url(config('path.avatar').$user->avatar) }}" width="50" class="rounded-circle" />
 							</div>
-					 @endforeach
+							<div class="flex-grow-1 ms-3">
+								<h6 class="m-0 fw-light text-break">
+									<a href="{{ url($user->username) }}" target="_blank">
+										{{ $user->name ?: $user->username }}
+									</a>
+									<small class="float-end badge rounded-pill bg-{{ $user->status == 'active' ? 'success' : ($user->status == 'pending' ? 'info' : 'warning') }}">
+										{{ $user->status == 'active' ? trans('misc.active') : ($user->status == 'pending' ? trans('misc.pending') : trans('admin.suspended')) }}
+									</small>
+								</h6>
+								<div class="w-100 small">
+									{{ '@'.$user->username }} / {{ Helper::formatDate($user->date) }}
+								</div>
+							</div>
+						</div>
+					@endforeach
 
-					 @if ($totalUsers == 0)
-						 <small>{{ trans('admin.no_result') }}</small>
-					 @endif
-				 </div>
+					@if ($totalUsers == 0)
+						<small>{{ trans('admin.no_result') }}</small>
+					@endif
+				</div>
 
-				 @if ($totalUsers != 0)
-				 <div class="card-footer bg-light border-0 p-3">
-					   <a href="{{ url('panel/admin/members') }}" class="text-muted font-weight-medium d-flex align-items-center justify-content-center arrow">
-							 {{ trans('admin.view_all_members') }}
-						 </a>
-					 </div>
-				 @endif
-
-			 </div>
+				@if ($totalUsers != 0)
+				<div class="card-footer bg-light border-0 p-3">
+					<a href="{{ url('panel/admin/members') }}" class="text-muted font-weight-medium d-flex align-items-center justify-content-center arrow">
+						{{ trans('admin.view_all_members') }}
+					</a>
+				</div>
+				@endif
+			</div>
 		</div>
+	</div><!-- row -->
 
 
 
