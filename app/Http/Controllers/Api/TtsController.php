@@ -118,8 +118,8 @@ class TtsController extends Controller
                     // Store task info for credit confirmation later
                     $this->storeTaskInfo($responseData['task_id'], $user->id, $estimatedCredits, $textLength);
 
-                    // Store task in database for cross-device history
-                    $this->storeTaskInDatabase($responseData['task_id'], $user->id, $request->input('input'), $request->input('voice_id'), $request->input('model_id'), $textLength, $estimatedCredits);
+                    // Store minimal task data in database for cross-device history
+                    $this->storeTaskInDatabase($responseData['task_id'], $user->id, $estimatedCredits);
 
                     // Task created successfully, return appropriate response
                     if ($request->ajax()) {
@@ -264,41 +264,52 @@ class TtsController extends Controller
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 20);
 
-            // Get user's tasks from database (cross-device history)
-            $tasks = UserTask::where('user_id', $user->id)
+            // Get user's task IDs from database (minimal data)
+            $userTasks = UserTask::where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
-                ->paginate($limit, ['*'], 'page', $page);
+                ->get(['task_id', 'credits_used', 'created_at']);
 
-            // Format tasks for API response
-            $formattedTasks = $tasks->map(function ($task) {
-                return [
-                    'id' => $task->task_id,
-                    'input' => $task->input_text,
-                    'voice_id' => $task->voice_id,
-                    'voice_name' => $task->voice_name,
-                    'status' => $task->status,
-                    'result' => $task->result_url,
-                    'subtitle' => $task->subtitle_url,
-                    'error' => $task->error_message,
-                    'created_at' => $task->created_at->toISOString(),
-                    'completed_at' => $task->completed_at ? $task->completed_at->toISOString() : null,
-                    'text_length' => $task->text_length,
-                    'credits_used' => $task->credits_used,
-                    'duration' => $task->formatted_duration
-                ];
-            });
+            // Check if we need to refresh cache (new tasks added)
+            $cacheKey = "user_tasks_{$user->id}";
+            $lastTaskCount = \Cache::get("{$cacheKey}_count", 0);
+            $currentTaskCount = $userTasks->count();
+            
+            $shouldRefreshCache = $currentTaskCount > $lastTaskCount;
+            
+            if ($shouldRefreshCache) {
+                \Cache::put("{$cacheKey}_count", $currentTaskCount, 3600); // 1 hour
+                \Cache::forget($cacheKey); // Clear old cache
+            }
+
+            // Try to get from cache first
+            $cachedTasks = \Cache::get($cacheKey);
+            
+            if (!$cachedTasks || $shouldRefreshCache) {
+                // Fetch fresh data from API
+                $tasks = $this->fetchTasksFromAPI($userTasks->pluck('task_id')->toArray());
+                
+                // Cache the results
+                \Cache::put($cacheKey, $tasks, 3600); // 1 hour cache
+            } else {
+                $tasks = $cachedTasks;
+            }
+
+            // Paginate the results
+            $offset = ($page - 1) * $limit;
+            $paginatedTasks = array_slice($tasks, $offset, $limit);
+            $totalTasks = count($tasks);
 
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'tasks' => $formattedTasks,
+                    'tasks' => $paginatedTasks,
                     'pagination' => [
-                        'current_page' => $tasks->currentPage(),
-                        'per_page' => $tasks->perPage(),
-                        'total' => $tasks->total(),
-                        'last_page' => $tasks->lastPage(),
-                        'from' => $tasks->firstItem(),
-                        'to' => $tasks->lastItem()
+                        'current_page' => $page,
+                        'per_page' => $limit,
+                        'total' => $totalTasks,
+                        'last_page' => ceil($totalTasks / $limit),
+                        'from' => $offset + 1,
+                        'to' => min($offset + $limit, $totalTasks)
                     ]
                 ]
             ]);
@@ -412,8 +423,7 @@ class TtsController extends Controller
                 ], 400);
             }
 
-            // Update task in database
-            $this->updateTaskInDatabase($taskId, 'completed', $result, $subtitle);
+            // Task completed - no need to update database, API will have the latest status
 
             \Log::info('TTS Task completed successfully', [
                 'task_id' => $taskId,
@@ -848,45 +858,83 @@ class TtsController extends Controller
     /**
      * Store task in database for cross-device history
      */
-    private function storeTaskInDatabase($taskId, $userId, $inputText, $voiceId, $modelId, $textLength, $estimatedCredits)
+    private function storeTaskInDatabase($taskId, $userId, $estimatedCredits)
     {
         try {
-            // Debug: Log the data being stored
-            \Log::info("Attempting to store task in database", [
+            // Store only essential data - task_id, user_id, credits_used
+            \Log::info("Storing minimal task data in database", [
                 'task_id' => $taskId,
                 'user_id' => $userId,
-                'input_text' => $inputText,
-                'voice_id' => $voiceId,
-                'model_id' => $modelId,
-                'text_length' => $textLength,
-                'estimated_credits' => $estimatedCredits
+                'credits_used' => $estimatedCredits
             ]);
 
             $task = UserTask::create([
                 'task_id' => $taskId,
                 'user_id' => $userId,
-                'input_text' => $inputText,
-                'voice_id' => $voiceId,
-                'voice_name' => $this->getVoiceName($voiceId),
-                'model' => $modelId,
-                'text_length' => $textLength,
-                'credits_used' => $estimatedCredits,
-                'status' => 'pending'
+                'credits_used' => $estimatedCredits
             ]);
 
-            \Log::info("Task stored in database successfully", [
+            \Log::info("Minimal task data stored successfully", [
                 'task_id' => $taskId,
                 'user_id' => $userId,
                 'database_id' => $task->id
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error storing task in database: ' . $e->getMessage(), [
+            \Log::error('Error storing minimal task data: ' . $e->getMessage(), [
                 'task_id' => $taskId,
                 'user_id' => $userId,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error' => $e->getMessage()
             ]);
         }
+    }
+
+    /**
+     * Fetch task details from API for multiple task IDs
+     */
+    private function fetchTasksFromAPI($taskIds)
+    {
+        $tasks = [];
+        
+        foreach ($taskIds as $taskId) {
+            try {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . Helper::getSevenLabsApiKey(),
+                    'Content-Type' => 'application/json'
+                ])->timeout(30)->get("{$this->apiBaseUrl}/tasks/{$taskId}");
+
+                if ($response->successful()) {
+                    $taskData = $response->json();
+                    $tasks[] = [
+                        'id' => $taskData['id'] ?? $taskId,
+                        'input' => $taskData['input'] ?? '',
+                        'voice_id' => $taskData['voice_id'] ?? '',
+                        'voice_name' => $taskData['voice_name'] ?? '',
+                        'model' => $taskData['model'] ?? '',
+                        'status' => $taskData['status'] ?? 'pending',
+                        'result' => $taskData['result'] ?? null,
+                        'subtitle' => $taskData['subtitle'] ?? null,
+                        'error' => $taskData['error'] ?? null,
+                        'created_at' => $taskData['created_at'] ?? now()->toISOString(),
+                        'completed_at' => $taskData['completed_at'] ?? null,
+                        'text_length' => $taskData['text_length'] ?? 0,
+                        'credits_used' => $taskData['credits_used'] ?? 0,
+                        'duration' => $taskData['duration'] ?? null
+                    ];
+                } else {
+                    \Log::warning("Failed to fetch task details from API", [
+                        'task_id' => $taskId,
+                        'status' => $response->status(),
+                        'response' => $response->body()
+                    ]);
+                }
+            } catch (\Exception $e) {
+                \Log::error("Error fetching task from API: " . $e->getMessage(), [
+                    'task_id' => $taskId
+                ]);
+            }
+        }
+        
+        return $tasks;
     }
 
     /**
@@ -899,53 +947,4 @@ class TtsController extends Controller
         return $voiceId;
     }
 
-    /**
-     * Update task in database when status changes
-     */
-    private function updateTaskInDatabase($taskId, $status, $resultUrl = null, $subtitleUrl = null, $errorMessage = null)
-    {
-        try {
-            \Log::info("Attempting to update task in database", [
-                'task_id' => $taskId,
-                'status' => $status,
-                'result_url' => $resultUrl,
-                'subtitle_url' => $subtitleUrl,
-                'error_message' => $errorMessage
-            ]);
-
-            $task = UserTask::where('task_id', $taskId)->first();
-
-            if ($task) {
-                $updateData = ['status' => $status];
-
-                if ($status === 'completed') {
-                    $updateData['result_url'] = $resultUrl;
-                    $updateData['subtitle_url'] = $subtitleUrl;
-                    $updateData['completed_at'] = now();
-                } elseif ($status === 'failed') {
-                    $updateData['error_message'] = $errorMessage;
-                }
-
-                $task->update($updateData);
-
-                \Log::info("Task updated in database successfully", [
-                    'task_id' => $taskId,
-                    'status' => $status,
-                    'database_id' => $task->id
-                ]);
-            } else {
-                \Log::warning("Task not found in database for update", [
-                    'task_id' => $taskId,
-                    'status' => $status
-                ]);
-            }
-        } catch (\Exception $e) {
-            \Log::error('Error updating task in database: ' . $e->getMessage(), [
-                'task_id' => $taskId,
-                'status' => $status,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-        }
-    }
 }

@@ -12,17 +12,7 @@ class UserTask extends Model
     protected $fillable = [
         'task_id',
         'user_id',
-        'input_text',
-        'voice_id',
-        'voice_name',
-        'model',
-        'text_length',
-        'credits_used',
-        'status',
-        'result_url',
-        'subtitle_url',
-        'error_message',
-        'completed_at'
+        'credits_used'
     ];
 
     protected $casts = [
