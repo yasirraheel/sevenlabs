@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use App\Helper;
+use App\Models\UserTask;
 
 class TtsController extends Controller
 {
@@ -35,7 +36,7 @@ class TtsController extends Controller
                     'message' => 'SevenLabs API key is not configured. Please contact administrator.'
                 ], 500);
             }
-            return redirect()->back()->with('error_message', 
+            return redirect()->back()->with('error_message',
                 'SevenLabs API key is not configured. Please contact administrator.'
             );
         }
@@ -50,7 +51,7 @@ class TtsController extends Controller
                         'message' => 'User not authenticated. Please log in and try again.'
                     ], 401);
                 }
-                return redirect()->back()->with('error_message', 
+                return redirect()->back()->with('error_message',
                     'User not authenticated. Please log in and try again.'
                 );
             }
@@ -58,7 +59,7 @@ class TtsController extends Controller
             // Calculate estimated credits based on character count
             $textLength = strlen($request->input);
             $estimatedCredits = $this->calculateEstimatedCredits($textLength);
-            
+
             // Check user has sufficient credits for estimated usage
             if ($user->credits < $estimatedCredits) {
                 if ($request->ajax()) {
@@ -67,7 +68,7 @@ class TtsController extends Controller
                         'message' => "Insufficient credits. You need at least {$estimatedCredits} credits for this text ({$textLength} characters). You have {$user->credits} credits."
                     ], 400);
                 }
-                return redirect()->back()->with('error_message', 
+                return redirect()->back()->with('error_message',
                     "Insufficient credits. You need at least {$estimatedCredits} credits for this text ({$textLength} characters). You have {$user->credits} credits."
                 );
             }
@@ -75,7 +76,7 @@ class TtsController extends Controller
             // Pre-deduct estimated credits from user
             $user->credits -= $estimatedCredits;
             $user->save();
-            
+
             \Log::info("TTS Generation - Pre-deducted estimated credits", [
                 'user_id' => $user->id,
                 'text_length' => $textLength,
@@ -117,6 +118,9 @@ class TtsController extends Controller
                     // Store task info for credit confirmation later
                     $this->storeTaskInfo($responseData['task_id'], $user->id, $estimatedCredits, $textLength);
 
+                    // Store task in database for cross-device history
+                    $this->storeTaskInDatabase($responseData['task_id'], $user->id, $request->input('text'), $request->input('voice_id'), $textLength, $estimatedCredits);
+
                     // Task created successfully, return appropriate response
                     if ($request->ajax()) {
                         return response()->json([
@@ -128,7 +132,7 @@ class TtsController extends Controller
                             'remaining_credits' => $user->credits
                         ]);
                     }
-                    return redirect()->back()->with('success_message', 
+                    return redirect()->back()->with('success_message',
                         "TTS generation started successfully! Estimated credits: {$estimatedCredits}. Remaining credits: {$user->credits}. Task ID: {$responseData['task_id']}"
                     );
                 } else {
@@ -138,7 +142,7 @@ class TtsController extends Controller
                             'message' => 'Unexpected response format from API. Please try again.'
                         ], 500);
                     }
-                    return redirect()->back()->with('error_message', 
+                    return redirect()->back()->with('error_message',
                         'Unexpected response format from API. Please try again.'
                     );
                 }
@@ -169,7 +173,7 @@ class TtsController extends Controller
                     'message' => 'Connection timeout. The API is taking longer than expected. Please try again in a few moments.'
                 ], 408);
             }
-            return redirect()->back()->with('error_message', 
+            return redirect()->back()->with('error_message',
                 'Connection timeout. The API is taking longer than expected. Please try again in a few moments.'
             );
         } catch (\Illuminate\Http\Client\RequestException $e) {
@@ -181,7 +185,7 @@ class TtsController extends Controller
                     'message' => 'Request failed. Please check your input and try again.'
                 ], 400);
             }
-            return redirect()->back()->with('error_message', 
+            return redirect()->back()->with('error_message',
                 'Request failed. Please check your input and try again.'
             );
         } catch (\Exception $e) {
@@ -195,7 +199,7 @@ class TtsController extends Controller
                         'message' => 'Task timeout - please try again later. The server is currently busy processing requests.'
                     ], 408);
                 }
-                return redirect()->back()->with('error_message', 
+                return redirect()->back()->with('error_message',
                     'Task timeout - please try again later. The server is currently busy processing requests.'
                 );
             }
@@ -206,7 +210,7 @@ class TtsController extends Controller
                     'message' => 'An error occurred while generating speech: ' . $e->getMessage()
                 ], 500);
             }
-            return redirect()->back()->with('error_message', 
+            return redirect()->back()->with('error_message',
                 'An error occurred while generating speech: ' . $e->getMessage()
             );
         }
@@ -260,25 +264,41 @@ class TtsController extends Controller
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 20);
 
-            // Get user's tasks from cache
-            $userTasks = $this->getUserTasksFromCache($user->id);
-            
-            // Paginate the results
-            $totalTasks = count($userTasks);
-            $offset = ($page - 1) * $limit;
-            $paginatedTasks = array_slice($userTasks, $offset, $limit);
+            // Get user's tasks from database (cross-device history)
+            $tasks = UserTask::where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->paginate($limit, ['*'], 'page', $page);
+
+            // Format tasks for API response
+            $formattedTasks = $tasks->map(function ($task) {
+                return [
+                    'id' => $task->task_id,
+                    'input' => $task->input_text,
+                    'voice_id' => $task->voice_id,
+                    'voice_name' => $task->voice_name,
+                    'status' => $task->status,
+                    'result' => $task->result_url,
+                    'subtitle' => $task->subtitle_url,
+                    'error' => $task->error_message,
+                    'created_at' => $task->created_at->toISOString(),
+                    'completed_at' => $task->completed_at ? $task->completed_at->toISOString() : null,
+                    'text_length' => $task->text_length,
+                    'credits_used' => $task->credits_used,
+                    'duration' => $task->formatted_duration
+                ];
+            });
 
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'tasks' => $paginatedTasks,
+                    'tasks' => $formattedTasks,
                     'pagination' => [
-                        'current_page' => $page,
-                        'per_page' => $limit,
-                        'total' => $totalTasks,
-                        'last_page' => ceil($totalTasks / $limit),
-                        'from' => $offset + 1,
-                        'to' => min($offset + $limit, $totalTasks)
+                        'current_page' => $tasks->currentPage(),
+                        'per_page' => $tasks->perPage(),
+                        'total' => $tasks->total(),
+                        'last_page' => $tasks->lastPage(),
+                        'from' => $tasks->firstItem(),
+                        'to' => $tasks->lastItem()
                     ]
                 ]
             ]);
@@ -390,8 +410,9 @@ class TtsController extends Controller
                 ], 400);
             }
 
-            // Store the result (you might want to save this to database)
-            // For now, we'll just log it
+            // Update task in database
+            $this->updateTaskInDatabase($taskId, 'completed', $result, $subtitle);
+
             \Log::info('TTS Task completed successfully', [
                 'task_id' => $taskId,
                 'result_url' => $result,
@@ -401,16 +422,16 @@ class TtsController extends Controller
             // Get system credits to calculate actual usage
             $systemCreditsAfter = $this->getSystemCredits();
             $taskInfo = \Cache::get("tts_task_{$taskId}");
-            
+
             if ($taskInfo && $systemCreditsAfter !== null) {
                 // Calculate actual credits used by comparing system credits
                 $systemCreditsBefore = $this->getSystemCreditsBeforeTask($taskId);
                 $actualCreditsUsed = 0;
-                
+
                 if ($systemCreditsBefore !== null) {
                     $actualCreditsUsed = max(0, $systemCreditsBefore - $systemCreditsAfter);
                 }
-                
+
                 // Confirm credit usage and refund if necessary
                 $this->confirmCreditUsage($taskId, $actualCreditsUsed);
             }
@@ -666,15 +687,15 @@ class TtsController extends Controller
     {
         $creditsPerCharacter = 1; // 1 credit per character
         $minimumCredits = 1; // Minimum 1 credit per request
-        
+
         $estimatedCredits = max($minimumCredits, $textLength * $creditsPerCharacter);
-        
+
         \Log::info("Credit calculation", [
             'text_length' => $textLength,
             'credits_per_character' => $creditsPerCharacter,
             'estimated_credits' => $estimatedCredits
         ]);
-        
+
         return $estimatedCredits;
     }
 
@@ -685,7 +706,7 @@ class TtsController extends Controller
     {
         // Get system credits before task for comparison
         $systemCreditsBefore = $this->getSystemCredits();
-        
+
         // Store in cache for later confirmation
         $taskInfo = [
             'task_id' => $taskId,
@@ -696,16 +717,16 @@ class TtsController extends Controller
             'created_at' => now(),
             'status' => 'pending_confirmation'
         ];
-        
+
         \Cache::put("tts_task_{$taskId}", $taskInfo, 3600); // Store for 1 hour
-        
+
         // Add task to user's task list
         $userTaskKeys = \Cache::get('tts_task_keys_' . $userId, []);
         if (!in_array($taskId, $userTaskKeys)) {
             $userTaskKeys[] = $taskId;
             \Cache::put('tts_task_keys_' . $userId, $userTaskKeys, 3600);
         }
-        
+
         \Log::info("Task info stored for credit confirmation", $taskInfo);
     }
 
@@ -715,26 +736,26 @@ class TtsController extends Controller
     private function confirmCreditUsage($taskId, $actualCreditsUsed)
     {
         $taskInfo = \Cache::get("tts_task_{$taskId}");
-        
+
         if (!$taskInfo) {
             \Log::warning("Task info not found for credit confirmation", ['task_id' => $taskId]);
             return;
         }
-        
+
         $user = \App\Models\User::find($taskInfo['user_id']);
         if (!$user) {
             \Log::warning("User not found for credit confirmation", ['user_id' => $taskInfo['user_id']]);
             return;
         }
-        
+
         $estimatedCredits = $taskInfo['estimated_credits'];
         $difference = $estimatedCredits - $actualCreditsUsed;
-        
+
         if ($difference > 0) {
             // Refund excess credits
             $user->credits += $difference;
             $user->save();
-            
+
             \Log::info("Credits refunded to user", [
                 'user_id' => $user->id,
                 'task_id' => $taskId,
@@ -753,7 +774,7 @@ class TtsController extends Controller
                 'additional_needed' => abs($difference)
             ]);
         }
-        
+
         // Remove task info from cache
         \Cache::forget("tts_task_{$taskId}");
     }
@@ -773,10 +794,10 @@ class TtsController extends Controller
     private function getUserTasksFromCache($userId)
     {
         $userTasks = [];
-        
+
         // Get all cache keys that start with 'tts_task_'
         $cacheKeys = \Cache::get('tts_task_keys_' . $userId, []);
-        
+
         foreach ($cacheKeys as $taskId) {
             $taskInfo = \Cache::get("tts_task_{$taskId}");
             if ($taskInfo && $taskInfo['user_id'] == $userId) {
@@ -792,12 +813,12 @@ class TtsController extends Controller
                 }
             }
         }
-        
+
         // Sort by creation date (newest first)
         usort($userTasks, function($a, $b) {
             return strtotime($b['created_at']) - strtotime($a['created_at']);
         });
-        
+
         return $userTasks;
     }
 
@@ -818,7 +839,74 @@ class TtsController extends Controller
         } catch (\Exception $e) {
             \Log::error('Error fetching task details from API: ' . $e->getMessage());
         }
-        
+
         return null;
+    }
+
+    /**
+     * Store task in database for cross-device history
+     */
+    private function storeTaskInDatabase($taskId, $userId, $inputText, $voiceId, $textLength, $estimatedCredits)
+    {
+        try {
+            UserTask::create([
+                'task_id' => $taskId,
+                'user_id' => $userId,
+                'input_text' => $inputText,
+                'voice_id' => $voiceId,
+                'voice_name' => $this->getVoiceName($voiceId),
+                'text_length' => $textLength,
+                'credits_used' => $estimatedCredits,
+                'status' => 'pending'
+            ]);
+
+            \Log::info("Task stored in database for cross-device history", [
+                'task_id' => $taskId,
+                'user_id' => $userId
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error storing task in database: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get voice name from voice ID (you can implement this based on your voice data)
+     */
+    private function getVoiceName($voiceId)
+    {
+        // You can implement this to get voice name from your voice data
+        // For now, return the voice ID
+        return $voiceId;
+    }
+
+    /**
+     * Update task in database when status changes
+     */
+    private function updateTaskInDatabase($taskId, $status, $resultUrl = null, $subtitleUrl = null, $errorMessage = null)
+    {
+        try {
+            $task = UserTask::where('task_id', $taskId)->first();
+
+            if ($task) {
+                $updateData = ['status' => $status];
+
+                if ($status === 'completed') {
+                    $updateData['result_url'] = $resultUrl;
+                    $updateData['subtitle_url'] = $subtitleUrl;
+                    $updateData['completed_at'] = now();
+                } elseif ($status === 'failed') {
+                    $updateData['error_message'] = $errorMessage;
+                }
+
+                $task->update($updateData);
+
+                \Log::info("Task updated in database", [
+                    'task_id' => $taskId,
+                    'status' => $status
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error updating task in database: ' . $e->getMessage());
+        }
     }
 }
