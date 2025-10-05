@@ -41,4 +41,7 @@ Route::prefix('tts')->group(function () {
     Route::get('voices', [TtsController::class, 'getVoices']);
     Route::get('voices/local', [TtsController::class, 'getLocalVoices']);
     Route::get('models', [TtsController::class, 'getModels']);
+    
+    // User info
+    Route::get('me', [TtsController::class, 'getMe']);
 });

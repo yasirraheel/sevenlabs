@@ -109,6 +109,7 @@ return array(
 	'stopped'                   =>      'Stopped',
 	'expired'                   =>      'Expired',
 	'balance'                   =>      'Balance',
+	'credits'                   =>      'Credits',
 	'total'                     =>      'Total',
 	'activate_ad'               =>      'Activate',
 	'price'                     =>      'Price',

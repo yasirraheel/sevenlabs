@@ -399,4 +399,61 @@ class TtsController extends Controller
             ]
         ]);
     }
+
+    public function getMe()
+    {
+        try {
+            $apiKey = Helper::getSevenLabsApiKey();
+            
+            if (!$apiKey) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'SevenLabs API key not configured'
+                ], 500);
+            }
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type' => 'application/json'
+            ])->get($this->apiBaseUrl . '/me');
+
+            if ($response->successful()) {
+                $userData = $response->json();
+                
+                // Calculate total credits from all credit entries
+                $totalCredits = 0;
+                if (isset($userData['credits']) && is_array($userData['credits'])) {
+                    foreach ($userData['credits'] as $credit) {
+                        if (isset($credit['amount'])) {
+                            $totalCredits += $credit['amount'];
+                        }
+                    }
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'id' => $userData['id'] ?? null,
+                        'username' => $userData['username'] ?? null,
+                        'balance' => $userData['balance'] ?? 0,
+                        'total_credits' => $totalCredits,
+                        'credits' => $userData['credits'] ?? []
+                    ]
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to fetch user data: ' . $response->body()
+                ], $response->status());
+            }
+
+        } catch (\Exception $e) {
+            \Log::error('TTS Get Me Error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching user data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

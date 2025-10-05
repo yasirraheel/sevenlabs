@@ -105,6 +105,7 @@ return array(
 	'expired'                   =>      'Vencido',
 	'type'                      =>      'Tipo',
 	'balance'                   =>      'Balance',
+	'credits'                   =>      'Créditos',
 	'total'                     =>      'Total',
 	'activate_ad'               =>      'Activar',
 	'price'                     =>      'Precio',

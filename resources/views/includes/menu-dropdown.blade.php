@@ -5,14 +5,15 @@
 
 @if ($settings->sell_option == 'on')
 <li>
-  <span class="dropdown-item disable-item">
-    <i class="bi bi-cash-stack me-2"></i> {{ __('misc.balance') }}: {{ Helper::amountFormatDecimal(auth()->user()->balance) }}</span>
-  </li>
+  <span class="dropdown-item disable-item" id="sevenlabs-balance">
+    <i class="bi bi-cash-stack me-2"></i> {{ __('misc.balance') }}: <span id="balance-amount">Loading...</span>
+  </span>
+</li>
 
 <li>
-<a class="dropdown-item" href="{{ url('user/dashboard/add/funds') }}">
-  <i class="bi bi-wallet2 me-2"></i> {{ __('misc.wallet') }}: {{ Helper::amountFormatDecimal(auth()->user()->funds) }}
-</a>
+  <span class="dropdown-item disable-item" id="sevenlabs-credits">
+    <i class="bi bi-credit-card me-2"></i> {{ __('misc.credits') }}: <span id="credits-amount">Loading...</span>
+  </span>
 </li>
 @endif
 
