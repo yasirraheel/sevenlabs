@@ -758,7 +758,14 @@ class Helper
 			return cache($cacheKey);
 		}
 
-		// Handle local/private IPs with more detail
+		// Handle IPv6 addresses (check for colon which indicates IPv6)
+		if (strpos($ip, ':') !== false) {
+			$location = self::getIPv6Location($ip);
+			cache([$cacheKey => $location], 1440);
+			return $location;
+		}
+
+		// Handle local/private IPv4 IPs
 		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
 			$location = self::getLocalIPLocation($ip);
 			cache([$cacheKey => $location], 1440);
@@ -843,5 +850,58 @@ class Helper
 
 		// Default for any other private IP
 		return 'Private Network, Local Area';
+	}
+
+	// Get location for IPv6 addresses
+	public static function getIPv6Location($ip)
+	{
+		// Handle IPv6 localhost
+		if ($ip === '::1') {
+			return 'Localhost, IPv6';
+		}
+
+		// Handle IPv6 private/local addresses
+		$ipv6PrivateRanges = [
+			'::' => 'IPv6 Unspecified',
+			'::1' => 'Localhost, IPv6',
+			'fe80:' => 'Link Local, IPv6',
+			'fc00:' => 'Unique Local, IPv6',
+			'fd00:' => 'Unique Local, IPv6',
+			'2001:db8:' => 'Documentation, IPv6',
+		];
+
+		// Check for IPv6 private ranges
+		foreach ($ipv6PrivateRanges as $prefix => $location) {
+			if (strpos($ip, $prefix) === 0) {
+				return $location;
+			}
+		}
+
+		// For public IPv6 addresses, try to get real location
+		try {
+			// Use ipapi.co service for IPv6
+			$url = "http://ipapi.co/{$ip}/json/";
+			$response = self::getDatacURL($url);
+			
+			if ($response && isset($response->city) && isset($response->country_name)) {
+				return $response->city . ', ' . $response->country_name;
+			}
+		} catch (\Exception $e) {
+			// Fallback to ip-api.com for IPv6
+			try {
+				$url = "http://ip-api.com/json/{$ip}";
+				$response = self::getDatacURL($url);
+				
+				if ($response && $response->status === 'success') {
+					return $response->city . ', ' . $response->country;
+				}
+			} catch (\Exception $e2) {
+				// If both services fail, return formatted IPv6
+				return 'IPv6 Address, ' . substr($ip, 0, 20) . '...';
+			}
+		}
+
+		// Default for IPv6
+		return 'IPv6 Address, ' . substr($ip, 0, 20) . '...';
 	}
 }//<--- End Class
