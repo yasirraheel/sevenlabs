@@ -22,72 +22,38 @@ class DashboardController extends Controller
   // Dashboard
   public function dashboard()
   {
-    $earningNetUser = auth()->user()->mySales()->sum('earning_net_seller');
-
-    //  Calcule Chart Earnings last 20 days
+    // For TTS application, we'll show user's credit information instead of sales
+    $user = auth()->user();
+    
+    // Get user's current credits and balance
+    $userCredits = $user->credits ?? 0;
+    $userBalance = $user->balance ?? 0;
+    
+    // Initialize empty arrays for chart data (since we don't have sales data)
+    $monthsData = [];
+    $earningNetUserSum = [];
+    $lastSales = [];
+    
+    // Generate dummy chart data for the last 30 days
     for ($i = 0; $i <= 30; ++$i) {
-
       $date = date('Y-m-d', strtotime('-' . $i . ' day'));
-
-      // Earnings last 20 days
-      $sales = auth()->user()->mySales()->whereDate('purchases.date', '=', $date)->sum('earning_net_seller');
-
-      // Sales last 20 days
-      $salesLast20 = auth()->user()->mySales()->whereDate('purchases.date', '=', $date)->count();
-
-      // Format Date on Chart
       $formatDate = Helper::formatDateChart($date);
-      $monthsData[] =  "'$formatDate'";
-
-      // Earnings last 20 days
-      $earningNetUserSum[] = $sales;
-
-      // Earnings last 20 days
-      $lastSales[] = $salesLast20;
+      $monthsData[] = "'$formatDate'";
+      $earningNetUserSum[] = 0; // No earnings data for TTS
+      $lastSales[] = 0; // No sales data for TTS
     }
-
-    // Today
-    $stat_revenue_today = auth()->user()->mySales()
-      ->where('purchases.date', '>=', Carbon::today())
-      ->sum('earning_net_seller');
-
-    // Yesterday
-    $stat_revenue_yesterday = auth()->user()->mySales()
-      ->where('purchases.date', '>=', Carbon::yesterday())
-      ->where('purchases.date', '<', Carbon::today())
-      ->sum('earning_net_seller');
-
-    // Week
-    $stat_revenue_week = auth()->user()->mySales()
-      ->whereBetween('purchases.date', [
-        Carbon::parse('now')->startOfWeek(),
-        Carbon::parse('now')->endOfWeek(),
-      ])->sum('earning_net_seller');
-
-    // Last Week
-    $stat_revenue_last_week = auth()->user()->mySales()
-      ->whereBetween('purchases.date', [
-        Carbon::now()->startOfWeek()->subWeek(),
-        Carbon::now()->subWeek()->endOfWeek(),
-      ])->sum('earning_net_seller');
-
-    // Month
-    $stat_revenue_month = auth()->user()->mySales()
-      ->whereBetween('purchases.date', [
-        Carbon::parse('now')->startOfMonth(),
-        Carbon::parse('now')->endOfMonth(),
-      ])->sum('earning_net_seller');
-
-    // Last Month
-    $stat_revenue_last_month = auth()->user()->mySales()
-      ->whereBetween('purchases.date', [
-        Carbon::now()->startOfMonth()->subMonth(),
-        Carbon::now()->subMonth()->endOfMonth(),
-      ])->sum('earning_net_seller');
+    
+    // Set all revenue stats to 0 since this is a TTS application
+    $stat_revenue_today = 0;
+    $stat_revenue_yesterday = 0;
+    $stat_revenue_week = 0;
+    $stat_revenue_last_week = 0;
+    $stat_revenue_month = 0;
+    $stat_revenue_last_month = 0;
+    $earningNetUser = 0;
 
     $label = implode(',', array_reverse($monthsData));
     $data = implode(',', array_reverse($earningNetUserSum));
-
     $datalastSales = implode(',', array_reverse($lastSales));
 
     $photosPending = 0; // Images functionality removed
@@ -107,7 +73,9 @@ class DashboardController extends Controller
       'stat_revenue_week' => $stat_revenue_week,
       'stat_revenue_last_week' => $stat_revenue_last_week,
       'stat_revenue_month' => $stat_revenue_month,
-      'stat_revenue_last_month' => $stat_revenue_last_month
+      'stat_revenue_last_month' => $stat_revenue_last_month,
+      'userCredits' => $userCredits,
+      'userBalance' => $userBalance
     ]);
   } //<--- End Method
 
