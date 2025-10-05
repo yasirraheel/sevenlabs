@@ -376,6 +376,36 @@ class AdminController extends Controller
 		$sql->show_watermark       = $request->show_watermark ?? '0';
 		$sql->lightbox             = $request->lightbox ?? 'off';
 		$sql->banner_cookies       = $request->banner_cookies ?? false;
+		
+		// SEO Settings
+		$sql->seo_title            = $request->seo_title;
+		$sql->seo_description      = $request->seo_description;
+		$sql->seo_keywords         = $request->seo_keywords;
+		$sql->og_title             = $request->og_title;
+		$sql->og_description       = $request->og_description;
+		$sql->canonical_url        = $request->canonical_url;
+		
+		// Handle OG Image upload
+		if ($request->hasFile('og_image')) {
+			$temp = 'public/temp/';
+			$path = 'public/img/';
+			
+			$extension = $request->file('og_image')->getClientOriginalExtension();
+			$file = 'og-image-' . time() . '.' . $extension;
+			
+			if ($request->file('og_image')->move($temp, $file)) {
+				\File::copy($temp . $file, $path . $file);
+				\File::delete($temp . $file);
+				
+				// Delete old OG image if exists
+				if ($sql->og_image && \File::exists($path . $sql->og_image)) {
+					\File::delete($path . $sql->og_image);
+				}
+				
+				$sql->og_image = $file;
+			}
+		}
+		
 		$sql->save();
 
 		// Default locale

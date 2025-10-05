@@ -4,10 +4,30 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="description" content="@yield('description_custom'){{ __('seo.description') }}">
-    <meta name="keywords" content="@yield('keywords_custom'){{ __('seo.keywords') }}" />
+    <meta name="description" content="@yield('description_custom'){{ $settings->seo_description ?? __('seo.description') }}">
+    <meta name="keywords" content="@yield('keywords_custom'){{ $settings->seo_keywords ?? __('seo.keywords') }}" />
+    <meta name="robots" content="{{ $settings->robots ?? 'index,follow' }}">
     <meta name="theme-color" content="{{ $settings->color_default }}">
     <link rel="shortcut icon" href="{{ url('public/img', $settings->favicon) }}" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="@yield('og_title', $settings->og_title ?? $settings->seo_title ?? $settings->title ?? __('seo.welcome_text'))">
+    <meta property="og:description" content="@yield('og_description', $settings->og_description ?? $settings->seo_description ?? __('seo.description'))">
+    <meta property="og:image" content="@yield('og_image', $settings->og_image ? url('public/img', $settings->og_image) : url('public/img', $settings->logo_light))">
+    <meta property="og:url" content="{{ $settings->canonical_url ?? url()->current() }}">
+    <meta property="og:type" content="{{ $settings->og_type ?? 'website' }}">
+    <meta property="og:site_name" content="{{ $settings->og_site_name ?? $settings->title }}">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="{{ $settings->twitter_card ?? 'summary_large_image' }}">
+    <meta name="twitter:site" content="{{ $settings->twitter_site ?? '' }}">
+    <meta name="twitter:creator" content="{{ $settings->twitter_creator ?? '' }}">
+    <meta name="twitter:title" content="@yield('og_title', $settings->og_title ?? $settings->seo_title ?? $settings->title ?? __('seo.welcome_text'))">
+    <meta name="twitter:description" content="@yield('og_description', $settings->og_description ?? $settings->seo_description ?? __('seo.description'))">
+    <meta name="twitter:image" content="@yield('og_image', $settings->og_image ? url('public/img', $settings->og_image) : url('public/img', $settings->logo_light))">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ $settings->canonical_url ?? url()->current() }}">
 
     <title>{{ Helper::getNotify() }}@section('title')@show{{Helper::titleSite()}}</title>
 

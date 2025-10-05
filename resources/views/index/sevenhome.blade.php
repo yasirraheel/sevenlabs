@@ -1,5 +1,13 @@
 @extends('layouts.app')
 
+@section('title', 'AI Text to Speech Generator - Convert Text to Natural Voice')
+@section('description_custom', 'Generate high-quality AI voice synthesis from text. Convert your text to natural-sounding speech with advanced AI technology. Perfect for content creators and developers.')
+@section('keywords_custom', 'AI text to speech, voice synthesis, text to speech generator, AI voice, speech generation, voice cloning, natural voice, TTS')
+
+@section('og_title', 'AI Text to Speech Generator - SevenLabs TTS')
+@section('og_description', 'Convert text to natural-sounding speech with advanced AI technology. Generate high-quality voice synthesis for content creators, developers, and businesses.')
+@section('og_image', $settings->og_image ? url('public/img', $settings->og_image) : url('public/img', $settings->logo_light))
+
 @section('css')
 <style>
 :root {

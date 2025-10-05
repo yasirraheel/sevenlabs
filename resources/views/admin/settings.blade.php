@@ -301,6 +301,75 @@
          </div>
        </fieldset><!-- end row -->
 
+       <!-- SEO Settings Section -->
+       <div class="row mb-4">
+         <div class="col-12">
+           <h6 class="text-muted mb-3 border-bottom pb-2">{{ __('admin.seo_settings') }}</h6>
+         </div>
+       </div>
+
+       <div class="row mb-3">
+         <label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.seo_title') }}</label>
+         <div class="col-sm-10">
+           <input type="text" value="{{ $settings->seo_title ?? '' }}" name="seo_title" class="form-control" placeholder="{{ __('admin.seo_title_placeholder') }}">
+           <small class="d-block text-muted">{{ __('admin.seo_title_info') }}</small>
+         </div>
+       </div>
+
+       <div class="row mb-3">
+         <label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.seo_description') }}</label>
+         <div class="col-sm-10">
+           <textarea name="seo_description" class="form-control" rows="3" placeholder="{{ __('admin.seo_description_placeholder') }}">{{ $settings->seo_description ?? '' }}</textarea>
+           <small class="d-block text-muted">{{ __('admin.seo_description_info') }}</small>
+         </div>
+       </div>
+
+       <div class="row mb-3">
+         <label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.seo_keywords') }}</label>
+         <div class="col-sm-10">
+           <textarea name="seo_keywords" class="form-control" rows="2" placeholder="{{ __('admin.seo_keywords_placeholder') }}">{{ $settings->seo_keywords ?? '' }}</textarea>
+           <small class="d-block text-muted">{{ __('admin.seo_keywords_info') }}</small>
+         </div>
+       </div>
+
+       <div class="row mb-3">
+         <label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.og_image') }}</label>
+         <div class="col-sm-10">
+           <input type="file" name="og_image" class="form-control" accept="image/*">
+           @if($settings->og_image)
+             <div class="mt-2">
+               <img src="{{ url('public/img', $settings->og_image) }}" alt="Current OG Image" class="img-thumbnail" style="max-width: 200px;">
+               <small class="d-block text-muted">{{ __('admin.current_image') }}</small>
+             </div>
+           @endif
+           <small class="d-block text-muted">{{ __('admin.og_image_info') }}</small>
+         </div>
+       </div>
+
+       <div class="row mb-3">
+         <label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.og_title') }}</label>
+         <div class="col-sm-10">
+           <input type="text" value="{{ $settings->og_title ?? '' }}" name="og_title" class="form-control" placeholder="{{ __('admin.og_title_placeholder') }}">
+           <small class="d-block text-muted">{{ __('admin.og_title_info') }}</small>
+         </div>
+       </div>
+
+       <div class="row mb-3">
+         <label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.og_description') }}</label>
+         <div class="col-sm-10">
+           <textarea name="og_description" class="form-control" rows="2" placeholder="{{ __('admin.og_description_placeholder') }}">{{ $settings->og_description ?? '' }}</textarea>
+           <small class="d-block text-muted">{{ __('admin.og_description_info') }}</small>
+         </div>
+       </div>
+
+       <div class="row mb-3">
+         <label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.canonical_url') }}</label>
+         <div class="col-sm-10">
+           <input type="url" value="{{ $settings->canonical_url ?? '' }}" name="canonical_url" class="form-control" placeholder="{{ __('admin.canonical_url_placeholder') }}">
+           <small class="d-block text-muted">{{ __('admin.canonical_url_info') }}</small>
+         </div>
+       </div>
+
        <div class="row mb-3">
          <div class="col-sm-10 offset-sm-2">
            <button type="submit" class="btn btn-dark mt-3 px-5">{{ __('admin.save') }}</button>

@@ -12,9 +12,9 @@ return [
     | you want to customize your views to better match your application.
     |
     */
-    "welcome_text" => "Laravel Starter Kit",
-    "welcome_subtitle" => "Complete Laravel Application Foundation",
-    "description" => "A comprehensive Laravel starter kit with user management, payments, subscriptions, admin panel, and all essential features for modern web applications.",
-  	"keywords" => "laravel starter,php framework,web application,user management,payment system,admin panel",
+    "welcome_text" => "SevenLabs TTS",
+    "welcome_subtitle" => "AI-Powered Text to Speech Generation",
+    "description" => "Convert text to natural-sounding speech with advanced AI technology. Generate high-quality voice synthesis for content creators, developers, and businesses.",
+  	"keywords" => "text to speech,tts,ai voice,voice synthesis,speech generation,voice cloning,ai audio,voice technology",
 
 ];
