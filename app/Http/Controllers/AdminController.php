@@ -145,7 +145,6 @@ class AdminController extends Controller
 			'label' => $label,
 			'data' => $data,
 			'datalastSales' => $dataLastTransactions,
-			'totalImages' => 0, // Placeholder for backward compatibility
 			'totalUsers' => $totalUsers,
 			'totalSales' => $totalTransactions,
 			'stat_revenue_today' => $stat_revenue_today,

@@ -41,15 +41,6 @@
 			</div><!-- card 1 -->
 		</div><!-- col-lg-3 -->
 
-		<div class="col-lg-3 mb-3">
-			<div class="card shadow-custom border-0 overflow-hidden">
-				<div class="card-body">
-					<h3><i class="fa fa-images me-2 icon-dashboard"></i> {{ number_format($totalImages) }}</h3>
-					<small>{{ trans('misc.images') }}</small>
-					<span class="icon-wrap icon--admin"><i class="far fa-images"></i></span>
-				</div>
-			</div><!-- card 1 -->
-		</div><!-- col-lg-3 -->
 
 		<!-- GenAI Pro API System Credits -->
 		<div class="col-lg-3 mb-3">
