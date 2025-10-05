@@ -8,11 +8,14 @@
             </a>
 
           <div class="d-flex align-items-center">
+            {{-- COMMENTED OUT: Search form - can be uncommented if needed in future
             <form action="{{ url('search') }}" method="get" class="w-100 me-3 position-relative">
               <i class="bi bi-search btn-search bar-search"></i>
               <input type="text" class="form-control rounded-pill ps-5 input-search search-navbar" name="q" autocomplete="off" placeholder="{{__('misc.search')}}" required minlength="3">
             </form>
+            --}}
 
+            {{-- COMMENTED OUT: Main navigation menu - can be uncommented if needed in future
             <!-- Start Nav -->
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0 navbar-session">
 
@@ -102,6 +105,7 @@
                   <strong>{{ __('auth.login') }}</strong>
                   </a>
                 @endguest
+            --}}
 
 
             @auth
@@ -117,14 +121,17 @@
             </div>
             @endauth
 
+            {{-- COMMENTED OUT: Mobile menu toggle - can be uncommented if needed in future
             <a class="ms-3 toggle-menu d-block d-lg-none text-dark fs-3" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" href="#">
             <i class="bi-list"></i>
             </a>
+            --}}
 
           </div><!-- d-flex -->
         </div><!-- container-fluid -->
       </header>
 
+    {{-- COMMENTED OUT: Mobile offcanvas menu - can be uncommented if needed in future
     <div class="offcanvas offcanvas-end w-75" tabindex="-1" id="offcanvas" data-bs-keyboard="false" data-bs-backdrop="false">
     <div class="offcanvas-header">
         <span class="offcanvas-title" id="offcanvas"></span>
@@ -210,7 +217,9 @@
         </ul>
     </div>
 </div>
+    --}}
 
+{{-- COMMENTED OUT: Mobile bottom navigation menu - can be uncommented if needed in future
 @auth
 <div class="menuMobile w-100 d-lg-none d-sm-block bg-white shadow-lg p-3 border-top">
 	<ul class="list-inline d-flex m-0 text-center">
@@ -229,10 +238,10 @@
 
         @if (auth()->user()->authorized_to_upload == 'yes' || auth()->user()->isSuperAdmin())
           <li class="flex-fill">
-  					<a class="p-3 btn-mobile" href="{{ url('upload') }}">
-  						<i class="bi-plus-circle{{ request()->is('upload') ? '-fill' : null }} icon-navbar"></i>
-  					</a>
-  				</li>
+					<a class="p-3 btn-mobile" href="{{ url('upload') }}">
+						<i class="bi-plus-circle{{ request()->is('upload') ? '-fill' : null }} icon-navbar"></i>
+					</a>
+				</li>
         @endif
 
 			<li class="flex-fill position-relative">
@@ -255,3 +264,4 @@
 			</ul>
 </div>
 @endauth
+--}}
