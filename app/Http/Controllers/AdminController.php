@@ -118,7 +118,7 @@ class AdminController extends Controller
 				$response = \Illuminate\Support\Facades\Http::withHeaders([
 					'Authorization' => 'Bearer ' . $apiKey,
 					'Content-Type' => 'application/json'
-				])->get('https://api.genai.pro/me');
+				])->get('https://genaipro.vn/api/v1/me');
 
 				if ($response->successful()) {
 					$userData = $response->json();
