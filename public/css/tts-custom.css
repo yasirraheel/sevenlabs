@@ -716,6 +716,7 @@ audio {
     background-color: var(--color-default) !important;
     border-color: var(--color-default) !important;
     color: white !important;
+    box-shadow: none !important;
 }
 
 .btn-check:focus + .btn-outline-custom {
@@ -726,6 +727,16 @@ audio {
     border-color: var(--color-default);
     color: var(--color-default);
     transition: all 0.2s ease;
+}
+
+/* Override outline styles for checked buttons */
+.btn-outline-custom:checked,
+.btn-outline-custom.btn-check:checked {
+    background-color: var(--color-default) !important;
+    border-color: var(--color-default) !important;
+    color: white !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 .btn-group .btn-outline-custom:hover {
@@ -741,6 +752,17 @@ audio {
     background-color: var(--color-default) !important;
     border-color: var(--color-default) !important;
     color: white !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Override any Bootstrap outline styles */
+.btn-check:checked + .btn-outline-custom:not(:disabled):not(.disabled) {
+    background-color: var(--color-default) !important;
+    border-color: var(--color-default) !important;
+    color: white !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 /* Mobile-friendly mode selection buttons */
