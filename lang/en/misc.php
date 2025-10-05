@@ -721,4 +721,5 @@ return array(
 	'system_credits' => 'System Credits',
 	'text_to_speech' => 'Text to Speech',
 	'task_history' => 'Task History',
+	'services' => 'Services',
 );
