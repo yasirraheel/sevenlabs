@@ -86,6 +86,20 @@
                                     <i class="bi bi-chat-text me-2"></i>Text to Convert
                                 </label>
                                 <div class="form-text">Enter the text you want to convert to speech</div>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <div class="char-counter">
+                                        <span id="charCount">0</span> characters
+                                    </div>
+                                    <div class="credit-info">
+                                        <span id="creditInfo">Credits: <span id="userCredits">Loading...</span></span>
+                                    </div>
+                                </div>
+                                <div class="credit-warning mt-1" id="creditWarning" style="display: none;">
+                                    <small class="text-danger">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>
+                                        Insufficient credits! You need <span id="neededCredits">0</span> credits but only have <span id="availableCredits">0</span>.
+                                    </small>
+                                </div>
                             </div>
 
                             <!-- Voice Selection -->
@@ -475,6 +489,9 @@ $(document).ready(function() {
     
     // Load saved voice on page load
     loadSavedVoice();
+    
+    // Load user credits on page load
+    loadUserCredits();
 
     // Save model selection when changed
     $('#model_id').on('change', function() {
@@ -832,21 +849,28 @@ $(document).ready(function() {
         });
     });
 
-    // Character counter for text input
+    // Character counter and credit checker for text input
     $('#input').on('input', function() {
         const text = $(this).val();
         const charCount = text.length;
         const maxChars = 5000; // Adjust based on API limits
-
+        
+        // Update character count display
+        $('#charCount').text(charCount);
+        
+        // Check if text exceeds maximum length
         if (charCount > maxChars) {
             $(this).addClass('is-invalid');
-            if (!$('#charCount').length) {
-                $(this).after('<div id="charCount" class="invalid-feedback">Text exceeds maximum length of ' + maxChars + ' characters.</div>');
+            if (!$('#charCountError').length) {
+                $(this).after('<div id="charCountError" class="invalid-feedback">Text exceeds maximum length of ' + maxChars + ' characters.</div>');
             }
         } else {
             $(this).removeClass('is-invalid');
-            $('#charCount').remove();
+            $('#charCountError').remove();
         }
+        
+        // Check credits and show warning if insufficient
+        checkCreditsForText(charCount);
     });
 
     // Auto-resize textarea
@@ -1005,6 +1029,53 @@ $(document).ready(function() {
         if (selectedCard.length > 0) {
             selectedCard.addClass('selected-voice');
             selectedCard.find('.select-voice-btn').removeClass('btn-custom').addClass('btn-success');
+        }
+    }
+
+    // Load user credits from API
+    function loadUserCredits() {
+        $.ajax({
+            url: '{{ url("api/user/credits") }}',
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#userCredits').text(response.user_credits);
+                    window.userCredits = response.user_credits;
+                }
+            },
+            error: function() {
+                $('#userCredits').text('Error loading');
+                window.userCredits = 0;
+            }
+        });
+    }
+
+    // Check if user has enough credits for the text
+    function checkCreditsForText(charCount) {
+        if (!window.userCredits) return;
+        
+        const neededCredits = Math.max(1, charCount); // 1 credit per character, minimum 1
+        const availableCredits = window.userCredits;
+        
+        if (neededCredits > availableCredits) {
+            // Show warning
+            $('#creditWarning').show();
+            $('#neededCredits').text(neededCredits);
+            $('#availableCredits').text(availableCredits);
+            
+            // Add red styling to character counter
+            $('#charCount').addClass('text-danger fw-bold');
+            $('#creditInfo').addClass('text-danger');
+        } else {
+            // Hide warning
+            $('#creditWarning').hide();
+            
+            // Remove red styling
+            $('#charCount').removeClass('text-danger fw-bold');
+            $('#creditInfo').removeClass('text-danger');
         }
     }
 
