@@ -98,9 +98,11 @@
                                     <div class="char-counter">
                                         <span id="charCount">0</span> characters
                                     </div>
+                                    @auth
                                     <div class="credit-info">
                                         <span id="creditInfo" class="fw-bold text-success">Credits: <span id="userCredits">Loading...</span></span>
                                     </div>
+                                    @endauth
                                 </div>
                                 <div class="credit-warning mt-1" id="creditWarning" style="display: none;">
                                     <small class="text-danger">
@@ -498,8 +500,10 @@ $(document).ready(function() {
     // Load saved voice on page load
     loadSavedVoice();
     
-    // Load user credits on page load
+    // Load user credits on page load (only for authenticated users)
+    @auth
     loadUserCredits();
+    @endauth
 
     // Save model selection when changed
     $('#model_id').on('change', function() {
@@ -883,8 +887,10 @@ $(document).ready(function() {
             $('#charCountError').remove();
         }
         
-        // Check credits and show warning if insufficient
+        // Check credits and show warning if insufficient (only for authenticated users)
+        @auth
         checkCreditsForText(charCount);
+        @endauth
     });
 
     // Auto-resize textarea
@@ -1046,7 +1052,8 @@ $(document).ready(function() {
         }
     }
 
-    // Load user credits from API
+    // Load user credits from API (only for authenticated users)
+    @auth
     function loadUserCredits() {
         $.ajax({
             url: '{{ url("api/user/credits") }}',
@@ -1066,8 +1073,10 @@ $(document).ready(function() {
             }
         });
     }
+    @endauth
 
-    // Check if user has enough credits for the text
+    // Check if user has enough credits for the text (only for authenticated users)
+    @auth
     function checkCreditsForText(charCount) {
         if (!window.userCredits) return;
         
@@ -1092,6 +1101,7 @@ $(document).ready(function() {
             $('#creditInfo').removeClass('text-danger');
         }
     }
+    @endauth
 
     // Function to show flash messages
     function showFlashMessage(type, message) {
