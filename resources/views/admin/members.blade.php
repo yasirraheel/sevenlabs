@@ -55,7 +55,7 @@
                      <th class="active">ID</th>
                      <th class="active">{{ trans('auth.username') }}</th>
                      <th class="active">{{ trans('misc.balance') }}</th>
-                     <th class="active">{{ trans('misc.funds') }}</th>
+                     <th class="active">{{ trans('misc.credits') }}</th>
                      <th class="active">{{ trans('admin.date') }}</th>
                      <th class="active">IP</th>
                      <th class="active">{{ trans('admin.role') }}</th>
@@ -72,7 +72,7 @@
                        </a>
                      </td>
                      <td>{{ Helper::amountFormatDecimal($user->balance)}}</td>
-                     <td>{{ Helper::amountFormatDecimal($user->funds)}}</td>
+                     <td>{{ Helper::amountFormatDecimal($user->credits)}}</td>
                      <td>{{ Helper::formatDate($user->date) }}</td>
                      <td>{{ $user->ip ? $user->ip : trans('misc.not_available') }}</td>
                      <td>

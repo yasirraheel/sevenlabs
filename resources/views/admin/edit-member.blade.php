@@ -85,9 +85,9 @@
 			</div>
 
 		   <div class="row mb-3">
-				<label class="col-sm-2 col-form-label text-lg-end">{{ __('misc.funds') }}</label>
+				<label class="col-sm-2 col-form-label text-lg-end">{{ __('misc.credits') }}</label>
 				<div class="col-sm-10">
-					<input value="{{ $data->funds }}" name="funds" type="text" class="form-control isNumber" autocomplete="off">
+					<input value="{{ $data->credits }}" name="credits" type="text" class="form-control isNumber" autocomplete="off">
 				</div>
 			</div>
 
