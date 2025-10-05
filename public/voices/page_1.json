@@ -5587,7 +5587,7 @@
             "created_at_unix": null
         },
         {
-            "voice_id": "DLsHlh26Ugcm6ELvS0qi",
+            "voice_id": "ys3XeJJA4ArWMhRpcX1D",
             "name": "Mimi",
             "samples": null,
             "category": "premade",
@@ -5634,7 +5634,7 @@
                 "use_case": "animation"
             },
             "description": null,
-            "preview_url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/zrHiDhphv9ZnVXBqCLjz/decbf20b-0f57-4fac-985b-a4f0290ebfc4.mp3",
+            "preview_url": "https://storage.googleapis.com/eleven-public-prod/premade/voices/ys3XeJJA4ArWMhRpcX1D/decbf20b-0f57-4fac-985b-a4f0290ebfc4.mp3",
             "available_for_tiers": [],
             "settings": null,
             "sharing": null,
