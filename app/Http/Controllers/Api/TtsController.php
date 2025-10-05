@@ -119,7 +119,7 @@ class TtsController extends Controller
                     $this->storeTaskInfo($responseData['task_id'], $user->id, $estimatedCredits, $textLength);
 
                     // Store task in database for cross-device history
-                    $this->storeTaskInDatabase($responseData['task_id'], $user->id, $request->input('text'), $request->input('voice_id'), $textLength, $estimatedCredits);
+                    $this->storeTaskInDatabase($responseData['task_id'], $user->id, $request->input('input'), $request->input('voice_id'), $textLength, $estimatedCredits);
 
                     // Task created successfully, return appropriate response
                     if ($request->ajax()) {
@@ -849,7 +849,17 @@ class TtsController extends Controller
     private function storeTaskInDatabase($taskId, $userId, $inputText, $voiceId, $textLength, $estimatedCredits)
     {
         try {
-            UserTask::create([
+            // Debug: Log the data being stored
+            \Log::info("Attempting to store task in database", [
+                'task_id' => $taskId,
+                'user_id' => $userId,
+                'input_text' => $inputText,
+                'voice_id' => $voiceId,
+                'text_length' => $textLength,
+                'estimated_credits' => $estimatedCredits
+            ]);
+
+            $task = UserTask::create([
                 'task_id' => $taskId,
                 'user_id' => $userId,
                 'input_text' => $inputText,
@@ -860,12 +870,18 @@ class TtsController extends Controller
                 'status' => 'pending'
             ]);
 
-            \Log::info("Task stored in database for cross-device history", [
+            \Log::info("Task stored in database successfully", [
                 'task_id' => $taskId,
-                'user_id' => $userId
+                'user_id' => $userId,
+                'database_id' => $task->id
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error storing task in database: ' . $e->getMessage());
+            \Log::error('Error storing task in database: ' . $e->getMessage(), [
+                'task_id' => $taskId,
+                'user_id' => $userId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 
@@ -885,6 +901,14 @@ class TtsController extends Controller
     private function updateTaskInDatabase($taskId, $status, $resultUrl = null, $subtitleUrl = null, $errorMessage = null)
     {
         try {
+            \Log::info("Attempting to update task in database", [
+                'task_id' => $taskId,
+                'status' => $status,
+                'result_url' => $resultUrl,
+                'subtitle_url' => $subtitleUrl,
+                'error_message' => $errorMessage
+            ]);
+
             $task = UserTask::where('task_id', $taskId)->first();
 
             if ($task) {
@@ -900,13 +924,24 @@ class TtsController extends Controller
 
                 $task->update($updateData);
 
-                \Log::info("Task updated in database", [
+                \Log::info("Task updated in database successfully", [
+                    'task_id' => $taskId,
+                    'status' => $status,
+                    'database_id' => $task->id
+                ]);
+            } else {
+                \Log::warning("Task not found in database for update", [
                     'task_id' => $taskId,
                     'status' => $status
                 ]);
             }
         } catch (\Exception $e) {
-            \Log::error('Error updating task in database: ' . $e->getMessage());
+            \Log::error('Error updating task in database: ' . $e->getMessage(), [
+                'task_id' => $taskId,
+                'status' => $status,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
         }
     }
 }
