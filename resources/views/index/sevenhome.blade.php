@@ -745,7 +745,7 @@ $(document).ready(function() {
 
         // Validate voice selection
         if (!voiceId) {
-            alert('Please select a voice or enter a voice ID before generating speech.');
+            showFlashMessage('error', 'Please select a voice or enter a voice ID before generating speech.');
             if (voiceMode === 'browse') {
                 $('#voiceSelectBtn').focus();
             } else {
@@ -771,7 +771,7 @@ $(document).ready(function() {
 
         // Check if API key is configured
         @if(!Helper::hasSevenLabsApiKey())
-        alert('SevenLabs API key is not configured. Please contact administrator.');
+        showFlashMessage('error', 'SevenLabs API key is not configured. Please contact administrator.');
         $('#loadingSpinner').hide();
         $('#generateBtn').prop('disabled', false);
         return;
@@ -796,7 +796,7 @@ $(document).ready(function() {
                 } else {
                     $('#loadingSpinner').hide();
                     $('#generateBtn').prop('disabled', false);
-                    alert('Error: ' + (response.message || 'Failed to create task'));
+                    showFlashMessage('error', response.message || 'Failed to create task');
                 }
             },
             error: function(xhr) {
@@ -812,7 +812,7 @@ $(document).ready(function() {
                     errorMessage = 'Rate limit exceeded. Please try again later.';
                 }
 
-                alert('Error: ' + errorMessage);
+                showFlashMessage('error', errorMessage);
             }
         });
     });
@@ -923,14 +923,14 @@ $(document).ready(function() {
                             clearInterval(pollInterval);
                             $('#loadingSpinner').hide();
                             $('#generateBtn').prop('disabled', false);
-                            alert('Task failed: ' + (task.error || 'Unknown error'));
+                            showFlashMessage('error', 'Task failed: ' + (task.error || 'Unknown error'));
 
                         } else if (attempts >= maxAttempts) {
                             // Timeout
                             clearInterval(pollInterval);
                             $('#loadingSpinner').hide();
                             $('#generateBtn').prop('disabled', false);
-                            alert('Task is taking longer than expected. This can happen with longer audio files. Please try again in a few minutes or contact support if the issue persists.');
+                            showFlashMessage('error', 'Task is taking longer than expected. This can happen with longer audio files. Please try again in a few minutes or contact support if the issue persists.');
                         }
                         // If status is 'pending' or 'processing', continue polling
                     } else {
@@ -938,14 +938,14 @@ $(document).ready(function() {
                         clearInterval(pollInterval);
                         $('#loadingSpinner').hide();
                         $('#generateBtn').prop('disabled', false);
-                        alert('Error checking task status: ' + (response.message || 'Unknown error'));
+                        showFlashMessage('error', 'Error checking task status: ' + (response.message || 'Unknown error'));
                     }
                 },
                 error: function(xhr) {
                     clearInterval(pollInterval);
                     $('#loadingSpinner').hide();
                     $('#generateBtn').prop('disabled', false);
-                    alert('Error checking task status: ' + (xhr.responseJSON?.message || 'Network error'));
+                    showFlashMessage('error', 'Error checking task status: ' + (xhr.responseJSON?.message || 'Network error'));
                 }
             });
         }, 1000); // Poll every 1 second
@@ -955,6 +955,35 @@ $(document).ready(function() {
     function checkCachedResults() {
         // This would check for any cached results from callbacks
         // Implementation depends on your caching strategy
+    }
+
+    // Function to show flash messages
+    function showFlashMessage(type, message) {
+        // Remove any existing flash messages
+        $('.flash-message').remove();
+        
+        // Create flash message element
+        const alertClass = type === 'error' ? 'alert-danger' : 'alert-success';
+        const iconClass = type === 'error' ? 'bi-exclamation-triangle' : 'bi-check2';
+        
+        const flashMessage = $(`
+            <div class="alert ${alertClass} alert-dismissible fade show flash-message" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 500px;">
+                <i class="bi ${iconClass} me-1"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        `);
+        
+        // Add to body
+        $('body').append(flashMessage);
+        
+        // Auto remove after 5 seconds
+        setTimeout(function() {
+            flashMessage.fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 5000);
     }
 });
 
