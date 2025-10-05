@@ -73,8 +73,10 @@
 			</div><!-- card -->
 		</div><!-- col-lg-3 -->
 
+	</div><!-- row -->
 
-
+	<!-- Revenue Statistics Row -->
+	<div class="row">
 		<div class="col-lg-4 mb-3">
 			<div class="card shadow-custom border-0 overflow-hidden">
 				<div class="card-body">
@@ -116,6 +118,7 @@
 				</div>
 			</div><!-- card 1 -->
 		</div><!-- col-lg-4 -->
+	</div><!-- row -->
 
 		<div class="col-lg-6 mt-3 py-4">
 			 <div class="card shadow-custom border-0">
