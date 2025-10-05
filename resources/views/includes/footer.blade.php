@@ -55,34 +55,22 @@
            </ul>
         </div>
         <div class="col-md-3">
-           <h6 class="text-uppercase">{{__('misc.categories')}}</h6>
+           <h6 class="text-uppercase">{{__('misc.services')}}</h6>
            <ul class="list-unstyled">
-              @foreach ($categoriesMain as $category)
               <li>
-                 <a class="text-white text-decoration-none" href="{{ url('category', $category->slug) }}">
-                 {{ Lang::has('categories.' . $category->slug) ? __('categories.' . $category->slug) : $category->name }}
-                 </a>
+                 <a class="text-white text-decoration-none" href="{{ url('/') }}">{{ __('misc.text_to_speech') }}</a>
               </li>
-              @endforeach
-              @if ($categoriesCount > 6)
-              <li><a class="text-white text-decoration-none arrow" href="{{ url('categories') }}">{{ __('misc.view_all') }}</a></li>
-              @endif
+              <li>
+                 <a class="text-white text-decoration-none" href="{{ url('tts/tasks') }}">{{ __('misc.task_history') }}</a>
+              </li>
+              <li>
+                 <a class="text-white text-decoration-none" href="{{ url('contact') }}">{{ __('misc.contact') }}</a>
+              </li>
            </ul>
         </div>
         <div class="col-md-3">
            <h6 class="text-uppercase">{{__('misc.links')}}</h6>
            <ul class="list-unstyled">
-              @if ($settings->sell_option == 'on')
-              <li>
-                 <a class="text-white text-decoration-none" href="{{ url('photos/premium') }}">{{ __('misc.premium') }}</a>
-              </li>
-              @endif
-              <li>
-                 <a class="text-white text-decoration-none" href="{{ url('featured') }}">{{ __('misc.featured') }}</a>
-              </li>
-              <li>
-                 <a class="text-white text-decoration-none" href="{{ url('collections') }}">{{ __('misc.collections') }}</a>
-              </li>
               @guest
               <li>
                  <a class="text-white text-decoration-none" href="{{ url('login') }}">{{ __('auth.login') }}</a>

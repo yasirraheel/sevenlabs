@@ -719,4 +719,6 @@ return array(
 	'signup_bonus_credits_info' => 'Number of credits to give new users when they sign up',
 	'system_balance' => 'System Balance',
 	'system_credits' => 'System Credits',
+	'text_to_speech' => 'Text to Speech',
+	'task_history' => 'Task History',
 );
