@@ -180,13 +180,13 @@
                         clearInterval(creditsInterval);
                         
                         if (data.success) {
-                            // Update balance (show admin balance from SevenLabs)
-                            balanceElement.textContent = data.admin_balance || 0;
+                            // Update balance (show user's own balance)
+                            balanceElement.textContent = data.user_balance || 0;
                             
                             // Update credits (show user's own credits)
                             creditsElement.textContent = data.user_credits || 0;
                             
-                            console.log('Updated balance:', data.admin_balance);
+                            console.log('Updated balance:', data.user_balance);
                             console.log('Updated credits:', data.user_credits);
                         } else {
                             // Show error state

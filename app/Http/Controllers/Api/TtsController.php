@@ -461,26 +461,10 @@ class TtsController extends Controller
     {
         try {
             $user = auth()->user();
-            
-            // Get admin balance from SevenLabs API
-            $adminBalance = 0;
-            $apiKey = Helper::getSevenLabsApiKey();
-            
-            if ($apiKey) {
-                $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . $apiKey,
-                    'Content-Type' => 'application/json'
-                ])->get($this->apiBaseUrl . '/me');
-
-                if ($response->successful()) {
-                    $userData = $response->json();
-                    $adminBalance = $userData['balance'] ?? 0;
-                }
-            }
 
             return response()->json([
                 'success' => true,
-                'admin_balance' => $adminBalance,
+                'user_balance' => $user->balance ?? 0,
                 'user_credits' => $user->credits ?? 0
             ]);
 
