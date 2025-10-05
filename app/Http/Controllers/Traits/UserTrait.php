@@ -56,13 +56,8 @@ trait UserTrait {
 		}
 	}
 
-	// Downloads
-	$downloads = Downloads::where('user_id', '=', $id)->get();
-	if (isset($downloads)){
-		foreach($downloads as $download){
-			$download->delete();
-		}
-	}
+	// Downloads - Removed as Downloads model no longer exists
+	// Downloads functionality was removed during conversion to universal starter kit
 
 	// Followers
 	$followers = Followers::where( 'follower', $id )->orwhere('following',$id)->get();
@@ -83,44 +78,12 @@ trait UserTrait {
 		}
 	}
 
-	// Images Reported
-	$images_reporteds = ImagesReported::where('user_id', '=', $id)->get();
+	// Images Reported - Removed as ImagesReported model no longer exists
+	// Image reporting functionality was removed during conversion to universal starter kit
 
-	if (isset($images_reporteds)){
-		foreach ($images_reporteds as $images_reported ) {
-				$images_reported->delete();
-			}// End
-	}
-
-	// Images
-    $images = Images::where('user_id', '=', $id)->get();
-
-	if (isset($images)) {
-		foreach($images as $image) {
-
-			//<---- ALL RESOLUTIONS IMAGES
-			$stocks = Stock::where('images_id', '=', $image->id)->get();
-
-			foreach($stocks as $stock) {
-
-        // Delete Stock
-  			Storage::delete(config('path.uploads').$stock->type.'/'.$stock->name);
-
-  			// Delete Stock Vector
-  			Storage::delete(config('path.files').$stock->name);
-
-				$stock->delete();
-			}
-
-      // Delete preview
-  		Storage::delete(config('path.preview').$image->preview);
-
-  		// Delete thumbnail
-  		Storage::delete(config('path.thumbnail').$image->thumbnail);
-
-			$image->delete();
-		}
-	}// End
+	// Images - Removed as Images and Stock models no longer exist
+	// Image functionality was removed during conversion to universal starter kit
+	// This section is commented out to prevent errors
 
 	// User Reported
 	$users_reporteds = UsersReported::where('user_id', '=', $id)->orWhere('id_reported', '=', $id)->get();
