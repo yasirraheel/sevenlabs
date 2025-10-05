@@ -142,10 +142,10 @@
 						<div class="card shadow-sm">
 							<div class="card-body">
 								<h5>
-									<i class="bi bi-download me-2"></i> {{ number_format(auth()->user()->totalDownloads()->count()) }}
+									<i class="bi bi-credit-card me-2"></i> {{ number_format($userCredits ?? 0) }}
 
 								</h5>
-								<small>{{ trans('misc.downloads') }}</small>
+								<small>{{ trans('misc.credits') }}</small>
 							</div>
 						</div><!-- card 1 -->
 					</div><!-- col-lg-4 -->
