@@ -26,6 +26,25 @@
                 </div>
             @endif
 
+            {{-- Flash Messages --}}
+            @if (session('success_message'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check2 me-1"></i> {{ session('success_message') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            @endif
+
+            @if (session('error_message'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle me-1"></i> {{ session('error_message') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            @endif
+
             <div class="text-center text-md-start">
                 <h1 class="display-4 display-md-3 fw-bold text-white mb-3">
                     <i class="bi bi-mic me-3"></i>SevenLabs Voice AI
