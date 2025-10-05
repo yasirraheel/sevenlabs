@@ -7,7 +7,7 @@
     --color-default-rgb: {{ str_replace('#', '', $settings->color_default ?? '#007bff') }};
 }
 </style>
-<link href="/css/tts-custom.css" rel="stylesheet">
+<link href="{{ asset('public/css/tts-custom.css') }}?v={{$settings->version}}" rel="stylesheet">
 @endsection
 
 @section('content')

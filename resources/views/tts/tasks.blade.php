@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('css')
-<link href="/css/tts-custom.css" rel="stylesheet">
+<link href="{{ asset('public/css/tts-custom.css') }}?v={{$settings->version}}" rel="stylesheet">
 @endsection
 
 @section('content')
