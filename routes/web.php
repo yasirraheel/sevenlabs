@@ -28,6 +28,7 @@ use App\Http\Controllers\CountriesStatesController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\RolesAndPermissionsController;
+use App\Http\Controllers\AjaxController;
 
 /*
 |--------------------------------------------------------------------------
@@ -122,6 +123,9 @@ Route::group(['middleware' => 'auth'], function() {
 
     // User Credits API
     Route::get('api/user/credits', [App\Http\Controllers\Api\TtsController::class, 'getUserCredits']);
+
+    // AJAX Routes
+    Route::get('ajax/notifications', [AjaxController::class, 'notifications']);
 
     // Dashboard
     Route::get('user/dashboard',[DashboardController::class, 'dashboard']);
