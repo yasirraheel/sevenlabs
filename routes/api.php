@@ -46,5 +46,4 @@ Route::prefix('tts')->group(function () {
     Route::get('me', [TtsController::class, 'getMe']);
 });
 
-// User Credits Route (protected by auth)
-Route::middleware('auth')->get('user/credits', [TtsController::class, 'getUserCredits']);
+// User Credits Route moved to web.php for session-based auth

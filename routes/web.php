@@ -120,6 +120,9 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('comment/delete',[CommentsController::class, 'destroy']);
     Route::post('comment/like',[CommentsController::class, 'like']);
 
+    // User Credits API
+    Route::get('api/user/credits', [App\Http\Controllers\Api\TtsController::class, 'getUserCredits']);
+
     // Dashboard
     Route::get('user/dashboard',[DashboardController::class, 'dashboard']);
     Route::get('user/dashboard/deposits',[DashboardController::class, 'deposits']);
