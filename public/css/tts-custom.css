@@ -711,70 +711,48 @@ audio {
     }
 }
 
-/* Voice Mode Toggle Styling - Only for mode selection buttons */
+/* Voice Mode Toggle Styling - COMPLETE REWRITE */
+/* Default state for mode selection buttons */
+.btn-group .btn-outline-custom {
+    border: 2px solid var(--color-default) !important;
+    color: var(--color-default) !important;
+    background-color: transparent !important;
+    transition: all 0.2s ease;
+}
+
+/* Hover state for mode selection buttons */
+.btn-group .btn-outline-custom:hover {
+    background-color: var(--color-default) !important;
+    border-color: var(--color-default) !important;
+    color: white !important;
+}
+
+/* ACTIVE/CHECKED state for mode selection buttons */
 .btn-group .btn-check:checked + .btn-outline-custom {
     background-color: var(--color-default) !important;
     border-color: var(--color-default) !important;
     color: white !important;
     box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Focus state for mode selection buttons */
+.btn-group .btn-check:focus + .btn-outline-custom {
+    box-shadow: 0 0 0 0.2rem rgba(var(--color-default-rgb), 0.25) !important;
+    outline: none !important;
 }
 
 /* Browse button (not mode selection) should always be outline */
 #voiceSelectBtn.btn-outline-secondary {
-    border-color: #6c757d;
-    color: #6c757d;
+    border-color: #6c757d !important;
+    color: #6c757d !important;
+    background-color: transparent !important;
 }
 
 #voiceSelectBtn.btn-outline-secondary:hover {
-    background-color: #6c757d;
-    border-color: #6c757d;
-    color: white;
-}
-
-.btn-group .btn-check:focus + .btn-outline-custom {
-    box-shadow: 0 0 0 0.2rem rgba(var(--color-default-rgb), 0.25);
-}
-
-.btn-group .btn-outline-custom {
-    border-color: var(--color-default);
-    color: var(--color-default);
-    transition: all 0.2s ease;
-}
-
-/* Override outline styles for checked buttons */
-.btn-outline-custom:checked,
-.btn-outline-custom.btn-check:checked {
-    background-color: var(--color-default) !important;
-    border-color: var(--color-default) !important;
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
     color: white !important;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-.btn-group .btn-outline-custom:hover {
-    background-color: var(--color-default);
-    border-color: var(--color-default);
-    color: white;
-}
-
-/* Ensure active state is visible - Only for mode selection buttons */
-.btn-group .btn-check:checked + .btn-outline-custom,
-.btn-group .btn-check:checked + .btn-outline-custom:hover,
-.btn-group .btn-check:checked + .btn-outline-custom:focus {
-    background-color: var(--color-default) !important;
-    border-color: var(--color-default) !important;
-    color: white !important;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-/* Override any Bootstrap outline styles - Only for mode selection buttons */
-.btn-group .btn-check:checked + .btn-outline-custom:not(:disabled):not(.disabled) {
-    background-color: var(--color-default) !important;
-    border-color: var(--color-default) !important;
-    color: white !important;
-    box-shadow: none !important;
-    outline: none !important;
 }
 
 /* Mobile-friendly mode selection buttons */
