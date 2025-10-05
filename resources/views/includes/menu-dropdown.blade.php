@@ -39,6 +39,8 @@
     </a>
 </li>
 
+<li><hr class="dropdown-divider"></li>
+
 @if ($settings->sell_option == 'on')
 <li>
 <a class="dropdown-item" href="{{ url('account/subscription') }}">
