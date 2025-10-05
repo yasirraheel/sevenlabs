@@ -51,6 +51,37 @@
 			</div><!-- card 1 -->
 		</div><!-- col-lg-3 -->
 
+		<!-- GenAI Pro API System Credits -->
+		<div class="col-lg-3 mb-3">
+			<div class="card shadow-custom border-0 overflow-hidden">
+				<div class="card-body">
+					<h3>
+						<i class="bi bi-cash-stack me-2 icon-dashboard"></i>
+						<span class="{{ $apiStatus == 'success' ? 'text-success' : 'text-danger' }}">
+							{{ $apiStatus == 'success' ? number_format($systemBalance, 2) : 'Error' }}
+						</span>
+					</h3>
+					<small>{{ trans('misc.system_balance') }}</small>
+					<span class="icon-wrap icon--admin"><i class="bi bi-cash-stack"></i></span>
+				</div>
+			</div><!-- card -->
+		</div><!-- col-lg-3 -->
+
+		<div class="col-lg-3 mb-3">
+			<div class="card shadow-custom border-0 overflow-hidden">
+				<div class="card-body">
+					<h3>
+						<i class="bi bi-credit-card me-2 icon-dashboard"></i>
+						<span class="{{ $apiStatus == 'success' ? 'text-success' : 'text-danger' }}">
+							{{ $apiStatus == 'success' ? number_format($systemCredits) : 'Error' }}
+						</span>
+					</h3>
+					<small>{{ trans('misc.system_credits') }}</small>
+					<span class="icon-wrap icon--admin"><i class="bi bi-credit-card"></i></span>
+				</div>
+			</div><!-- card -->
+		</div><!-- col-lg-3 -->
+
 
 
 		<div class="col-lg-4 mb-3">

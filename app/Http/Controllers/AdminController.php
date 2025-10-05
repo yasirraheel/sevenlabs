@@ -107,6 +107,39 @@ class AdminController extends Controller
 		$totalUsers  = User::count();
 		$totalTransactions = Deposits::whereStatus('approved')->count();
 
+		// Fetch GenAI Pro API system balance and credits
+		$systemBalance = 0;
+		$systemCredits = 0;
+		$apiStatus = 'error';
+		
+		try {
+			$apiKey = Helper::getSevenLabsApiKey();
+			if ($apiKey) {
+				$response = \Illuminate\Support\Facades\Http::withHeaders([
+					'Authorization' => 'Bearer ' . $apiKey,
+					'Content-Type' => 'application/json'
+				])->get('https://api.genai.pro/me');
+
+				if ($response->successful()) {
+					$userData = $response->json();
+					$systemBalance = $userData['balance'] ?? 0;
+					
+					// Calculate total credits from all credit entries
+					$systemCredits = 0;
+					if (isset($userData['credits']) && is_array($userData['credits'])) {
+						foreach ($userData['credits'] as $credit) {
+							if (isset($credit['amount'])) {
+								$systemCredits += $credit['amount'];
+							}
+						}
+					}
+					$apiStatus = 'success';
+				}
+			}
+		} catch (\Exception $e) {
+			\Log::error('Admin Dashboard - GenAI Pro API Error: ' . $e->getMessage());
+		}
+
 		return view('admin.dashboard', [
 			'earningNetAdmin' => $totalRevenue,
 			'label' => $label,
@@ -120,7 +153,10 @@ class AdminController extends Controller
 			'stat_revenue_week' => $stat_revenue_week,
 			'stat_revenue_last_week' => $stat_revenue_last_week,
 			'stat_revenue_month' => $stat_revenue_month,
-			'stat_revenue_last_month' => $stat_revenue_last_month
+			'stat_revenue_last_month' => $stat_revenue_last_month,
+			'systemBalance' => $systemBalance,
+			'systemCredits' => $systemCredits,
+			'apiStatus' => $apiStatus
 		]);
 	}
 

@@ -717,4 +717,6 @@ return array(
 	'sevenlabs_api_key_info' => 'Ingrese su clave API de SevenLabs para habilitar las funciones de síntesis de voz',
 	'signup_bonus_credits' => 'Créditos de Bonificación de Registro',
 	'signup_bonus_credits_info' => 'Número de créditos para dar a los nuevos usuarios cuando se registren',
+	'system_balance' => 'Saldo del Sistema',
+	'system_credits' => 'Créditos del Sistema',
 );
