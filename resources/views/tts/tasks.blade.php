@@ -166,6 +166,7 @@ $(document).ready(function() {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
+                console.log('Tasks API Response:', response);
                 if (response.success && response.data) {
                     displayTasks(response.data.tasks || []);
                     displayPagination(response.data);
@@ -207,7 +208,7 @@ $(document).ready(function() {
                     <td><code>${task.id.substring(0, 8)}...</code></td>
                     <td title="${task.input}">${shortInput}</td>
                     <td><code>${task.voice_id}</code></td>
-                    <td>${task.model_id}</td>
+                    <td>${task.model || 'N/A'}</td>
                     <td>${statusBadge}</td>
                     <td>${createdDate}</td>
                     <td>
@@ -255,7 +256,7 @@ $(document).ready(function() {
                             </div>
                             <div class="col-4">
                                 <small class="text-muted d-block">Model</small>
-                                <span class="small">${task.model_id}</span>
+                                <span class="small">${task.model || 'N/A'}</span>
                             </div>
                             <div class="col-4">
                                 <small class="text-muted d-block">Actions</small>
@@ -387,15 +388,15 @@ $(document).ready(function() {
                             </div>
                             <div class="mb-2">
                                 <small class="text-muted d-block">Model</small>
-                                <span class="small">${task.model_id}</span>
+                                <span class="small">${task.model || 'N/A'}</span>
                             </div>
                             <div class="mb-2">
                                 <small class="text-muted d-block">Style</small>
-                                <span class="small">${task.style}</span>
+                                <span class="small">${task.style || 'N/A'}</span>
                             </div>
                             <div class="mb-0">
                                 <small class="text-muted d-block">Speed</small>
-                                <span class="small">${task.speed}</span>
+                                <span class="small">${task.speed || 'N/A'}</span>
                             </div>
                         </div>
                     </div>
