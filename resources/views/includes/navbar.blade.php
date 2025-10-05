@@ -148,7 +148,7 @@
                         console.log('Credits element text:', creditsElement.textContent);
                         
                         // Only load if not already loaded
-                        if (balanceElement.textContent === 'Loading...' || balanceElement.textContent.includes('...')) {
+                        if (balanceElement.textContent === '...' || balanceElement.textContent === 'Loading...') {
                             console.log('Loading user data...');
                             loadUserData();
                         } else {

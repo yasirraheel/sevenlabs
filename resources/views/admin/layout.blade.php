@@ -423,7 +423,7 @@
                 console.log('Admin Panel - Credits element text:', creditsElement.textContent);
                 
                 // Only load if not already loaded
-                if (balanceElement.textContent === 'Loading...' || balanceElement.textContent.includes('...')) {
+                if (balanceElement.textContent === '...' || balanceElement.textContent === 'Loading...') {
                     console.log('Admin Panel - Loading user data...');
                     loadUserData();
                 } else {
