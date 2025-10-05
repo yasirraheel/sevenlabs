@@ -533,6 +533,12 @@ $(document).ready(function() {
 
     // Voice Selection Modal
     $('#voiceSelectBtn').on('click', function() {
+        // Check if user is logged in
+        @guest
+        showFlashMessage('error', 'Please login first to browse voices. <a href="{{ url("login") }}" class="text-white text-decoration-underline">Click here to login</a>');
+        return;
+        @endguest
+        
         $('#voiceSelectModal').modal('show');
         if (voices.length === 0) {
             loadVoices();
