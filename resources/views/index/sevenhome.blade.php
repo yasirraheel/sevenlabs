@@ -1,6 +1,12 @@
 @extends('layouts.app')
 
 @section('css')
+<style>
+:root {
+    --color-default: {{ $settings->color_default }};
+    --color-default-rgb: {{ str_replace('#', '', $settings->color_default) }};
+}
+</style>
 <link href="{{ asset('css/tts-custom.css') }}" rel="stylesheet">
 @endsection
 

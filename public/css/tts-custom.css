@@ -713,9 +713,9 @@ audio {
 
 /* Voice Mode Toggle Styling */
 .btn-check:checked + .btn-outline-custom {
-    background-color: var(--color-default, #007bff);
-    border-color: var(--color-default, #007bff);
-    color: white;
+    background-color: var(--color-default, #007bff) !important;
+    border-color: var(--color-default, #007bff) !important;
+    color: white !important;
 }
 
 .btn-check:focus + .btn-outline-custom {
@@ -725,12 +725,22 @@ audio {
 .btn-group .btn-outline-custom {
     border-color: var(--color-default, #007bff);
     color: var(--color-default, #007bff);
+    transition: all 0.2s ease;
 }
 
 .btn-group .btn-outline-custom:hover {
     background-color: var(--color-default, #007bff);
     border-color: var(--color-default, #007bff);
     color: white;
+}
+
+/* Ensure active state is visible */
+.btn-check:checked + .btn-outline-custom,
+.btn-check:checked + .btn-outline-custom:hover,
+.btn-check:checked + .btn-outline-custom:focus {
+    background-color: var(--color-default, #007bff) !important;
+    border-color: var(--color-default, #007bff) !important;
+    color: white !important;
 }
 
 /* Mobile-friendly mode selection buttons */
