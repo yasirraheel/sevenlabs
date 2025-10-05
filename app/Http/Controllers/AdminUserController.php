@@ -119,13 +119,19 @@ class AdminUserController extends Controller {
 	 $user = User::findOrFail($id);
 
 	 if( $user->id == 1 || $user->id == Auth::user()->id ) {
-	 	return redirect('panel/admin/members');
+	 	return redirect('panel/admin/members')
+        ->with('info_message', 'You cannot delete this user.');
 		exit;
 	 }
 
-	 $this->deleteUser($id);
-
-      return redirect('panel/admin/members');
+	 try {
+        $this->deleteUser($id);
+        return redirect('panel/admin/members')
+          ->with('success_message', 'User has been deleted successfully.');
+    } catch (\Exception $e) {
+        return redirect('panel/admin/members')
+          ->with('info_message', 'Error deleting user: ' . $e->getMessage());
+    }
 
 	}//<--- End Method
 
