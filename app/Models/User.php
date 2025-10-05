@@ -43,7 +43,7 @@ class User extends Authenticatable
     'stripe_connect_id',
     'completed_stripe_onboarding',
     'balance',
-    'funds'
+    'credits'
   ];
 
   /**
