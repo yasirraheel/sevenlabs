@@ -44,47 +44,27 @@
 						</div>
 
 		        <div class="row mb-3">
-		          <label class="col-sm-2 col-form-labe text-lg-end">{{ __('admin.downloadable_content') }}</label>
+		          <label class="col-sm-2 col-form-label text-lg-end">{{ __('misc.credits') }}</label>
 		          <div class="col-sm-10">
-		            <select name="downloadable_content" class="form-select">
-									<option value="images">{{ __('admin.images') }}</option>
-		           </select>
+		            <input value="{{ old('credits') }}" required name="credits" type="number" min="1" class="form-control" placeholder="1000">
 		          </div>
 		        </div>
 
 						<div class="row mb-3">
-		          <label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.downloads_per_month') }}</label>
+		          <label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.duration') }}</label>
 		          <div class="col-sm-10">
-		            <input value="{{ old('downloads_per_month') }}" required name="downloads_per_month" type="number" min="1" class="form-control">
-		          </div>
-		        </div>
-
-						<div class="row mb-3">
-		          <label class="col-sm-2 col-form-labe text-lg-end">{{ trans('admin.daily_limit_downloads') }}</label>
-		          <div class="col-sm-10">
-		            <select name="download_limits" class="form-select">
-									@for ($i=0; $i <= 100; $i++)
-										<option value="{{ $i }}">{{ $i == 0 ? trans('admin.unlimited') : $i }}</option>
-									@endfor
-		           </select>
-		          </div>
-		        </div><!-- end row -->
-
-						<div class="row mb-3">
-		          <label class="col-sm-2 col-form-labe text-lg-end">{{ trans('admin.type_license') }}</label>
-		          <div class="col-sm-10">
-		            <select name="license" class="form-select">
-                  <option value="regular">{{ trans('misc.regular') }}</option>
-                  <option value="regular_extended">{{ trans('admin.regular_extended') }}</option>
+		            <select name="duration" class="form-select">
+									<option value="month">{{ __('admin.month') }}</option>
+									<option value="year">{{ __('admin.year') }}</option>
 		           </select>
 		          </div>
 		        </div><!-- end row -->
 
 						<fieldset class="row mb-3">
-		          <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('admin.unused_downloads_rollover') }} <i class="bi-info-circle showTooltip ms-1" title="{{ trans('misc.unused_downloads_added_next_month') }}"></i> </legend>
+		          <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('admin.unused_credits_rollover') }} <i class="bi-info-circle showTooltip ms-1" title="{{ trans('misc.unused_credits_added_next_period') }}"></i> </legend>
 		          <div class="col-sm-10">
 		            <div class="form-check form-switch form-switch-md">
-		             <input class="form-check-input" type="checkbox" name="unused_downloads_rollover" checked value="1" role="switch">
+		             <input class="form-check-input" type="checkbox" name="unused_credits_rollover" checked value="1" role="switch">
 		           </div>
 		          </div>
 		        </fieldset><!-- end row -->

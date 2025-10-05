@@ -566,6 +566,7 @@ return array(
 	'discount' => 'off',
 	'all_images_vectors' => 'All images and vectors',
 	'unused_downloads_added_next_month' => 'Unused downloads will be added the following month',
+	'unused_credits_added_next_period' => 'Unused credits will be added to the next period',
 	'download_limit_renewed_monthly' => 'The download limit is renewed every month',
 	'no_daily_download_limits' => 'No daily download limits',
 	'downloads_per_day' => ':number downloads per day',// Not remove :number

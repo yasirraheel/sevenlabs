@@ -30,7 +30,8 @@ class PlansController extends Controller
         'name' => 'required|max:100',
         'price' => 'required|numeric|min:1',
         'price_year' => 'required|numeric|min:1',
-        'downloads_per_month' => 'required|numeric|min:1',
+        'credits' => 'required|numeric|min:1',
+        'duration' => 'required|in:month,year',
     ]);
 
     $plan = new Plans();
@@ -38,11 +39,9 @@ class PlansController extends Controller
     $plan->name = $request->name;
     $plan->price = $request->price;
     $plan->price_year = $request->price_year;
-    $plan->downloadable_content = $request->downloadable_content;
-    $plan->downloads_per_month = $request->downloads_per_month;
-    $plan->download_limits = $request->download_limits;
-    $plan->license = $request->license;
-    $plan->unused_downloads_rollover = $request->unused_downloads_rollover ?? false;
+    $plan->credits = $request->credits;
+    $plan->duration = $request->duration;
+    $plan->unused_credits_rollover = $request->unused_credits_rollover ?? false;
     $plan->save();
 
     return redirect('panel/admin/plans')
@@ -64,24 +63,17 @@ class PlansController extends Controller
     $validated = $request->validate([
         'name' => 'required|max:100',
         'price' => 'required|numeric|min:1',
-        'price_year' => 'required|numeric',
-        'downloads_per_month' => 'required|numeric|min:1',
+        'price_year' => 'required|numeric|min:1',
+        'credits' => 'required|numeric|min:1',
+        'duration' => 'required|in:month,year',
     ]);
-
-    if ($request->popular) {
-     // Remove popular to other plan
-     Plans::wherePopular(1)->where('id', '<>', $plan->id)->update(['popular' => false]);
-    }
 
     $plan->name = $request->name;
     $plan->price = $request->price;
     $plan->price_year = $request->price_year;
-    $plan->downloadable_content = $request->downloadable_content;
-    $plan->downloads_per_month = $request->downloads_per_month;
-    $plan->download_limits = $request->download_limits;
-    $plan->license = $request->license;
-    $plan->popular = $request->popular;
-    $plan->unused_downloads_rollover = $request->unused_downloads_rollover ?? false;
+    $plan->credits = $request->credits;
+    $plan->duration = $request->duration;
+    $plan->unused_credits_rollover = $request->unused_credits_rollover ?? false;
     $plan->status = $request->status ?? false;
     $plan->save();
 

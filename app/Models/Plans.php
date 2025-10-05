@@ -10,11 +10,13 @@ class Plans extends Model
     use HasFactory;
 
     protected $fillable = [
-      'user_id',
+      'plan_id',
       'name',
       'price',
-      'interval',
-      'paystack',
+      'price_year',
+      'credits',
+      'duration',
+      'unused_credits_rollover',
       'status',
       'created_at'
     ];

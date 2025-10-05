@@ -36,10 +36,10 @@
 							@if ($plans->count() !=  0)
 								 <tr>
 										<th class="active">{{ trans('admin.name') }}</th>
-										<th class="active">{{ trans('admin.downloadable_content') }}</th>
+										<th class="active">{{ trans('misc.credits') }}</th>
+										<th class="active">{{ trans('admin.duration') }}</th>
 										<th class="active">{{ trans('admin.price_per_month') }}</th>
 										<th class="active">{{ trans('admin.price_per_year') }}</th>
-										<th class="active">{{ trans('admin.downloads_per_month') }}</th>
 										<th class="active">{{ trans('admin.status') }}</th>
 										<th class="active">{{ trans('admin.actions') }}</th>
 									</tr>
@@ -47,10 +47,10 @@
 								@foreach ($plans as $plan)
 									<tr>
 										<td>{{ $plan->name }}</td>
-										<td>{{ __('admin.'.$plan->downloadable_content) }}</td>
-										<td>{{ $plan->price }}</td>
-										<td>{{ $plan->price_year }}</td>
-										<td>{{ $plan->downloads_per_month }}</td>
+										<td>{{ number_format($plan->credits) }}</td>
+										<td>{{ ucfirst($plan->duration) }}</td>
+										<td>${{ number_format($plan->price, 2) }}</td>
+										<td>${{ number_format($plan->price_year, 2) }}</td>
 										<td><span class="badge rounded-pill bg-{{ $plan->status ? 'success' : 'secondary' }}">
 											{{ $plan->status ? trans('misc.enabled') : trans('misc.disabled') }}</span>
 										</td>
