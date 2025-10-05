@@ -15,6 +15,7 @@ class UserTask extends Model
         'input_text',
         'voice_id',
         'voice_name',
+        'model',
         'text_length',
         'credits_used',
         'status',

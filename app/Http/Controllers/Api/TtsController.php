@@ -119,7 +119,7 @@ class TtsController extends Controller
                     $this->storeTaskInfo($responseData['task_id'], $user->id, $estimatedCredits, $textLength);
 
                     // Store task in database for cross-device history
-                    $this->storeTaskInDatabase($responseData['task_id'], $user->id, $request->input('input'), $request->input('voice_id'), $textLength, $estimatedCredits);
+                    $this->storeTaskInDatabase($responseData['task_id'], $user->id, $request->input('input'), $request->input('voice_id'), $request->input('model_id'), $textLength, $estimatedCredits);
 
                     // Task created successfully, return appropriate response
                     if ($request->ajax()) {
@@ -386,13 +386,15 @@ class TtsController extends Controller
         try {
             // Log the callback for debugging
             \Log::info('TTS Callback received:', $request->all());
+            \Log::info('Callback headers:', $request->headers->all());
+            \Log::info('Callback IP:', $request->ip());
 
             // Validate callback payload
             $request->validate([
                 'id' => 'required|string',
                 'input' => 'required|string',
-                'result' => 'required|url',
-                'subtitle' => 'nullable|url',
+                'result' => 'nullable|string',
+                'subtitle' => 'nullable|string',
                 'error' => 'nullable|string'
             ]);
 
@@ -846,7 +848,7 @@ class TtsController extends Controller
     /**
      * Store task in database for cross-device history
      */
-    private function storeTaskInDatabase($taskId, $userId, $inputText, $voiceId, $textLength, $estimatedCredits)
+    private function storeTaskInDatabase($taskId, $userId, $inputText, $voiceId, $modelId, $textLength, $estimatedCredits)
     {
         try {
             // Debug: Log the data being stored
@@ -855,6 +857,7 @@ class TtsController extends Controller
                 'user_id' => $userId,
                 'input_text' => $inputText,
                 'voice_id' => $voiceId,
+                'model_id' => $modelId,
                 'text_length' => $textLength,
                 'estimated_credits' => $estimatedCredits
             ]);
@@ -865,6 +868,7 @@ class TtsController extends Controller
                 'input_text' => $inputText,
                 'voice_id' => $voiceId,
                 'voice_name' => $this->getVoiceName($voiceId),
+                'model' => $modelId,
                 'text_length' => $textLength,
                 'credits_used' => $estimatedCredits,
                 'status' => 'pending'
