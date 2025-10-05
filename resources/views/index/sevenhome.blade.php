@@ -66,32 +66,68 @@
                             <!-- Voice Selection -->
                             <div class="row mb-4">
                                 <div class="col-12 col-lg-6 mb-3 mb-lg-0">
-                                    <div class="form-floating">
-                                        <input
-                                            type="text"
-                                            class="form-control"
-                                            id="voice_display"
-                                            placeholder="Click to select a voice..."
-                                            value=""
-                                            readonly
-                                            required
-                                        >
-                                        <label for="voice_display">
-                                            <i class="bi bi-person-voice me-2"></i>Select Voice
-                                        </label>
-                                        <input
-                                            type="hidden"
-                                            id="voice_id"
-                                            name="voice_id"
-                                            value=""
-                                        >
+                                    <!-- Voice Selection Mode Toggle -->
+                                    <div class="mb-3">
+                                        <div class="btn-group w-100" role="group" aria-label="Voice selection mode">
+                                            <input type="radio" class="btn-check" name="voice_mode" id="voice_mode_browse" value="browse" checked>
+                                            <label class="btn btn-outline-custom" for="voice_mode_browse">
+                                                <i class="bi bi-search me-2"></i>Browse Voices
+                                            </label>
+                                            
+                                            <input type="radio" class="btn-check" name="voice_mode" id="voice_mode_manual" value="manual">
+                                            <label class="btn btn-outline-custom" for="voice_mode_manual">
+                                                <i class="bi bi-pencil me-2"></i>Manual Entry
+                                            </label>
+                                        </div>
                                     </div>
-                                    <div class="d-grid mt-2">
-                                        <button class="btn btn-outline-custom" type="button" id="voiceSelectBtn">
-                                            <i class="bi bi-search me-2"></i>Browse Voices
-                                        </button>
+
+                                    <!-- Browse Mode -->
+                                    <div id="browse_mode">
+                                        <div class="form-floating">
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                id="voice_display"
+                                                placeholder="Click to select a voice..."
+                                                value=""
+                                                readonly
+                                                required
+                                            >
+                                            <label for="voice_display">
+                                                <i class="bi bi-person-voice me-2"></i>Select Voice
+                                            </label>
+                                            <input
+                                                type="hidden"
+                                                id="voice_id"
+                                                name="voice_id"
+                                                value=""
+                                            >
+                                        </div>
+                                        <div class="d-grid mt-2">
+                                            <button class="btn btn-outline-custom" type="button" id="voiceSelectBtn">
+                                                <i class="bi bi-search me-2"></i>Browse Voices
+                                            </button>
+                                        </div>
+                                        <div class="form-text">Choose from available voices with preview</div>
                                     </div>
-                                    <div class="form-text">Choose from available voices with preview</div>
+
+                                    <!-- Manual Mode -->
+                                    <div id="manual_mode" style="display: none;">
+                                        <div class="form-floating">
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                id="voice_id_manual"
+                                                name="voice_id_manual"
+                                                placeholder="Enter voice ID manually..."
+                                                value=""
+                                            >
+                                            <label for="voice_id_manual">
+                                                <i class="bi bi-key me-2"></i>Voice ID
+                                            </label>
+                                        </div>
+                                        <div class="form-text">Enter the voice ID directly (e.g., 21m00Tcm4TlvDq8ikWAM)</div>
+                                    </div>
                                 </div>
                                 <div class="col-12 col-lg-6">
                                     <div class="form-floating">
@@ -243,8 +279,8 @@
                                 <div class="d-flex justify-content-center gap-2 mt-2">
                                     <a href="{{ url('tts/tasks') }}" class="btn btn-outline-secondary">
                                         <i class="bi bi-list-task me-2"></i>View Tasks
-                                    </a>
-                                </div>
+    </a>
+  </div>
                             </div>
                         </form>
                     </div>
@@ -410,6 +446,22 @@ $(document).ready(function() {
 
     $('#stability').on('input', function() {
         $('#stabilityValue').text($(this).val());
+    });
+
+    // Voice mode switching
+    $('input[name="voice_mode"]').change(function() {
+        const mode = $(this).val();
+        if (mode === 'browse') {
+            $('#browse_mode').show();
+            $('#manual_mode').hide();
+            $('#voice_id').prop('required', true);
+            $('#voice_id_manual').prop('required', false);
+        } else {
+            $('#browse_mode').hide();
+            $('#manual_mode').show();
+            $('#voice_id').prop('required', false);
+            $('#voice_id_manual').prop('required', true);
+        }
     });
 
     // Voice Selection Modal
@@ -634,17 +686,33 @@ $(document).ready(function() {
         $('#resultsCard').hide();
         $('#generateBtn').prop('disabled', true);
 
+        // Get voice ID based on mode
+        let voiceId = '';
+        const voiceMode = $('input[name="voice_mode"]:checked').val();
+        
+        if (voiceMode === 'browse') {
+            voiceId = $('#voice_id').val();
+        } else {
+            voiceId = $('#voice_id_manual').val();
+        }
+
         // Validate voice selection
-        if (!$('#voice_id').val()) {
-            alert('Please select a voice before generating speech.');
-            $('#voiceSelectBtn').focus();
+        if (!voiceId) {
+            alert('Please select a voice or enter a voice ID before generating speech.');
+            if (voiceMode === 'browse') {
+                $('#voiceSelectBtn').focus();
+            } else {
+                $('#voice_id_manual').focus();
+            }
+            $('#loadingSpinner').hide();
+            $('#generateBtn').prop('disabled', false);
             return;
         }
 
         // Collect form data
         const formData = {
             input: $('#input').val(),
-            voice_id: $('#voice_id').val(), // Hidden field with actual voice ID
+            voice_id: voiceId,
             model_id: $('#model_id').val(),
             style: parseFloat($('#style').val()),
             speed: parseFloat($('#speed').val()),
@@ -766,11 +834,19 @@ $(document).ready(function() {
                                 $('#ttsForm')[0].reset();
                                 $('#voice_display').val(''); // Clear display field
                                 $('#voice_id').val(''); // Clear hidden ID field
+                                $('#voice_id_manual').val(''); // Clear manual ID field
                                 $('#resultsCard').hide();
                                 $('#styleValue').text('0.0');
                                 $('#speedValue').text('1.0x');
                                 $('#similarityValue').text('0.75');
                                 $('#stabilityValue').text('0.5');
+                                
+                                // Reset to browse mode
+                                $('#voice_mode_browse').prop('checked', true);
+                                $('#browse_mode').show();
+                                $('#manual_mode').hide();
+                                $('#voice_id').prop('required', true);
+                                $('#voice_id_manual').prop('required', false);
                             });
 
                         } else if (task.status === 'failed') {

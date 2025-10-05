@@ -711,6 +711,28 @@ audio {
     }
 }
 
+/* Voice Mode Toggle Styling */
+.btn-check:checked + .btn-outline-custom {
+    background-color: var(--color-default, #007bff);
+    border-color: var(--color-default, #007bff);
+    color: white;
+}
+
+.btn-check:focus + .btn-outline-custom {
+    box-shadow: 0 0 0 0.2rem rgba(var(--color-default-rgb, 0, 123, 255), 0.25);
+}
+
+.btn-group .btn-outline-custom {
+    border-color: var(--color-default, #007bff);
+    color: var(--color-default, #007bff);
+}
+
+.btn-group .btn-outline-custom:hover {
+    background-color: var(--color-default, #007bff);
+    border-color: var(--color-default, #007bff);
+    color: white;
+}
+
 /* Mobile Form Improvements */
 @media (max-width: 768px) {
     .form-floating > .form-control {
