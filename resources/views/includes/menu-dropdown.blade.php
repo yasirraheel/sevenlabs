@@ -1,4 +1,4 @@
-@if (auth()->user()->role && ! request()->is('panel/admin') && ! request()->is('panel/admin/*'))
+@if (auth()->user()->role() && ! request()->is('panel/admin') && ! request()->is('panel/admin/*'))
   <li><a class="dropdown-item" href="{{ url('panel/admin') }}"><i class="bi bi-speedometer2 me-2"></i> {{ __('admin.admin') }}</a></li>
   <li><hr class="dropdown-divider"></li>
 @endif
