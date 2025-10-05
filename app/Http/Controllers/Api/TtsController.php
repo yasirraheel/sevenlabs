@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use App\Helper;
-use App\Models\UserTask;
 
 class TtsController extends Controller
 {
@@ -36,7 +35,7 @@ class TtsController extends Controller
                     'message' => 'SevenLabs API key is not configured. Please contact administrator.'
                 ], 500);
             }
-            return redirect()->back()->with('error_message',
+            return redirect()->back()->with('error_message', 
                 'SevenLabs API key is not configured. Please contact administrator.'
             );
         }
@@ -51,7 +50,7 @@ class TtsController extends Controller
                         'message' => 'User not authenticated. Please log in and try again.'
                     ], 401);
                 }
-                return redirect()->back()->with('error_message',
+                return redirect()->back()->with('error_message', 
                     'User not authenticated. Please log in and try again.'
                 );
             }
@@ -59,7 +58,7 @@ class TtsController extends Controller
             // Calculate estimated credits based on character count
             $textLength = strlen($request->input);
             $estimatedCredits = $this->calculateEstimatedCredits($textLength);
-
+            
             // Check user has sufficient credits for estimated usage
             if ($user->credits < $estimatedCredits) {
                 if ($request->ajax()) {
@@ -68,7 +67,7 @@ class TtsController extends Controller
                         'message' => "Insufficient credits. You need at least {$estimatedCredits} credits for this text ({$textLength} characters). You have {$user->credits} credits."
                     ], 400);
                 }
-                return redirect()->back()->with('error_message',
+                return redirect()->back()->with('error_message', 
                     "Insufficient credits. You need at least {$estimatedCredits} credits for this text ({$textLength} characters). You have {$user->credits} credits."
                 );
             }
@@ -76,7 +75,7 @@ class TtsController extends Controller
             // Pre-deduct estimated credits from user
             $user->credits -= $estimatedCredits;
             $user->save();
-
+            
             \Log::info("TTS Generation - Pre-deducted estimated credits", [
                 'user_id' => $user->id,
                 'text_length' => $textLength,
@@ -118,9 +117,6 @@ class TtsController extends Controller
                     // Store task info for credit confirmation later
                     $this->storeTaskInfo($responseData['task_id'], $user->id, $estimatedCredits, $textLength);
 
-                    // Store minimal task data in database for cross-device history
-                    $this->storeTaskInDatabase($responseData['task_id'], $user->id, $estimatedCredits);
-
                     // Task created successfully, return appropriate response
                     if ($request->ajax()) {
                         return response()->json([
@@ -132,7 +128,7 @@ class TtsController extends Controller
                             'remaining_credits' => $user->credits
                         ]);
                     }
-                    return redirect()->back()->with('success_message',
+                    return redirect()->back()->with('success_message', 
                         "TTS generation started successfully! Estimated credits: {$estimatedCredits}. Remaining credits: {$user->credits}. Task ID: {$responseData['task_id']}"
                     );
                 } else {
@@ -142,7 +138,7 @@ class TtsController extends Controller
                             'message' => 'Unexpected response format from API. Please try again.'
                         ], 500);
                     }
-                    return redirect()->back()->with('error_message',
+                    return redirect()->back()->with('error_message', 
                         'Unexpected response format from API. Please try again.'
                     );
                 }
@@ -173,7 +169,7 @@ class TtsController extends Controller
                     'message' => 'Connection timeout. The API is taking longer than expected. Please try again in a few moments.'
                 ], 408);
             }
-            return redirect()->back()->with('error_message',
+            return redirect()->back()->with('error_message', 
                 'Connection timeout. The API is taking longer than expected. Please try again in a few moments.'
             );
         } catch (\Illuminate\Http\Client\RequestException $e) {
@@ -185,7 +181,7 @@ class TtsController extends Controller
                     'message' => 'Request failed. Please check your input and try again.'
                 ], 400);
             }
-            return redirect()->back()->with('error_message',
+            return redirect()->back()->with('error_message', 
                 'Request failed. Please check your input and try again.'
             );
         } catch (\Exception $e) {
@@ -199,7 +195,7 @@ class TtsController extends Controller
                         'message' => 'Task timeout - please try again later. The server is currently busy processing requests.'
                     ], 408);
                 }
-                return redirect()->back()->with('error_message',
+                return redirect()->back()->with('error_message', 
                     'Task timeout - please try again later. The server is currently busy processing requests.'
                 );
             }
@@ -210,7 +206,7 @@ class TtsController extends Controller
                     'message' => 'An error occurred while generating speech: ' . $e->getMessage()
                 ], 500);
             }
-            return redirect()->back()->with('error_message',
+            return redirect()->back()->with('error_message', 
                 'An error occurred while generating speech: ' . $e->getMessage()
             );
         }
@@ -261,51 +257,29 @@ class TtsController extends Controller
                 ], 401);
             }
 
-            // Get user's task IDs from database
-            $userTasks = UserTask::where('user_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->get(['task_id', 'credits_used', 'created_at']);
+            $page = $request->input('page', 1);
+            $limit = $request->input('limit', 20);
 
-            $tasks = [];
+            // Get user's tasks from cache
+            $userTasks = $this->getUserTasksFromCache($user->id);
             
-            // Loop through each task ID and fetch from API
-            foreach ($userTasks as $userTask) {
-                try {
-                    $response = Http::withHeaders([
-                        'Authorization' => 'Bearer ' . Helper::getSevenLabsApiKey(),
-                        'Content-Type' => 'application/json'
-                    ])->timeout(30)->get("{$this->apiBaseUrl}/tasks/{$userTask->task_id}");
-
-                    if ($response->successful()) {
-                        $taskData = $response->json();
-                        $tasks[] = [
-                            'id' => $taskData['id'] ?? $userTask->task_id,
-                            'input' => $taskData['input'] ?? '',
-                            'voice_id' => $taskData['voice_id'] ?? '',
-                            'voice_name' => $taskData['voice_name'] ?? '',
-                            'model' => $taskData['model'] ?? '',
-                            'status' => $taskData['status'] ?? 'pending',
-                            'result' => $taskData['result'] ?? null,
-                            'subtitle' => $taskData['subtitle'] ?? null,
-                            'error' => $taskData['error'] ?? null,
-                            'created_at' => $taskData['created_at'] ?? $userTask->created_at->toISOString(),
-                            'completed_at' => $taskData['completed_at'] ?? null,
-                            'text_length' => $taskData['text_length'] ?? 0,
-                            'credits_used' => $userTask->credits_used,
-                            'duration' => $taskData['duration'] ?? null
-                        ];
-                    }
-                } catch (\Exception $e) {
-                    \Log::error("Error fetching task from API: " . $e->getMessage(), [
-                        'task_id' => $userTask->task_id
-                    ]);
-                }
-            }
+            // Paginate the results
+            $totalTasks = count($userTasks);
+            $offset = ($page - 1) * $limit;
+            $paginatedTasks = array_slice($userTasks, $offset, $limit);
 
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'tasks' => $tasks
+                    'tasks' => $paginatedTasks,
+                    'pagination' => [
+                        'current_page' => $page,
+                        'per_page' => $limit,
+                        'total' => $totalTasks,
+                        'last_page' => ceil($totalTasks / $limit),
+                        'from' => $offset + 1,
+                        'to' => min($offset + $limit, $totalTasks)
+                    ]
                 ]
             ]);
 
@@ -392,15 +366,13 @@ class TtsController extends Controller
         try {
             // Log the callback for debugging
             \Log::info('TTS Callback received:', $request->all());
-            \Log::info('Callback headers:', $request->headers->all());
-            \Log::info('Callback IP:', $request->ip());
 
             // Validate callback payload
             $request->validate([
                 'id' => 'required|string',
                 'input' => 'required|string',
-                'result' => 'nullable|string',
-                'subtitle' => 'nullable|string',
+                'result' => 'required|url',
+                'subtitle' => 'nullable|url',
                 'error' => 'nullable|string'
             ]);
 
@@ -418,8 +390,8 @@ class TtsController extends Controller
                 ], 400);
             }
 
-            // Task completed - no need to update database, API will have the latest status
-
+            // Store the result (you might want to save this to database)
+            // For now, we'll just log it
             \Log::info('TTS Task completed successfully', [
                 'task_id' => $taskId,
                 'result_url' => $result,
@@ -429,16 +401,16 @@ class TtsController extends Controller
             // Get system credits to calculate actual usage
             $systemCreditsAfter = $this->getSystemCredits();
             $taskInfo = \Cache::get("tts_task_{$taskId}");
-
+            
             if ($taskInfo && $systemCreditsAfter !== null) {
                 // Calculate actual credits used by comparing system credits
                 $systemCreditsBefore = $this->getSystemCreditsBeforeTask($taskId);
                 $actualCreditsUsed = 0;
-
+                
                 if ($systemCreditsBefore !== null) {
                     $actualCreditsUsed = max(0, $systemCreditsBefore - $systemCreditsAfter);
                 }
-
+                
                 // Confirm credit usage and refund if necessary
                 $this->confirmCreditUsage($taskId, $actualCreditsUsed);
             }
@@ -694,15 +666,15 @@ class TtsController extends Controller
     {
         $creditsPerCharacter = 1; // 1 credit per character
         $minimumCredits = 1; // Minimum 1 credit per request
-
+        
         $estimatedCredits = max($minimumCredits, $textLength * $creditsPerCharacter);
-
+        
         \Log::info("Credit calculation", [
             'text_length' => $textLength,
             'credits_per_character' => $creditsPerCharacter,
             'estimated_credits' => $estimatedCredits
         ]);
-
+        
         return $estimatedCredits;
     }
 
@@ -713,7 +685,7 @@ class TtsController extends Controller
     {
         // Get system credits before task for comparison
         $systemCreditsBefore = $this->getSystemCredits();
-
+        
         // Store in cache for later confirmation
         $taskInfo = [
             'task_id' => $taskId,
@@ -724,16 +696,16 @@ class TtsController extends Controller
             'created_at' => now(),
             'status' => 'pending_confirmation'
         ];
-
+        
         \Cache::put("tts_task_{$taskId}", $taskInfo, 3600); // Store for 1 hour
-
+        
         // Add task to user's task list
         $userTaskKeys = \Cache::get('tts_task_keys_' . $userId, []);
         if (!in_array($taskId, $userTaskKeys)) {
             $userTaskKeys[] = $taskId;
             \Cache::put('tts_task_keys_' . $userId, $userTaskKeys, 3600);
         }
-
+        
         \Log::info("Task info stored for credit confirmation", $taskInfo);
     }
 
@@ -743,26 +715,26 @@ class TtsController extends Controller
     private function confirmCreditUsage($taskId, $actualCreditsUsed)
     {
         $taskInfo = \Cache::get("tts_task_{$taskId}");
-
+        
         if (!$taskInfo) {
             \Log::warning("Task info not found for credit confirmation", ['task_id' => $taskId]);
             return;
         }
-
+        
         $user = \App\Models\User::find($taskInfo['user_id']);
         if (!$user) {
             \Log::warning("User not found for credit confirmation", ['user_id' => $taskInfo['user_id']]);
             return;
         }
-
+        
         $estimatedCredits = $taskInfo['estimated_credits'];
         $difference = $estimatedCredits - $actualCreditsUsed;
-
+        
         if ($difference > 0) {
             // Refund excess credits
             $user->credits += $difference;
             $user->save();
-
+            
             \Log::info("Credits refunded to user", [
                 'user_id' => $user->id,
                 'task_id' => $taskId,
@@ -781,7 +753,7 @@ class TtsController extends Controller
                 'additional_needed' => abs($difference)
             ]);
         }
-
+        
         // Remove task info from cache
         \Cache::forget("tts_task_{$taskId}");
     }
@@ -801,10 +773,10 @@ class TtsController extends Controller
     private function getUserTasksFromCache($userId)
     {
         $userTasks = [];
-
+        
         // Get all cache keys that start with 'tts_task_'
         $cacheKeys = \Cache::get('tts_task_keys_' . $userId, []);
-
+        
         foreach ($cacheKeys as $taskId) {
             $taskInfo = \Cache::get("tts_task_{$taskId}");
             if ($taskInfo && $taskInfo['user_id'] == $userId) {
@@ -820,12 +792,12 @@ class TtsController extends Controller
                 }
             }
         }
-
+        
         // Sort by creation date (newest first)
         usort($userTasks, function($a, $b) {
             return strtotime($b['created_at']) - strtotime($a['created_at']);
         });
-
+        
         return $userTasks;
     }
 
@@ -846,100 +818,7 @@ class TtsController extends Controller
         } catch (\Exception $e) {
             \Log::error('Error fetching task details from API: ' . $e->getMessage());
         }
-
+        
         return null;
     }
-
-    /**
-     * Store task in database for cross-device history
-     */
-    private function storeTaskInDatabase($taskId, $userId, $estimatedCredits)
-    {
-        try {
-            // Store only essential data - task_id, user_id, credits_used
-            \Log::info("Storing minimal task data in database", [
-                'task_id' => $taskId,
-                'user_id' => $userId,
-                'credits_used' => $estimatedCredits
-            ]);
-
-            $task = UserTask::create([
-                'task_id' => $taskId,
-                'user_id' => $userId,
-                'credits_used' => $estimatedCredits
-            ]);
-
-            \Log::info("Minimal task data stored successfully", [
-                'task_id' => $taskId,
-                'user_id' => $userId,
-                'database_id' => $task->id
-            ]);
-        } catch (\Exception $e) {
-            \Log::error('Error storing minimal task data: ' . $e->getMessage(), [
-                'task_id' => $taskId,
-                'user_id' => $userId,
-                'error' => $e->getMessage()
-            ]);
-        }
-    }
-
-    /**
-     * Fetch task details from API for multiple task IDs
-     */
-    private function fetchTasksFromAPI($taskIds)
-    {
-        $tasks = [];
-        
-        foreach ($taskIds as $taskId) {
-            try {
-                $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . Helper::getSevenLabsApiKey(),
-                    'Content-Type' => 'application/json'
-                ])->timeout(30)->get("{$this->apiBaseUrl}/tasks/{$taskId}");
-
-                if ($response->successful()) {
-                    $taskData = $response->json();
-                    $tasks[] = [
-                        'id' => $taskData['id'] ?? $taskId,
-                        'input' => $taskData['input'] ?? '',
-                        'voice_id' => $taskData['voice_id'] ?? '',
-                        'voice_name' => $taskData['voice_name'] ?? '',
-                        'model' => $taskData['model'] ?? '',
-                        'status' => $taskData['status'] ?? 'pending',
-                        'result' => $taskData['result'] ?? null,
-                        'subtitle' => $taskData['subtitle'] ?? null,
-                        'error' => $taskData['error'] ?? null,
-                        'created_at' => $taskData['created_at'] ?? now()->toISOString(),
-                        'completed_at' => $taskData['completed_at'] ?? null,
-                        'text_length' => $taskData['text_length'] ?? 0,
-                        'credits_used' => $taskData['credits_used'] ?? 0,
-                        'duration' => $taskData['duration'] ?? null
-                    ];
-                } else {
-                    \Log::warning("Failed to fetch task details from API", [
-                        'task_id' => $taskId,
-                        'status' => $response->status(),
-                        'response' => $response->body()
-                    ]);
-                }
-            } catch (\Exception $e) {
-                \Log::error("Error fetching task from API: " . $e->getMessage(), [
-                    'task_id' => $taskId
-                ]);
-            }
-        }
-        
-        return $tasks;
-    }
-
-    /**
-     * Get voice name from voice ID (you can implement this based on your voice data)
-     */
-    private function getVoiceName($voiceId)
-    {
-        // You can implement this to get voice name from your voice data
-        // For now, return the voice ID
-        return $voiceId;
-    }
-
 }

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('user_tasks', function (Blueprint $table) {
-            $table->string('model')->nullable()->after('voice_name');
+            //
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('user_tasks', function (Blueprint $table) {
-            $table->dropColumn('model');
+            //
         });
     }
 };

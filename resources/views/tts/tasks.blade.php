@@ -156,38 +156,19 @@ $(document).ready(function() {
 
     // Load tasks function
     function loadTasks(page) {
-        // Check localStorage first
-        const cachedTasks = localStorage.getItem('user_tasks');
-        const cacheTimestamp = localStorage.getItem('user_tasks_timestamp');
-        const now = Date.now();
-        const cacheExpiry = 3600000; // 1 hour in milliseconds
-        
-        if (cachedTasks && cacheTimestamp && (now - parseInt(cacheTimestamp)) < cacheExpiry) {
-            // Use cached data
-            const tasks = JSON.parse(cachedTasks);
-            displayTasks(tasks);
-            return;
-        }
-        
-        // Fetch from API
         $.ajax({
             url: '{{ url("api/tts/tasks") }}',
             method: 'GET',
+            data: { page: page, limit: 10 },
             headers: {
                 'Authorization': 'Bearer {{ Helper::getSevenLabsApiKey() }}',
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
-                console.log('Tasks API Response:', response);
                 if (response.success && response.data) {
-                    const tasks = response.data.tasks || [];
-                    
-                    // Save to localStorage
-                    localStorage.setItem('user_tasks', JSON.stringify(tasks));
-                    localStorage.setItem('user_tasks_timestamp', now.toString());
-                    
-                    displayTasks(tasks);
+                    displayTasks(response.data.tasks || []);
+                    displayPagination(response.data);
                 } else {
                     $('#tasksTable tbody').html('<tr><td colspan="7" class="text-center">No tasks found</td></tr>');
                 }
@@ -226,7 +207,7 @@ $(document).ready(function() {
                     <td><code>${task.id.substring(0, 8)}...</code></td>
                     <td title="${task.input}">${shortInput}</td>
                     <td><code>${task.voice_id}</code></td>
-                    <td>${task.model || 'N/A'}</td>
+                    <td>${task.model_id}</td>
                     <td>${statusBadge}</td>
                     <td>${createdDate}</td>
                     <td>
@@ -274,7 +255,7 @@ $(document).ready(function() {
                             </div>
                             <div class="col-4">
                                 <small class="text-muted d-block">Model</small>
-                                <span class="small">${task.model || 'N/A'}</span>
+                                <span class="small">${task.model_id}</span>
                             </div>
                             <div class="col-4">
                                 <small class="text-muted d-block">Actions</small>
@@ -406,15 +387,15 @@ $(document).ready(function() {
                             </div>
                             <div class="mb-2">
                                 <small class="text-muted d-block">Model</small>
-                                <span class="small">${task.model || 'N/A'}</span>
+                                <span class="small">${task.model_id}</span>
                             </div>
                             <div class="mb-2">
                                 <small class="text-muted d-block">Style</small>
-                                <span class="small">${task.style || 'N/A'}</span>
+                                <span class="small">${task.style}</span>
                             </div>
                             <div class="mb-0">
                                 <small class="text-muted d-block">Speed</small>
-                                <span class="small">${task.speed || 'N/A'}</span>
+                                <span class="small">${task.speed}</span>
                             </div>
                         </div>
                     </div>
