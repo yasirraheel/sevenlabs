@@ -752,15 +752,17 @@ class Helper
 	// IP Geolocation Helper
 	public static function getLocationFromIP($ip)
 	{
-		// Skip local/private IPs
-		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-			return 'Local/Private IP';
-		}
-
 		// Check cache first
 		$cacheKey = 'ip_location_' . md5($ip);
 		if (cache($cacheKey)) {
 			return cache($cacheKey);
+		}
+
+		// Handle local/private IPs with more detail
+		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+			$location = self::getLocalIPLocation($ip);
+			cache([$cacheKey => $location], 1440);
+			return $location;
 		}
 
 		try {
@@ -797,5 +799,52 @@ class Helper
 		}
 
 		return $ip; // Fallback to IP if all services fail
+	}
+
+	// Get location for local/private IPs
+	public static function getLocalIPLocation($ip)
+	{
+		// Common local IP ranges and their typical locations
+		$localRanges = [
+			'127.0.0.1' => 'Localhost, Local Network',
+			'192.168.' => 'Private Network, Local Area',
+			'10.' => 'Private Network, Corporate',
+			'172.16.' => 'Private Network, Corporate',
+			'169.254.' => 'Link Local, Auto-assigned',
+		];
+
+		// Check for specific localhost
+		if ($ip === '127.0.0.1' || $ip === '::1') {
+			return 'Localhost, Local Network';
+		}
+
+		// Check for private network ranges
+		foreach ($localRanges as $range => $location) {
+			if (strpos($ip, $range) === 0) {
+				return $location;
+			}
+		}
+
+		// Check if it's a private IP range
+		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+			// Try to get more specific location based on IP pattern
+			$octets = explode('.', $ip);
+			if (count($octets) === 4) {
+				$firstOctet = (int)$octets[0];
+				$secondOctet = (int)$octets[1];
+				
+				if ($firstOctet === 192 && $secondOctet === 168) {
+					return 'Private Network, Home/Office';
+				} elseif ($firstOctet === 10) {
+					return 'Private Network, Corporate';
+				} elseif ($firstOctet === 172 && $secondOctet >= 16 && $secondOctet <= 31) {
+					return 'Private Network, Corporate';
+				} elseif ($firstOctet === 169 && $secondOctet === 254) {
+					return 'Link Local, Auto-assigned';
+				}
+			}
+		}
+
+		return 'Private Network, Local Area';
 	}
 }//<--- End Class
