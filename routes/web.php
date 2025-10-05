@@ -78,6 +78,9 @@ Route::get('tts/tasks', function() {
     return view('tts.tasks');
 })->name('tts.tasks');
 
+// TTS Callback (no auth required - called by external API)
+Route::post('api/tts/callback', [App\Http\Controllers\Api\TtsController::class, 'callback']);
+
 // Account Verification
 Route::get('verify/account/{confirmation_code}', [HomeController::class, 'getVerifyAccount'])->where('confirmation_code','[A-Za-z0-9]+');
 
@@ -123,6 +126,26 @@ Route::group(['middleware' => 'auth'], function() {
 
     // User Credits API
     Route::get('api/user/credits', [App\Http\Controllers\Api\TtsController::class, 'getUserCredits']);
+
+    // TTS API Routes (session-based authentication)
+    Route::prefix('api/tts')->group(function () {
+        // Generate TTS
+        Route::post('generate', [App\Http\Controllers\Api\TtsController::class, 'generate']);
+        
+        // Task Management
+        Route::get('task/{taskId}', [App\Http\Controllers\Api\TtsController::class, 'getTask']);
+        Route::get('tasks', [App\Http\Controllers\Api\TtsController::class, 'getTasks']);
+        Route::delete('task/{taskId}', [App\Http\Controllers\Api\TtsController::class, 'deleteTask']);
+        Route::post('task/{taskId}/subtitle', [App\Http\Controllers\Api\TtsController::class, 'exportSubtitle']);
+        
+        // Voice and Model info
+        Route::get('voices', [App\Http\Controllers\Api\TtsController::class, 'getVoices']);
+        Route::get('voices/local', [App\Http\Controllers\Api\TtsController::class, 'getLocalVoices']);
+        Route::get('models', [App\Http\Controllers\Api\TtsController::class, 'getModels']);
+        
+        // User info
+        Route::get('me', [App\Http\Controllers\Api\TtsController::class, 'getMe']);
+    });
 
     // AJAX Routes
     Route::get('ajax/notifications', [AjaxController::class, 'notifications']);
