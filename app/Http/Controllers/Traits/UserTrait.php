@@ -16,7 +16,7 @@ use App\Models\PaymentGateways;
 use App\Models\Like;
 use App\Models\Replies;
 use App\Models\Comments;
-use App\Models\CollectionsImages;
+// use App\Models\CollectionsImages; // Removed - model no longer exists
 use App\Models\Pages;
 use Illuminate\Http\Request;
 
@@ -27,22 +27,8 @@ trait UserTrait {
     $settings  = AdminSettings::first();
     $user = User::findOrFail($id);
 
-		// Collections
-	$collections = Collections::where('user_id', '=', $id)->get();
-
-	if (isset($collections)){
-		foreach($collections as $collection) {
-
-			// Collections
-		$collectionsImages = CollectionsImages::where('images_id', '=', $collection->id)->get();
-		 if (isset($collectionsImages)) {
-				foreach($collectionsImages as $collectionsImage){
-					$collectionsImage->delete();
-				}
-			}
-   $collection->delete();
-		}
-	}
+		// Collections - Removed as Collections model no longer exists
+		// Collections functionality was removed during conversion to universal starter kit
 
 	// Comments Delete
 	$comments = Comments::where('user_id', '=', $id)->get();

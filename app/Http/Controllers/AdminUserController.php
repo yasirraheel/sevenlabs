@@ -131,22 +131,8 @@ class AdminUserController extends Controller {
 
 	public function userSuspended($id) {
 
-		// Collections
-	$collections = Collections::where('user_id', '=', $id)->get();
-
-	if( isset( $collections ) ){
-		foreach($collections as $collection){
-
-			// Collections
-		$collectionsImages = CollectionsImages::where('images_id', '=', $collection->id)->get();
-		 if( isset( $collectionsImages ) ){
-				foreach($collectionsImages as $collectionsImage) {
-					$collectionsImage->delete();
-				}
-			}
-   $collection->delete();
-		}
-	}
+		// Collections - Removed as Collections model no longer exists
+		// Collections functionality was removed during conversion to universal starter kit
 
 	// Comments Delete
 	$comments = Comments::where('user_id', '=', $id)->get();
@@ -210,43 +196,9 @@ class AdminUserController extends Controller {
 			}// End
 	}
 
-	// Images
-    $images = Images::where('user_id', '=', $id)->get();
-
-	if(isset( $images )) {
-		foreach($images as $image) {
-
-			// Collections Images
-		$collectionsImagesUsers = CollectionsImages::where('images_id', '=', $image->id)->get();
-		 if(isset( $collectionsImagesUsers ) ) {
-				foreach($collectionsImagesUsers as $collectionsImagesUser){
-					$collectionsImagesUser->delete();
-				}
-			}
-
-			//<---- ALL RESOLUTIONS IMAGES
-			$stocks = Stock::where('images_id', '=', $image->id)->get();
-
-			foreach($stocks as $stock) {
-
-				// Delete Stock
-  			Storage::delete(config('path.uploads').$stock->type.'/'.$stock->name);
-
-  			// Delete Stock Vector
-  			Storage::delete(config('path.files').$stock->name);
-
-				$stock->delete();
-			}
-
-			// Delete preview
-  		Storage::delete(config('path.preview').$image->preview);
-
-  		// Delete thumbnail
-  		Storage::delete(config('path.thumbnail').$image->thumbnail);
-
-			$image->delete();
-		}
-	}// End
+	// Images - Removed as Images and Stock models no longer exist
+	// Image functionality was removed during conversion to universal starter kit
+	// This section is commented out to prevent errors
 
 	// User Reported
 	$users_reporteds = UsersReported::where('user_id', '=', $id)->orWhere('id_reported', '=', $id)->get();
