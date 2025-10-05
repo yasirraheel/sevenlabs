@@ -431,6 +431,28 @@ $(document).ready(function() {
     let filteredVoices = [];
     let currentFilter = 'all';
 
+    // Load saved model selection from localStorage
+    function loadSavedModel() {
+        const savedModel = localStorage.getItem('sevenlabs_selected_model');
+        if (savedModel) {
+            $('#model_id').val(savedModel);
+        }
+    }
+
+    // Save model selection to localStorage
+    function saveModelSelection() {
+        const selectedModel = $('#model_id').val();
+        localStorage.setItem('sevenlabs_selected_model', selectedModel);
+    }
+
+    // Load saved model on page load
+    loadSavedModel();
+
+    // Save model selection when changed
+    $('#model_id').on('change', function() {
+        saveModelSelection();
+    });
+
     // Range slider value updates
     $('#style').on('input', function() {
         $('#styleValue').text($(this).val());
@@ -742,6 +764,8 @@ $(document).ready(function() {
             data: JSON.stringify(formData),
             success: function(response) {
                 if (response.success && response.task_id) {
+                    // Save model selection on successful submission
+                    saveModelSelection();
                     // Task created successfully, start polling
                     pollTaskStatus(response.task_id);
                 } else {
@@ -847,6 +871,9 @@ $(document).ready(function() {
                                 $('#manual_mode').hide();
                                 $('#voice_id').prop('required', true);
                                 $('#voice_id_manual').prop('required', false);
+                                
+                                // Reload saved model (don't reset it)
+                                loadSavedModel();
                             });
 
                         } else if (task.status === 'failed') {
