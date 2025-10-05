@@ -29,53 +29,13 @@
 		</a><!-- end link -->
   @endif
 
-    <a class="list-group-item list-group-item-action d-flex justify-content-between @if (request()->is('user/dashboard/photos'))active @endif" href="{{ url('user/dashboard/photos') }}">
-			<div>
-				<i class="bi bi-images me-2"></i>
-				<span>{{ trans_choice('misc.images_plural', 0) }}</span>
-			</div>
+    {{-- Images menu removed - not applicable for TTS application --}}
 
-			<div>
-				<i class="bi bi-chevron-right"></i>
-			</div>
-		</a><!-- end link -->
+    {{-- Sales menu removed - not applicable for TTS application --}}
 
-    @if ($settings->sell_option == 'on')
-    <a class="list-group-item list-group-item-action d-flex justify-content-between @if (request()->is('user/dashboard/sales'))active @endif" href="{{ url('user/dashboard/sales') }}">
-			<div>
-				<i class="bi bi-cart me-2"></i>
-				<span>{{ __('misc.sales') }}</span>
-			</div>
+    {{-- My Purchases menu removed - not applicable for TTS application --}}
 
-			<div>
-				<i class="bi bi-chevron-right"></i>
-			</div>
-		</a><!-- end link -->
-  @endif
-
-   @if ($settings->sell_option == 'on')
-    <a class="list-group-item list-group-item-action d-flex justify-content-between @if (request()->is('user/dashboard/purchases'))active @endif" href="{{ url('user/dashboard/purchases') }}">
-			<div>
-				<i class="bi bi-bag-check me-2"></i>
-				<span>{{ __('misc.my_purchases') }}</span>
-			</div>
-
-			<div>
-				<i class="bi bi-chevron-right"></i>
-			</div>
-		</a><!-- end link -->
-  @endif
-
-    <a class="list-group-item list-group-item-action d-flex justify-content-between @if (request()->is('user/dashboard/downloads'))active @endif" href="{{ url('user/dashboard/downloads') }}">
-			<div>
-				<i class="bi bi-download me-2"></i>
-				<span>{{ __('misc.downloads') }}</span>
-			</div>
-
-			<div>
-				<i class="bi bi-chevron-right"></i>
-			</div>
-		</a><!-- end link -->
+    {{-- Downloads menu removed - not applicable for TTS application --}}
 
     @if ($settings->sell_option == 'on')
     <a class="list-group-item list-group-item-action d-flex justify-content-between @if (request()->is('account/subscription'))active @endif" href="{{ url('account/subscription') }}">
