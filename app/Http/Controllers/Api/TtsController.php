@@ -248,31 +248,40 @@ class TtsController extends Controller
     public function getTasks(Request $request)
     {
         try {
+            // Get current user
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+
             $page = $request->input('page', 1);
             $limit = $request->input('limit', 20);
 
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . Helper::getSevenLabsApiKey(),
-                'Content-Type' => 'application/json',
-            ])->get($this->apiBaseUrl . '/labs/task', [
-                'page' => $page,
-                'limit' => $limit
+            // Get user's tasks from cache
+            $userTasks = $this->getUserTasksFromCache($user->id);
+            
+            // Paginate the results
+            $totalTasks = count($userTasks);
+            $offset = ($page - 1) * $limit;
+            $paginatedTasks = array_slice($userTasks, $offset, $limit);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'tasks' => $paginatedTasks,
+                    'pagination' => [
+                        'current_page' => $page,
+                        'per_page' => $limit,
+                        'total' => $totalTasks,
+                        'last_page' => ceil($totalTasks / $limit),
+                        'from' => $offset + 1,
+                        'to' => min($offset + $limit, $totalTasks)
+                    ]
+                ]
             ]);
-
-            if ($response->successful()) {
-                $data = $response->json();
-
-                return response()->json([
-                    'success' => true,
-                    'data' => $data
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to fetch tasks',
-                    'status_code' => $response->status()
-                ], $response->status());
-            }
 
         } catch (\Exception $e) {
             \Log::error('TTS Get Tasks Error: ' . $e->getMessage());
@@ -690,6 +699,13 @@ class TtsController extends Controller
         
         \Cache::put("tts_task_{$taskId}", $taskInfo, 3600); // Store for 1 hour
         
+        // Add task to user's task list
+        $userTaskKeys = \Cache::get('tts_task_keys_' . $userId, []);
+        if (!in_array($taskId, $userTaskKeys)) {
+            $userTaskKeys[] = $taskId;
+            \Cache::put('tts_task_keys_' . $userId, $userTaskKeys, 3600);
+        }
+        
         \Log::info("Task info stored for credit confirmation", $taskInfo);
     }
 
@@ -749,5 +765,60 @@ class TtsController extends Controller
     {
         $taskInfo = \Cache::get("tts_task_{$taskId}");
         return $taskInfo['system_credits_before'] ?? null;
+    }
+
+    /**
+     * Get user's tasks from cache
+     */
+    private function getUserTasksFromCache($userId)
+    {
+        $userTasks = [];
+        
+        // Get all cache keys that start with 'tts_task_'
+        $cacheKeys = \Cache::get('tts_task_keys_' . $userId, []);
+        
+        foreach ($cacheKeys as $taskId) {
+            $taskInfo = \Cache::get("tts_task_{$taskId}");
+            if ($taskInfo && $taskInfo['user_id'] == $userId) {
+                // Get task details from SevenLabs API
+                $taskDetails = $this->getTaskDetailsFromAPI($taskId);
+                if ($taskDetails) {
+                    $userTasks[] = array_merge($taskDetails, [
+                        'user_id' => $userId,
+                        'estimated_credits' => $taskInfo['estimated_credits'] ?? 0,
+                        'text_length' => $taskInfo['text_length'] ?? 0,
+                        'created_at' => $taskInfo['created_at'] ?? now()->toISOString()
+                    ]);
+                }
+            }
+        }
+        
+        // Sort by creation date (newest first)
+        usort($userTasks, function($a, $b) {
+            return strtotime($b['created_at']) - strtotime($a['created_at']);
+        });
+        
+        return $userTasks;
+    }
+
+    /**
+     * Get task details from SevenLabs API
+     */
+    private function getTaskDetailsFromAPI($taskId)
+    {
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . Helper::getSevenLabsApiKey(),
+                'Content-Type' => 'application/json',
+            ])->get($this->apiBaseUrl . '/labs/task/' . $taskId);
+
+            if ($response->successful()) {
+                return $response->json();
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error fetching task details from API: ' . $e->getMessage());
+        }
+        
+        return null;
     }
 }
