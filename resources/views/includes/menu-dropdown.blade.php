@@ -45,32 +45,6 @@
     <i class="bi-arrow-repeat me-2"></i> {{ __('misc.subscription') }}
     </a>
 </li>
-
-<li>
-<a class="dropdown-item" href="{{ url('user/dashboard/purchases') }}">
-    <i class="bi-bag-check me-2"></i> {{ __('misc.my_purchases') }}
-    </a>
-</li>
-@endif
-
-<li>
-<a class="dropdown-item" href="{{ url(auth()->user()->username, 'collections') }}">
-    <i class="bi bi-plus-square me-2"></i> {{ __('misc.collections') }}
-    </a>
-</li>
-
-<li>
-<a class="dropdown-item" href="{{ url('likes') }}">
-    <i class="bi bi-heart me-2"></i> {{ __('users.likes') }}
-    </a>
-</li>
-
-@if ($settings->referral_system == 'on')
-<li>
-<a class="dropdown-item" href="{{ url('my/referrals') }}">
-    <i class="bi-person-plus me-2"></i> {{ __('misc.referrals') }}
-    </a>
-</li>
 @endif
 
 <li>
