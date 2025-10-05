@@ -410,12 +410,27 @@
         const balanceElement = document.getElementById('balance-amount');
         const creditsElement = document.getElementById('credits-amount');
         
+        console.log('Admin Panel - Dropdown elements found:', {
+            dropdownToggle: !!dropdownToggle,
+            balanceElement: !!balanceElement,
+            creditsElement: !!creditsElement
+        });
+        
         if (dropdownToggle && balanceElement && creditsElement) {
             dropdownToggle.addEventListener('show.bs.dropdown', function() {
-                // Only load if not already loaded
-                if (balanceElement.textContent === 'Loading...' || balanceElement.textContent.includes('...')) {
-                    loadUserData();
-                }
+                console.log('Admin Panel - Dropdown opened!');
+                console.log('Admin Panel - Balance element text:', balanceElement.textContent);
+                console.log('Admin Panel - Credits element text:', creditsElement.textContent);
+                
+                // Always load data for debugging
+                console.log('Admin Panel - Loading user data...');
+                loadUserData();
+            });
+        } else {
+            console.error('Admin Panel - Missing elements:', {
+                dropdownToggle: !!dropdownToggle,
+                balanceElement: !!balanceElement,
+                creditsElement: !!creditsElement
             });
         }
         
