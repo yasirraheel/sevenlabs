@@ -711,15 +711,27 @@ audio {
     }
 }
 
-/* Voice Mode Toggle Styling */
-.btn-check:checked + .btn-outline-custom {
+/* Voice Mode Toggle Styling - Only for mode selection buttons */
+.btn-group .btn-check:checked + .btn-outline-custom {
     background-color: var(--color-default) !important;
     border-color: var(--color-default) !important;
     color: white !important;
     box-shadow: none !important;
 }
 
-.btn-check:focus + .btn-outline-custom {
+/* Browse button (not mode selection) should always be outline */
+#voiceSelectBtn.btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+}
+
+#voiceSelectBtn.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.btn-group .btn-check:focus + .btn-outline-custom {
     box-shadow: 0 0 0 0.2rem rgba(var(--color-default-rgb), 0.25);
 }
 
@@ -745,10 +757,10 @@ audio {
     color: white;
 }
 
-/* Ensure active state is visible */
-.btn-check:checked + .btn-outline-custom,
-.btn-check:checked + .btn-outline-custom:hover,
-.btn-check:checked + .btn-outline-custom:focus {
+/* Ensure active state is visible - Only for mode selection buttons */
+.btn-group .btn-check:checked + .btn-outline-custom,
+.btn-group .btn-check:checked + .btn-outline-custom:hover,
+.btn-group .btn-check:checked + .btn-outline-custom:focus {
     background-color: var(--color-default) !important;
     border-color: var(--color-default) !important;
     color: white !important;
@@ -756,8 +768,8 @@ audio {
     outline: none !important;
 }
 
-/* Override any Bootstrap outline styles */
-.btn-check:checked + .btn-outline-custom:not(:disabled):not(.disabled) {
+/* Override any Bootstrap outline styles - Only for mode selection buttons */
+.btn-group .btn-check:checked + .btn-outline-custom:not(:disabled):not(.disabled) {
     background-color: var(--color-default) !important;
     border-color: var(--color-default) !important;
     color: white !important;

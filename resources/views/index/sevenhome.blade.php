@@ -110,7 +110,7 @@
                                             >
                                         </div>
                                         <div class="d-grid mt-2">
-                                            <button class="btn btn-outline-custom" type="button" id="voiceSelectBtn">
+                                            <button class="btn btn-outline-secondary" type="button" id="voiceSelectBtn">
                                                 <i class="bi bi-search me-2"></i>Browse Voices
                                             </button>
                                         </div>
