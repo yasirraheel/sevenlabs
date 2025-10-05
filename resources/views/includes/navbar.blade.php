@@ -135,12 +135,31 @@
                 const balanceElement = document.getElementById('balance-amount');
                 const creditsElement = document.getElementById('credits-amount');
                 
+                console.log('Dropdown elements found:', {
+                    dropdownToggle: !!dropdownToggle,
+                    balanceElement: !!balanceElement,
+                    creditsElement: !!creditsElement
+                });
+                
                 if (dropdownToggle && balanceElement && creditsElement) {
                     dropdownToggle.addEventListener('show.bs.dropdown', function() {
+                        console.log('Dropdown opened, checking if should load data...');
+                        console.log('Balance element text:', balanceElement.textContent);
+                        console.log('Credits element text:', creditsElement.textContent);
+                        
                         // Only load if not already loaded
                         if (balanceElement.textContent === 'Loading...' || balanceElement.textContent.includes('...')) {
+                            console.log('Loading user data...');
                             loadUserData();
+                        } else {
+                            console.log('Data already loaded, skipping...');
                         }
+                    });
+                } else {
+                    console.error('Missing dropdown elements:', {
+                        dropdownToggle: !!dropdownToggle,
+                        balanceElement: !!balanceElement,
+                        creditsElement: !!creditsElement
                     });
                 }
                 
