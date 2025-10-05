@@ -45,22 +45,28 @@ class TtsController extends Controller
                 ], 401);
             }
 
-            // Check user has sufficient credits
-            if ($user->credits <= 0) {
+            // Calculate estimated credits based on character count
+            $textLength = strlen($request->input);
+            $estimatedCredits = $this->calculateEstimatedCredits($textLength);
+            
+            // Check user has sufficient credits for estimated usage
+            if ($user->credits < $estimatedCredits) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Insufficient credits. Please add credits to continue.'
+                    'message' => "Insufficient credits. You need at least {$estimatedCredits} credits for this text ({$textLength} characters). You have {$user->credits} credits."
                 ], 400);
             }
 
-            // Get system credits before request
-            $systemCreditsBefore = $this->getSystemCredits();
-            if ($systemCreditsBefore === null) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unable to check system credits. Please try again.'
-                ], 500);
-            }
+            // Pre-deduct estimated credits from user
+            $user->credits -= $estimatedCredits;
+            $user->save();
+            
+            \Log::info("TTS Generation - Pre-deducted estimated credits", [
+                'user_id' => $user->id,
+                'text_length' => $textLength,
+                'estimated_credits' => $estimatedCredits,
+                'remaining_credits' => $user->credits
+            ]);
 
             // Prepare the request data
             $requestData = [
@@ -93,27 +99,8 @@ class TtsController extends Controller
 
                 // Handle the response format: {"task_id": "task-uuid"}
                 if (isset($responseData['task_id'])) {
-                    // Get system credits after request
-                    $systemCreditsAfter = $this->getSystemCredits();
-
-                    // Calculate credits used
-                    $creditsUsed = 0;
-                    if ($systemCreditsAfter !== null && $systemCreditsBefore !== null) {
-                        $creditsUsed = max(0, $systemCreditsBefore - $systemCreditsAfter);
-                    }
-
-                    // Deduct credits from user if any were used
-                    if ($creditsUsed > 0) {
-                        $user->credits = max(0, $user->credits - $creditsUsed);
-                        $user->save();
-
-                        \Log::info("TTS Generation - Credits deducted", [
-                            'user_id' => $user->id,
-                            'credits_used' => $creditsUsed,
-                            'remaining_credits' => $user->credits,
-                            'task_id' => $responseData['task_id']
-                        ]);
-                    }
+                    // Store task info for credit confirmation later
+                    $this->storeTaskInfo($responseData['task_id'], $user->id, $estimatedCredits, $textLength);
 
                     // Task created successfully, return task ID for polling
                     return response()->json([
@@ -121,7 +108,7 @@ class TtsController extends Controller
                         'task_id' => $responseData['task_id'],
                         'message' => 'Task created successfully. Use task_id to check status.',
                         'callback_url' => $requestData['call_back_url'],
-                        'credits_used' => $creditsUsed,
+                        'estimated_credits' => $estimatedCredits,
                         'remaining_credits' => $user->credits
                     ]);
                 } else {
@@ -353,6 +340,23 @@ class TtsController extends Controller
                 'result_url' => $result,
                 'subtitle_url' => $subtitle
             ]);
+
+            // Get system credits to calculate actual usage
+            $systemCreditsAfter = $this->getSystemCredits();
+            $taskInfo = \Cache::get("tts_task_{$taskId}");
+            
+            if ($taskInfo && $systemCreditsAfter !== null) {
+                // Calculate actual credits used by comparing system credits
+                $systemCreditsBefore = $this->getSystemCreditsBeforeTask($taskId);
+                $actualCreditsUsed = 0;
+                
+                if ($systemCreditsBefore !== null) {
+                    $actualCreditsUsed = max(0, $systemCreditsBefore - $systemCreditsAfter);
+                }
+                
+                // Confirm credit usage and refund if necessary
+                $this->confirmCreditUsage($taskId, $actualCreditsUsed);
+            }
 
             // You can store this in database, send notifications, etc.
             // Example: Store in cache for immediate access
@@ -595,5 +599,107 @@ class TtsController extends Controller
             \Log::error('Get System Credits Error: ' . $e->getMessage());
             return null;
         }
+    }
+
+    /**
+     * Calculate estimated credits based on character count
+     * Rate: 1 credit per 10 characters (adjustable)
+     */
+    private function calculateEstimatedCredits($textLength)
+    {
+        $creditsPerCharacter = 0.1; // 1 credit per 10 characters
+        $minimumCredits = 1; // Minimum 1 credit per request
+        
+        $estimatedCredits = max($minimumCredits, ceil($textLength * $creditsPerCharacter));
+        
+        \Log::info("Credit calculation", [
+            'text_length' => $textLength,
+            'credits_per_character' => $creditsPerCharacter,
+            'estimated_credits' => $estimatedCredits
+        ]);
+        
+        return $estimatedCredits;
+    }
+
+    /**
+     * Store task information for credit confirmation
+     */
+    private function storeTaskInfo($taskId, $userId, $estimatedCredits, $textLength)
+    {
+        // Get system credits before task for comparison
+        $systemCreditsBefore = $this->getSystemCredits();
+        
+        // Store in cache for later confirmation
+        $taskInfo = [
+            'task_id' => $taskId,
+            'user_id' => $userId,
+            'estimated_credits' => $estimatedCredits,
+            'text_length' => $textLength,
+            'system_credits_before' => $systemCreditsBefore,
+            'created_at' => now(),
+            'status' => 'pending_confirmation'
+        ];
+        
+        \Cache::put("tts_task_{$taskId}", $taskInfo, 3600); // Store for 1 hour
+        
+        \Log::info("Task info stored for credit confirmation", $taskInfo);
+    }
+
+    /**
+     * Confirm actual credit usage and refund if necessary
+     */
+    private function confirmCreditUsage($taskId, $actualCreditsUsed)
+    {
+        $taskInfo = \Cache::get("tts_task_{$taskId}");
+        
+        if (!$taskInfo) {
+            \Log::warning("Task info not found for credit confirmation", ['task_id' => $taskId]);
+            return;
+        }
+        
+        $user = \App\Models\User::find($taskInfo['user_id']);
+        if (!$user) {
+            \Log::warning("User not found for credit confirmation", ['user_id' => $taskInfo['user_id']]);
+            return;
+        }
+        
+        $estimatedCredits = $taskInfo['estimated_credits'];
+        $difference = $estimatedCredits - $actualCreditsUsed;
+        
+        if ($difference > 0) {
+            // Refund excess credits
+            $user->credits += $difference;
+            $user->save();
+            
+            \Log::info("Credits refunded to user", [
+                'user_id' => $user->id,
+                'task_id' => $taskId,
+                'estimated_credits' => $estimatedCredits,
+                'actual_credits' => $actualCreditsUsed,
+                'refunded_credits' => $difference,
+                'final_credits' => $user->credits
+            ]);
+        } elseif ($difference < 0) {
+            // Additional credits needed (shouldn't happen with pre-deduction)
+            \Log::warning("Additional credits needed", [
+                'user_id' => $user->id,
+                'task_id' => $taskId,
+                'estimated_credits' => $estimatedCredits,
+                'actual_credits' => $actualCreditsUsed,
+                'additional_needed' => abs($difference)
+            ]);
+        }
+        
+        // Remove task info from cache
+        \Cache::forget("tts_task_{$taskId}");
+    }
+
+    /**
+     * Get system credits before task (stored in task info)
+     */
+    private function getSystemCreditsBeforeTask($taskId)
+    {
+        $taskInfo = \Cache::get("tts_task_{$taskId}");
+        return $taskInfo['system_credits_before'] ?? null;
     }
 }
