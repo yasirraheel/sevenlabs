@@ -156,10 +156,23 @@ $(document).ready(function() {
 
     // Load tasks function
     function loadTasks(page) {
+        // Check localStorage first
+        const cachedTasks = localStorage.getItem('user_tasks');
+        const cacheTimestamp = localStorage.getItem('user_tasks_timestamp');
+        const now = Date.now();
+        const cacheExpiry = 3600000; // 1 hour in milliseconds
+        
+        if (cachedTasks && cacheTimestamp && (now - parseInt(cacheTimestamp)) < cacheExpiry) {
+            // Use cached data
+            const tasks = JSON.parse(cachedTasks);
+            displayTasks(tasks);
+            return;
+        }
+        
+        // Fetch from API
         $.ajax({
             url: '{{ url("api/tts/tasks") }}',
             method: 'GET',
-            data: { page: page, limit: 10 },
             headers: {
                 'Authorization': 'Bearer {{ Helper::getSevenLabsApiKey() }}',
                 'Content-Type': 'application/json',
@@ -168,8 +181,13 @@ $(document).ready(function() {
             success: function(response) {
                 console.log('Tasks API Response:', response);
                 if (response.success && response.data) {
-                    displayTasks(response.data.tasks || []);
-                    displayPagination(response.data);
+                    const tasks = response.data.tasks || [];
+                    
+                    // Save to localStorage
+                    localStorage.setItem('user_tasks', JSON.stringify(tasks));
+                    localStorage.setItem('user_tasks_timestamp', now.toString());
+                    
+                    displayTasks(tasks);
                 } else {
                     $('#tasksTable tbody').html('<tr><td colspan="7" class="text-center">No tasks found</td></tr>');
                 }

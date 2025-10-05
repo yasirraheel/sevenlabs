@@ -261,56 +261,51 @@ class TtsController extends Controller
                 ], 401);
             }
 
-            $page = $request->input('page', 1);
-            $limit = $request->input('limit', 20);
-
-            // Get user's task IDs from database (minimal data)
+            // Get user's task IDs from database
             $userTasks = UserTask::where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get(['task_id', 'credits_used', 'created_at']);
 
-            // Check if we need to refresh cache (new tasks added)
-            $cacheKey = "user_tasks_{$user->id}";
-            $lastTaskCount = \Cache::get("{$cacheKey}_count", 0);
-            $currentTaskCount = $userTasks->count();
+            $tasks = [];
             
-            $shouldRefreshCache = $currentTaskCount > $lastTaskCount;
-            
-            if ($shouldRefreshCache) {
-                \Cache::put("{$cacheKey}_count", $currentTaskCount, 3600); // 1 hour
-                \Cache::forget($cacheKey); // Clear old cache
-            }
+            // Loop through each task ID and fetch from API
+            foreach ($userTasks as $userTask) {
+                try {
+                    $response = Http::withHeaders([
+                        'Authorization' => 'Bearer ' . Helper::getSevenLabsApiKey(),
+                        'Content-Type' => 'application/json'
+                    ])->timeout(30)->get("{$this->apiBaseUrl}/tasks/{$userTask->task_id}");
 
-            // Try to get from cache first
-            $cachedTasks = \Cache::get($cacheKey);
-            
-            if (!$cachedTasks || $shouldRefreshCache) {
-                // Fetch fresh data from API
-                $tasks = $this->fetchTasksFromAPI($userTasks->pluck('task_id')->toArray());
-                
-                // Cache the results
-                \Cache::put($cacheKey, $tasks, 3600); // 1 hour cache
-            } else {
-                $tasks = $cachedTasks;
+                    if ($response->successful()) {
+                        $taskData = $response->json();
+                        $tasks[] = [
+                            'id' => $taskData['id'] ?? $userTask->task_id,
+                            'input' => $taskData['input'] ?? '',
+                            'voice_id' => $taskData['voice_id'] ?? '',
+                            'voice_name' => $taskData['voice_name'] ?? '',
+                            'model' => $taskData['model'] ?? '',
+                            'status' => $taskData['status'] ?? 'pending',
+                            'result' => $taskData['result'] ?? null,
+                            'subtitle' => $taskData['subtitle'] ?? null,
+                            'error' => $taskData['error'] ?? null,
+                            'created_at' => $taskData['created_at'] ?? $userTask->created_at->toISOString(),
+                            'completed_at' => $taskData['completed_at'] ?? null,
+                            'text_length' => $taskData['text_length'] ?? 0,
+                            'credits_used' => $userTask->credits_used,
+                            'duration' => $taskData['duration'] ?? null
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    \Log::error("Error fetching task from API: " . $e->getMessage(), [
+                        'task_id' => $userTask->task_id
+                    ]);
+                }
             }
-
-            // Paginate the results
-            $offset = ($page - 1) * $limit;
-            $paginatedTasks = array_slice($tasks, $offset, $limit);
-            $totalTasks = count($tasks);
 
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'tasks' => $paginatedTasks,
-                    'pagination' => [
-                        'current_page' => $page,
-                        'per_page' => $limit,
-                        'total' => $totalTasks,
-                        'last_page' => ceil($totalTasks / $limit),
-                        'from' => $offset + 1,
-                        'to' => min($offset + $limit, $totalTasks)
-                    ]
+                    'tasks' => $tasks
                 ]
             ]);
 
