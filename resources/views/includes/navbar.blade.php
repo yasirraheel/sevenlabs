@@ -158,7 +158,8 @@
                     const balanceInterval = showLoadingDots(balanceElement);
                     const creditsInterval = showLoadingDots(creditsElement);
                     
-                    fetch('{{ url("api/tts/me") }}', {
+                    // Get user credits from Laravel (not SevenLabs API)
+                    fetch('{{ url("api/user/credits") }}', {
                         method: 'GET',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -171,12 +172,12 @@
                         clearInterval(balanceInterval);
                         clearInterval(creditsInterval);
                         
-                        if (data.success && data.data) {
-                            // Update balance
-                            balanceElement.textContent = data.data.balance || 0;
+                        if (data.success) {
+                            // Update balance (show admin balance from SevenLabs)
+                            balanceElement.textContent = data.admin_balance || 0;
                             
-                            // Update credits
-                            creditsElement.textContent = data.data.total_credits || 0;
+                            // Update credits (show user's own credits)
+                            creditsElement.textContent = data.user_credits || 0;
                         } else {
                             // Show error state
                             balanceElement.textContent = 'Error';

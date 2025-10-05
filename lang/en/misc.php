@@ -714,4 +714,6 @@ return array(
 	// SevenLabs API
 	'sevenlabs_api_key' => 'SevenLabs API Key',
 	'sevenlabs_api_key_info' => 'Enter your SevenLabs API key to enable voice synthesis features',
+	'signup_bonus_credits' => 'Signup Bonus Credits',
+	'signup_bonus_credits_info' => 'Number of credits to give new users when they sign up',
 );

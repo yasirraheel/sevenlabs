@@ -45,3 +45,6 @@ Route::prefix('tts')->group(function () {
     // User info
     Route::get('me', [TtsController::class, 'getMe']);
 });
+
+// User Credits Route
+Route::get('user/credits', [TtsController::class, 'getUserCredits']);

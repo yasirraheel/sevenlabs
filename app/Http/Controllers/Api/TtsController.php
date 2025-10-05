@@ -456,4 +456,41 @@ class TtsController extends Controller
             ], 500);
         }
     }
+
+    public function getUserCredits()
+    {
+        try {
+            $user = auth()->user();
+            
+            // Get admin balance from SevenLabs API
+            $adminBalance = 0;
+            $apiKey = Helper::getSevenLabsApiKey();
+            
+            if ($apiKey) {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'Content-Type' => 'application/json'
+                ])->get($this->apiBaseUrl . '/me');
+
+                if ($response->successful()) {
+                    $userData = $response->json();
+                    $adminBalance = $userData['balance'] ?? 0;
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'admin_balance' => $adminBalance,
+                'user_credits' => $user->credits ?? 0
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Get User Credits Error: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading credits: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

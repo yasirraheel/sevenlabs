@@ -323,6 +323,7 @@ class AdminController extends Controller
 		$sql->link_license        = $request->link_license;
 		$sql->link_blog           = $request->link_blog;
 		$sql->sevenlabs_api_key   = $request->sevenlabs_api_key;
+		$sql->signup_bonus_credits = $request->signup_bonus_credits;
 		$sql->captcha             = $request->captcha ?? 'off';
 		$sql->registration_active = $request->registration_active ?? '0';
 		$sql->email_verification  = $request->email_verification ?? '0';
