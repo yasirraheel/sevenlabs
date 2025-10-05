@@ -91,7 +91,7 @@
                                         <span id="charCount">0</span> characters
                                     </div>
                                     <div class="credit-info">
-                                        <span id="creditInfo">Credits: <span id="userCredits">Loading...</span></span>
+                                        <span id="creditInfo" class="fw-bold text-success">Credits: <span id="userCredits">Loading...</span></span>
                                     </div>
                                 </div>
                                 <div class="credit-warning mt-1" id="creditWarning" style="display: none;">
