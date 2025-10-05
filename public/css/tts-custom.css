@@ -1,5 +1,23 @@
 /* SevenLabs TTS Interface Custom Styles */
 
+/* Selected Voice Highlighting */
+.voice-card.selected-voice {
+    border: 2px solid var(--color-default) !important;
+    box-shadow: 0 0 10px rgba(var(--color-default-rgb), 0.3) !important;
+    transform: scale(1.02);
+    transition: all 0.3s ease;
+}
+
+.voice-card.selected-voice .card-body {
+    background-color: rgba(var(--color-default-rgb), 0.05);
+}
+
+.voice-card.selected-voice .select-voice-btn {
+    background-color: var(--color-default) !important;
+    border-color: var(--color-default) !important;
+    color: white !important;
+}
+
 /* Hero Section - Minimal styling to preserve original design */
 .home-cover {
     /* Only add minimal enhancements without overriding existing design */

@@ -98,7 +98,7 @@
                                             <label class="btn btn-outline-custom flex-fill mb-2 mb-sm-0 me-sm-2" for="voice_mode_browse">
                                                 <i class="bi bi-search me-2"></i>Browse Voices
                                             </label>
-                                            
+
                                             <input type="radio" class="btn-check" name="voice_mode" id="voice_mode_manual" value="manual">
                                             <label class="btn btn-outline-custom flex-fill" for="voice_mode_manual">
                                                 <i class="bi bi-pencil me-2"></i>Manual Entry
@@ -472,6 +472,9 @@ $(document).ready(function() {
 
     // Load saved model on page load
     loadSavedModel();
+    
+    // Load saved voice on page load
+    loadSavedVoice();
 
     // Save model selection when changed
     $('#model_id').on('change', function() {
@@ -517,6 +520,8 @@ $(document).ready(function() {
         if (voices.length === 0) {
             loadVoices();
         }
+        // Load saved voice selection
+        loadSavedVoice();
     });
 
     // Load voices from API
@@ -699,6 +704,16 @@ $(document).ready(function() {
         // Update the display input with voice name (for user)
         $('#voice_display').val(voiceName);
 
+        // Save selected voice to localStorage
+        localStorage.setItem('selectedVoice', JSON.stringify({
+            voiceId: voiceId,
+            voiceName: voiceName,
+            timestamp: Date.now()
+        }));
+
+        // Highlight the selected voice
+        highlightSelectedVoice(voiceId);
+
         // Close modal
         $('#voiceSelectModal').modal('hide');
 
@@ -736,7 +751,7 @@ $(document).ready(function() {
         // Get voice ID based on mode
         let voiceId = '';
         const voiceMode = $('input[name="voice_mode"]:checked').val();
-        
+
         if (voiceMode === 'browse') {
             voiceId = $('#voice_id').val();
         } else {
@@ -848,14 +863,14 @@ $(document).ready(function() {
 
         const pollInterval = setInterval(function() {
             attempts++;
-            
+
             // Update progress message based on time elapsed
             if (attempts > 30) {
                 progressMessage = 'Processing longer audio, this may take a few minutes...';
             } else if (attempts > 60) {
                 progressMessage = 'Almost done, please be patient...';
             }
-            
+
             // Update the loading message
             $('#loadingSpinner').html(`
                 <div class="spinner-border text-primary" role="status">
@@ -906,14 +921,14 @@ $(document).ready(function() {
                                 $('#speedValue').text('1.0x');
                                 $('#similarityValue').text('0.75');
                                 $('#stabilityValue').text('0.5');
-                                
+
                                 // Reset to browse mode
                                 $('#voice_mode_browse').prop('checked', true);
                                 $('#browse_mode').show();
                                 $('#manual_mode').hide();
                                 $('#voice_id').prop('required', true);
                                 $('#voice_id_manual').prop('required', false);
-                                
+
                                 // Reload saved model (don't reset it)
                                 loadSavedModel();
                             });
@@ -957,15 +972,51 @@ $(document).ready(function() {
         // Implementation depends on your caching strategy
     }
 
+    // Load saved voice selection from localStorage
+    function loadSavedVoice() {
+        try {
+            const savedVoice = localStorage.getItem('selectedVoice');
+            if (savedVoice) {
+                const voiceData = JSON.parse(savedVoice);
+                // Check if saved voice is not too old (e.g., 30 days)
+                const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+                if (voiceData.timestamp > thirtyDaysAgo) {
+                    // Set the form fields
+                    $('#voice_id').val(voiceData.voiceId);
+                    $('#voice_display').val(voiceData.voiceName);
+                    
+                    // Highlight the selected voice in the modal
+                    highlightSelectedVoice(voiceData.voiceId);
+                }
+            }
+        } catch (e) {
+            console.log('No saved voice found or error loading saved voice');
+        }
+    }
+
+    // Highlight the selected voice in the modal
+    function highlightSelectedVoice(voiceId) {
+        // Remove any existing highlights
+        $('.voice-card').removeClass('selected-voice');
+        $('.select-voice-btn').removeClass('btn-success').addClass('btn-custom');
+        
+        // Find and highlight the selected voice
+        const selectedCard = $(`.voice-card[data-voice-id="${voiceId}"]`);
+        if (selectedCard.length > 0) {
+            selectedCard.addClass('selected-voice');
+            selectedCard.find('.select-voice-btn').removeClass('btn-custom').addClass('btn-success');
+        }
+    }
+
     // Function to show flash messages
     function showFlashMessage(type, message) {
         // Remove any existing flash messages
         $('.flash-message').remove();
-        
+
         // Create flash message element
         const alertClass = type === 'error' ? 'alert-danger' : 'alert-success';
         const iconClass = type === 'error' ? 'bi-exclamation-triangle' : 'bi-check2';
-        
+
         const flashMessage = $(`
             <div class="alert ${alertClass} alert-dismissible fade show flash-message" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 500px; transform: translateX(100%); opacity: 0; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);">
                 <div class="d-flex align-items-center">
@@ -983,10 +1034,10 @@ $(document).ready(function() {
                 </div>
             </div>
         `);
-        
+
         // Add to body
         $('body').append(flashMessage);
-        
+
         // Animate in
         setTimeout(function() {
             flashMessage.css({
@@ -994,12 +1045,12 @@ $(document).ready(function() {
                 'opacity': '1'
             });
         }, 10);
-        
+
         // Start progress bar animation
         setTimeout(function() {
             flashMessage.find('.progress-bar').css('width', '0%');
         }, 100);
-        
+
         // Auto remove after 5 seconds with smooth animation
         setTimeout(function() {
             flashMessage.css({
@@ -1010,7 +1061,7 @@ $(document).ready(function() {
                 flashMessage.remove();
             }, 400);
         }, 5000);
-        
+
         // Handle manual close with animation
         flashMessage.find('.btn-close').on('click', function() {
             flashMessage.css({
