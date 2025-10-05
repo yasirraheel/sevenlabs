@@ -3,8 +3,8 @@
 @section('css')
 <style>
 :root {
-    --color-default: {{ $settings->color_default }};
-    --color-default-rgb: {{ str_replace('#', '', $settings->color_default) }};
+    --color-default: {{ $settings->color_default ?? '#007bff' }};
+    --color-default-rgb: {{ str_replace('#', '', $settings->color_default ?? '#007bff') }};
 }
 </style>
 <link href="{{ asset('css/tts-custom.css') }}" rel="stylesheet">
