@@ -68,14 +68,14 @@
                                 <div class="col-12 col-lg-6 mb-3 mb-lg-0">
                                     <!-- Voice Selection Mode Toggle -->
                                     <div class="mb-3">
-                                        <div class="btn-group w-100" role="group" aria-label="Voice selection mode">
+                                        <div class="btn-group w-100 d-flex flex-column flex-sm-row" role="group" aria-label="Voice selection mode">
                                             <input type="radio" class="btn-check" name="voice_mode" id="voice_mode_browse" value="browse" checked>
-                                            <label class="btn btn-outline-custom" for="voice_mode_browse">
+                                            <label class="btn btn-outline-custom flex-fill mb-2 mb-sm-0 me-sm-2" for="voice_mode_browse">
                                                 <i class="bi bi-search me-2"></i>Browse Voices
                                             </label>
                                             
                                             <input type="radio" class="btn-check" name="voice_mode" id="voice_mode_manual" value="manual">
-                                            <label class="btn btn-outline-custom" for="voice_mode_manual">
+                                            <label class="btn btn-outline-custom flex-fill" for="voice_mode_manual">
                                                 <i class="bi bi-pencil me-2"></i>Manual Entry
                                             </label>
                                         </div>
