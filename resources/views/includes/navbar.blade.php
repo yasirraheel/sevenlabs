@@ -99,13 +99,14 @@
               @endauth
 
             </ul><!-- End Nav -->
-
-                @guest
-                  <a class="btn btn-custom ms-2 animate-up-2 d-none d-lg-block" href="{{ url('login') }}">
-                  <strong>{{ __('auth.login') }}</strong>
-                  </a>
-                @endguest
             --}}
+
+            {{-- Login button for guests --}}
+            @guest
+              <a class="btn btn-custom ms-2 animate-up-2 d-none d-lg-block" href="{{ url('login') }}">
+                <strong>{{ __('auth.login') }}</strong>
+              </a>
+            @endguest
 
 
             @auth
@@ -120,6 +121,13 @@
 
             </div>
             @endauth
+
+            {{-- Mobile login button for guests --}}
+            @guest
+              <a class="btn btn-custom ms-2 animate-up-2 d-block d-lg-none" href="{{ url('login') }}">
+                <strong>{{ __('auth.login') }}</strong>
+              </a>
+            @endguest
 
             {{-- COMMENTED OUT: Mobile menu toggle - can be uncommented if needed in future
             <a class="ms-3 toggle-menu d-block d-lg-none text-dark fs-3" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" href="#">
