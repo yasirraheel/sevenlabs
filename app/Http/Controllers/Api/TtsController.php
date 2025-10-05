@@ -82,31 +82,31 @@ class TtsController extends Controller
                 $requestData['call_back_url'] = url('/api/tts/callback');
             }
 
-            // Make API call to GenAI Pro
+            // Make API call to GenAI Pro with extended timeout and retry
             $response = Http::withHeaders([
                 'Authorization' => 'Bearer ' . Helper::getSevenLabsApiKey(),
                 'Content-Type' => 'application/json',
-            ])->timeout(60)->post($this->apiBaseUrl . '/labs/task', $requestData);
+            ])->timeout(120)->connectTimeout(30)->retry(2, 1000)->post($this->apiBaseUrl . '/labs/task', $requestData);
 
             if ($response->successful()) {
                 $responseData = $response->json();
-                
+
                 // Handle the response format: {"task_id": "task-uuid"}
                 if (isset($responseData['task_id'])) {
                     // Get system credits after request
                     $systemCreditsAfter = $this->getSystemCredits();
-                    
+
                     // Calculate credits used
                     $creditsUsed = 0;
                     if ($systemCreditsAfter !== null && $systemCreditsBefore !== null) {
                         $creditsUsed = max(0, $systemCreditsBefore - $systemCreditsAfter);
                     }
-                    
+
                     // Deduct credits from user if any were used
                     if ($creditsUsed > 0) {
                         $user->credits = max(0, $user->credits - $creditsUsed);
                         $user->save();
-                        
+
                         \Log::info("TTS Generation - Credits deducted", [
                             'user_id' => $user->id,
                             'credits_used' => $creditsUsed,
@@ -114,7 +114,7 @@ class TtsController extends Controller
                             'task_id' => $responseData['task_id']
                         ]);
                     }
-                    
+
                     // Task created successfully, return task ID for polling
                     return response()->json([
                         'success' => true,
@@ -145,9 +145,31 @@ class TtsController extends Controller
                 ], $response->status());
             }
 
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            \Log::error('TTS Generation Connection Error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Connection timeout. The API is taking longer than expected. Please try again in a few moments.'
+            ], 408);
+        } catch (\Illuminate\Http\Client\RequestException $e) {
+            \Log::error('TTS Generation Request Error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Request failed. Please check your input and try again.'
+            ], 400);
         } catch (\Exception $e) {
             \Log::error('TTS Generation Error: ' . $e->getMessage());
-            
+
+            // Check if it's a timeout error
+            if (strpos($e->getMessage(), 'timeout') !== false || strpos($e->getMessage(), 'Connection timed out') !== false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Task timeout - please try again later. The server is currently busy processing requests.'
+                ], 408);
+            }
+
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while generating speech: ' . $e->getMessage()
@@ -165,7 +187,7 @@ class TtsController extends Controller
 
             if ($response->successful()) {
                 $taskData = $response->json();
-                
+
                 return response()->json([
                     'success' => true,
                     'task' => $taskData
@@ -180,7 +202,7 @@ class TtsController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('TTS Get Task Error: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error fetching task: ' . $e->getMessage()
@@ -204,7 +226,7 @@ class TtsController extends Controller
 
             if ($response->successful()) {
                 $data = $response->json();
-                
+
                 return response()->json([
                     'success' => true,
                     'data' => $data
@@ -219,7 +241,7 @@ class TtsController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('TTS Get Tasks Error: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error fetching tasks: ' . $e->getMessage()
@@ -250,7 +272,7 @@ class TtsController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('TTS Delete Task Error: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error deleting task: ' . $e->getMessage()
@@ -287,7 +309,7 @@ class TtsController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('TTS Export Subtitle Error: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error exporting subtitle: ' . $e->getMessage()
@@ -317,7 +339,7 @@ class TtsController extends Controller
 
             if ($error) {
                 \Log::error('TTS Task failed: ' . $error, ['task_id' => $taskId]);
-                
+
                 return response()->json([
                     'success' => false,
                     'message' => 'Task failed: ' . $error
@@ -348,7 +370,7 @@ class TtsController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('TTS Callback Error: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error processing callback: ' . $e->getMessage()
@@ -388,7 +410,7 @@ class TtsController extends Controller
     {
         try {
             $jsonPath = public_path('voices/page_1.json');
-            
+
             if (!file_exists($jsonPath)) {
                 return response()->json([
                     'success' => false,
@@ -413,7 +435,7 @@ class TtsController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('TTS Get Local Voices Error: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error loading voices: ' . $e->getMessage()
@@ -454,7 +476,7 @@ class TtsController extends Controller
     {
         try {
             $apiKey = Helper::getSevenLabsApiKey();
-            
+
             if (!$apiKey) {
                 return response()->json([
                     'success' => false,
@@ -469,7 +491,7 @@ class TtsController extends Controller
 
             if ($response->successful()) {
                 $userData = $response->json();
-                
+
                 // Calculate total credits from all credit entries
                 $totalCredits = 0;
                 if (isset($userData['credits']) && is_array($userData['credits'])) {
@@ -499,7 +521,7 @@ class TtsController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('TTS Get Me Error: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error fetching user data: ' . $e->getMessage()
@@ -511,7 +533,7 @@ class TtsController extends Controller
     {
         try {
             $user = auth()->user();
-            
+
             // Debug logging
             \Log::info('getUserCredits called', [
                 'user_id' => $user ? $user->id : 'null',
@@ -528,7 +550,7 @@ class TtsController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('Get User Credits Error: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Error loading credits: ' . $e->getMessage()
@@ -554,7 +576,7 @@ class TtsController extends Controller
 
             if ($response->successful()) {
                 $userData = $response->json();
-                
+
                 // Calculate total credits from all credit entries
                 $totalCredits = 0;
                 if (isset($userData['credits']) && is_array($userData['credits'])) {
@@ -564,10 +586,10 @@ class TtsController extends Controller
                         }
                     }
                 }
-                
+
                 return $totalCredits;
             }
-            
+
             return null;
         } catch (\Exception $e) {
             \Log::error('Get System Credits Error: ' . $e->getMessage());

@@ -823,11 +823,28 @@ $(document).ready(function() {
 
     // Poll task status function
     function pollTaskStatus(taskId) {
-        const maxAttempts = 60; // 60 seconds max wait
+        const maxAttempts = 180; // 3 minutes max wait for longer TTS
         let attempts = 0;
+        let progressMessage = 'Generating your speech, please wait...';
 
         const pollInterval = setInterval(function() {
             attempts++;
+            
+            // Update progress message based on time elapsed
+            if (attempts > 30) {
+                progressMessage = 'Processing longer audio, this may take a few minutes...';
+            } else if (attempts > 60) {
+                progressMessage = 'Almost done, please be patient...';
+            }
+            
+            // Update the loading message
+            $('#loadingSpinner').html(`
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">${progressMessage}</p>
+                <small class="text-muted">Time elapsed: ${Math.floor(attempts / 60)}:${(attempts % 60).toString().padStart(2, '0')}</small>
+            `);
 
             $.ajax({
                 url: '{{ url("api/tts/task") }}/' + taskId,
@@ -894,7 +911,7 @@ $(document).ready(function() {
                             clearInterval(pollInterval);
                             $('#loadingSpinner').hide();
                             $('#generateBtn').prop('disabled', false);
-                            alert('Task timeout - please try again later');
+                            alert('Task is taking longer than expected. This can happen with longer audio files. Please try again in a few minutes or contact support if the issue persists.');
                         }
                         // If status is 'pending' or 'processing', continue polling
                     } else {
