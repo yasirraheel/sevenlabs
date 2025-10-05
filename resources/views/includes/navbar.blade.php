@@ -158,6 +158,8 @@
                     const balanceInterval = showLoadingDots(balanceElement);
                     const creditsInterval = showLoadingDots(creditsElement);
                     
+                    console.log('Loading user credits from:', '{{ url("api/user/credits") }}');
+                    
                     // Get user credits from Laravel (not SevenLabs API)
                     fetch('{{ url("api/user/credits") }}', {
                         method: 'GET',
@@ -166,8 +168,13 @@
                             'Content-Type': 'application/json'
                         }
                     })
-                    .then(response => response.json())
+                    .then(response => {
+                        console.log('API Response status:', response.status);
+                        return response.json();
+                    })
                     .then(data => {
+                        console.log('API Response data:', data);
+                        
                         // Clear loading intervals
                         clearInterval(balanceInterval);
                         clearInterval(creditsInterval);
@@ -178,6 +185,9 @@
                             
                             // Update credits (show user's own credits)
                             creditsElement.textContent = data.user_credits || 0;
+                            
+                            console.log('Updated balance:', data.admin_balance);
+                            console.log('Updated credits:', data.user_credits);
                         } else {
                             // Show error state
                             balanceElement.textContent = 'Error';
