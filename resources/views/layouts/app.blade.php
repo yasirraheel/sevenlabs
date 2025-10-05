@@ -13,7 +13,7 @@
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="@yield('og_title', $settings->og_title ?? $settings->seo_title ?? $settings->title ?? __('seo.welcome_text'))">
     <meta property="og:description" content="@yield('og_description', $settings->og_description ?? $settings->seo_description ?? __('seo.description'))">
-    <meta property="og:image" content="@yield('og_image', $settings->og_image ? url('public/img', $settings->og_image) : url('public/img', $settings->logo_light))">
+    <meta property="og:image" content="@yield('og_image', $settings->og_image ? url('public/img', $settings->og_image) : url('public/img', $settings->image_header))">
     <meta property="og:url" content="{{ $settings->canonical_url ?? url()->current() }}">
     <meta property="og:type" content="{{ $settings->og_type ?? 'website' }}">
     <meta property="og:site_name" content="{{ $settings->og_site_name ?? $settings->title }}">
@@ -24,7 +24,7 @@
     <meta name="twitter:creator" content="{{ $settings->twitter_creator ?? '' }}">
     <meta name="twitter:title" content="@yield('og_title', $settings->og_title ?? $settings->seo_title ?? $settings->title ?? __('seo.welcome_text'))">
     <meta name="twitter:description" content="@yield('og_description', $settings->og_description ?? $settings->seo_description ?? __('seo.description'))">
-    <meta name="twitter:image" content="@yield('og_image', $settings->og_image ? url('public/img', $settings->og_image) : url('public/img', $settings->logo_light))">
+    <meta name="twitter:image" content="@yield('og_image', $settings->og_image ? url('public/img', $settings->og_image) : url('public/img', $settings->image_header))">
     
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ $settings->canonical_url ?? url()->current() }}">

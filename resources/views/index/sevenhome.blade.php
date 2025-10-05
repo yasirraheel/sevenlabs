@@ -6,7 +6,7 @@
 
 @section('og_title', 'AI Text to Speech Generator - SevenLabs TTS')
 @section('og_description', 'Convert text to natural-sounding speech with advanced AI technology. Generate high-quality voice synthesis for content creators, developers, and businesses.')
-@section('og_image', $settings->og_image ? url('public/img', $settings->og_image) : url('public/img', $settings->logo_light))
+@section('og_image', $settings->og_image ? url('public/img', $settings->og_image) : url('public/img', $settings->image_header))
 
 @section('css')
 <style>
