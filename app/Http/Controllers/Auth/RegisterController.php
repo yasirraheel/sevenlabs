@@ -144,7 +144,7 @@ class RegisterController extends Controller
     // Get user country
     $country = Countries::whereCountryCode(Helper::userCountry())->first();
 
-		return User::create([
+		$user = User::create([
 			'username'        => $data['username'],
 			'name'            => '',
       'bio'             => '',
@@ -163,8 +163,11 @@ class RegisterController extends Controller
       'oauth_provider'  => '',
 			'token'           => $token,
       'authorized_to_upload' => $authorized_to_upload,
-      'ip'               => request()->ip()
+      'ip'               => request()->ip(),
+      'credits'          => $settings->signup_bonus_credits ?? 100 // Assign signup bonus credits
 		]);
+
+		return $user;
   }// create
 
   /**
