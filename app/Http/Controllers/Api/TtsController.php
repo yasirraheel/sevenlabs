@@ -461,11 +461,19 @@ class TtsController extends Controller
     {
         try {
             $user = auth()->user();
+            
+            // Debug logging
+            \Log::info('getUserCredits called', [
+                'user_id' => $user ? $user->id : 'null',
+                'user_balance' => $user ? $user->balance : 'null',
+                'user_credits' => $user ? $user->credits : 'null'
+            ]);
 
             return response()->json([
                 'success' => true,
                 'user_balance' => $user->balance ?? 0,
-                'user_credits' => $user->credits ?? 0
+                'user_credits' => $user->credits ?? 0,
+                'debug_user_id' => $user ? $user->id : null
             ]);
 
         } catch (\Exception $e) {
