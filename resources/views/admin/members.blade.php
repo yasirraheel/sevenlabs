@@ -57,7 +57,7 @@
                      <th class="active">{{ trans('misc.balance') }}</th>
                      <th class="active">{{ trans('misc.credits') }}</th>
                      <th class="active">{{ trans('admin.date') }}</th>
-                     <th class="active">Location</th>
+                     <th class="active">IP</th>
                      <th class="active">{{ trans('admin.role') }}</th>
                      <th class="active">{{ trans('admin.status') }}</th>
                      <th class="active">{{ trans('admin.actions') }}</th>
@@ -74,13 +74,7 @@
                      <td>{{ Helper::amountFormatDecimal($user->balance)}}</td>
                      <td>{{ Helper::amountFormatDecimal($user->credits)}}</td>
                      <td>{{ Helper::formatDate($user->date) }}</td>
-                     <td>
-                       @if($user->ip)
-                         <span title="IP: {{ $user->ip }}">{{ Helper::getLocationFromIP($user->ip) }}</span>
-                       @else
-                         {{ trans('misc.not_available') }}
-                       @endif
-                     </td>
+                     <td>{{ $user->ip ? $user->ip : trans('misc.not_available') }}</td>
                      <td>
                       @foreach (RolesAndPermissions::all() as $role)
 
