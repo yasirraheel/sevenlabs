@@ -402,6 +402,76 @@
 
     @yield('javascript')
 
+    @auth
+    <script>
+    // Load SevenLabs user data when dropdown is opened (Admin Panel)
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdownToggle = document.getElementById('dropdownUser2');
+        const balanceElement = document.getElementById('balance-amount');
+        const creditsElement = document.getElementById('credits-amount');
+        
+        if (dropdownToggle && balanceElement && creditsElement) {
+            dropdownToggle.addEventListener('show.bs.dropdown', function() {
+                // Only load if not already loaded
+                if (balanceElement.textContent === 'Loading...' || balanceElement.textContent.includes('...')) {
+                    loadUserData();
+                }
+            });
+        }
+        
+        function showLoadingDots(element) {
+            let dots = 0;
+            const interval = setInterval(() => {
+                dots = (dots + 1) % 4;
+                element.textContent = '.'.repeat(dots);
+            }, 500);
+            return interval;
+        }
+        
+        function loadUserData() {
+            // Show animated loading dots
+            const balanceInterval = showLoadingDots(balanceElement);
+            const creditsInterval = showLoadingDots(creditsElement);
+            
+            fetch('{{ url("api/tts/me") }}', {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Clear loading intervals
+                clearInterval(balanceInterval);
+                clearInterval(creditsInterval);
+                
+                if (data.success && data.data) {
+                    // Update balance
+                    balanceElement.textContent = data.data.balance || 0;
+                    
+                    // Update credits
+                    creditsElement.textContent = data.data.total_credits || 0;
+                } else {
+                    // Show error state
+                    balanceElement.textContent = 'Error';
+                    creditsElement.textContent = 'Error';
+                }
+            })
+            .catch(error => {
+                // Clear loading intervals
+                clearInterval(balanceInterval);
+                clearInterval(creditsInterval);
+                
+                console.error('Error loading user data:', error);
+                balanceElement.textContent = 'Error';
+                creditsElement.textContent = 'Error';
+            });
+        }
+    });
+    </script>
+    @endauth
+
     @if (session('unauthorized'))
       <script type="text/javascript">
        swal({
