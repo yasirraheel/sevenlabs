@@ -36,6 +36,32 @@ class TtsController extends Controller
         }
 
         try {
+            // Get current user
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
+
+            // Check user has sufficient credits
+            if ($user->credits <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Insufficient credits. Please add credits to continue.'
+                ], 400);
+            }
+
+            // Get system credits before request
+            $systemCreditsBefore = $this->getSystemCredits();
+            if ($systemCreditsBefore === null) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unable to check system credits. Please try again.'
+                ], 500);
+            }
+
             // Prepare the request data
             $requestData = [
                 'input' => $request->input,
@@ -67,12 +93,36 @@ class TtsController extends Controller
                 
                 // Handle the response format: {"task_id": "task-uuid"}
                 if (isset($responseData['task_id'])) {
+                    // Get system credits after request
+                    $systemCreditsAfter = $this->getSystemCredits();
+                    
+                    // Calculate credits used
+                    $creditsUsed = 0;
+                    if ($systemCreditsAfter !== null && $systemCreditsBefore !== null) {
+                        $creditsUsed = max(0, $systemCreditsBefore - $systemCreditsAfter);
+                    }
+                    
+                    // Deduct credits from user if any were used
+                    if ($creditsUsed > 0) {
+                        $user->credits = max(0, $user->credits - $creditsUsed);
+                        $user->save();
+                        
+                        \Log::info("TTS Generation - Credits deducted", [
+                            'user_id' => $user->id,
+                            'credits_used' => $creditsUsed,
+                            'remaining_credits' => $user->credits,
+                            'task_id' => $responseData['task_id']
+                        ]);
+                    }
+                    
                     // Task created successfully, return task ID for polling
                     return response()->json([
                         'success' => true,
                         'task_id' => $responseData['task_id'],
                         'message' => 'Task created successfully. Use task_id to check status.',
-                        'callback_url' => $requestData['call_back_url']
+                        'callback_url' => $requestData['call_back_url'],
+                        'credits_used' => $creditsUsed,
+                        'remaining_credits' => $user->credits
                     ]);
                 } else {
                     return response()->json([
@@ -483,6 +533,45 @@ class TtsController extends Controller
                 'success' => false,
                 'message' => 'Error loading credits: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Get system credits from GenAI Pro API
+     */
+    private function getSystemCredits()
+    {
+        try {
+            $apiKey = Helper::getSevenLabsApiKey();
+            if (!$apiKey) {
+                return null;
+            }
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type' => 'application/json'
+            ])->timeout(10)->get($this->apiBaseUrl . '/me');
+
+            if ($response->successful()) {
+                $userData = $response->json();
+                
+                // Calculate total credits from all credit entries
+                $totalCredits = 0;
+                if (isset($userData['credits']) && is_array($userData['credits'])) {
+                    foreach ($userData['credits'] as $credit) {
+                        if (isset($credit['amount'])) {
+                            $totalCredits += $credit['amount'];
+                        }
+                    }
+                }
+                
+                return $totalCredits;
+            }
+            
+            return null;
+        } catch (\Exception $e) {
+            \Log::error('Get System Credits Error: ' . $e->getMessage());
+            return null;
         }
     }
 }
