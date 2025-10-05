@@ -967,23 +967,60 @@ $(document).ready(function() {
         const iconClass = type === 'error' ? 'bi-exclamation-triangle' : 'bi-check2';
         
         const flashMessage = $(`
-            <div class="alert ${alertClass} alert-dismissible fade show flash-message" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 500px;">
-                <i class="bi ${iconClass} me-1"></i> ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                    <i class="bi bi-x-lg"></i>
-                </button>
+            <div class="alert ${alertClass} alert-dismissible fade show flash-message" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 500px; transform: translateX(100%); opacity: 0; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <i class="bi ${iconClass} me-2"></i> ${message}
+                    </div>
+                    <div class="ms-2">
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="progress-timer" style="position: absolute; bottom: 0; left: 0; height: 3px; background: rgba(255,255,255,0.3); width: 100%; border-radius: 0 0 0.375rem 0.375rem;">
+                    <div class="progress-bar" style="height: 100%; background: ${type === 'error' ? '#dc3545' : '#198754'}; width: 100%; border-radius: 0 0 0.375rem 0.375rem; transition: width 5s linear;"></div>
+                </div>
             </div>
         `);
         
         // Add to body
         $('body').append(flashMessage);
         
-        // Auto remove after 5 seconds
+        // Animate in
         setTimeout(function() {
-            flashMessage.fadeOut(500, function() {
-                $(this).remove();
+            flashMessage.css({
+                'transform': 'translateX(0)',
+                'opacity': '1'
             });
+        }, 10);
+        
+        // Start progress bar animation
+        setTimeout(function() {
+            flashMessage.find('.progress-bar').css('width', '0%');
+        }, 100);
+        
+        // Auto remove after 5 seconds with smooth animation
+        setTimeout(function() {
+            flashMessage.css({
+                'transform': 'translateX(100%)',
+                'opacity': '0'
+            });
+            setTimeout(function() {
+                flashMessage.remove();
+            }, 400);
         }, 5000);
+        
+        // Handle manual close with animation
+        flashMessage.find('.btn-close').on('click', function() {
+            flashMessage.css({
+                'transform': 'translateX(100%)',
+                'opacity': '0'
+            });
+            setTimeout(function() {
+                flashMessage.remove();
+            }, 400);
+        });
     }
 });
 
