@@ -6,7 +6,7 @@
 
 @section('content')
 <!-- Hero Section -->
-<div class="container-fluid home-cover">
+<div class="container-fluid">
     <div class="mb-4 position-relative custom-pt-6">
         <div class="container px-3 px-md-5">
             <div class="text-center text-md-start">
