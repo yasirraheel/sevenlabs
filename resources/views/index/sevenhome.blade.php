@@ -43,7 +43,7 @@
                     <i class="bi bi-x-lg"></i>
                 </button>
             </div>
-            @endif
+		  @endif
 
             <div class="text-center text-md-start">
                 <h1 class="display-4 display-md-3 fw-bold text-white mb-3">

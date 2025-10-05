@@ -29,6 +29,12 @@ class TtsController extends Controller
 
         // Check if API key is configured
         if (!Helper::hasSevenLabsApiKey()) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'SevenLabs API key is not configured. Please contact administrator.'
+                ], 500);
+            }
             return redirect()->back()->with('error_message', 
                 'SevenLabs API key is not configured. Please contact administrator.'
             );
@@ -38,6 +44,12 @@ class TtsController extends Controller
             // Get current user
             $user = auth()->user();
             if (!$user) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'User not authenticated. Please log in and try again.'
+                    ], 401);
+                }
                 return redirect()->back()->with('error_message', 
                     'User not authenticated. Please log in and try again.'
                 );
@@ -49,6 +61,12 @@ class TtsController extends Controller
             
             // Check user has sufficient credits for estimated usage
             if ($user->credits < $estimatedCredits) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Insufficient credits. You need at least {$estimatedCredits} credits for this text ({$textLength} characters). You have {$user->credits} credits."
+                    ], 400);
+                }
                 return redirect()->back()->with('error_message', 
                     "Insufficient credits. You need at least {$estimatedCredits} credits for this text ({$textLength} characters). You have {$user->credits} credits."
                 );
@@ -99,11 +117,27 @@ class TtsController extends Controller
                     // Store task info for credit confirmation later
                     $this->storeTaskInfo($responseData['task_id'], $user->id, $estimatedCredits, $textLength);
 
-                    // Task created successfully, redirect with success message
+                    // Task created successfully, return appropriate response
+                    if ($request->ajax()) {
+                        return response()->json([
+                            'success' => true,
+                            'task_id' => $responseData['task_id'],
+                            'message' => 'Task created successfully. Use task_id to check status.',
+                            'callback_url' => $requestData['call_back_url'],
+                            'estimated_credits' => $estimatedCredits,
+                            'remaining_credits' => $user->credits
+                        ]);
+                    }
                     return redirect()->back()->with('success_message', 
                         "TTS generation started successfully! Estimated credits: {$estimatedCredits}. Remaining credits: {$user->credits}. Task ID: {$responseData['task_id']}"
                     );
                 } else {
+                    if ($request->ajax()) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Unexpected response format from API. Please try again.'
+                        ], 500);
+                    }
                     return redirect()->back()->with('error_message', 
                         'Unexpected response format from API. Please try again.'
                     );
@@ -116,18 +150,37 @@ class TtsController extends Controller
                     $errorMessage = $response->json()['error'];
                 }
 
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errorMessage,
+                        'status_code' => $response->status()
+                    ], $response->status());
+                }
                 return redirect()->back()->with('error_message', $errorMessage);
             }
 
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
             \Log::error('TTS Generation Connection Error: ' . $e->getMessage());
 
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Connection timeout. The API is taking longer than expected. Please try again in a few moments.'
+                ], 408);
+            }
             return redirect()->back()->with('error_message', 
                 'Connection timeout. The API is taking longer than expected. Please try again in a few moments.'
             );
         } catch (\Illuminate\Http\Client\RequestException $e) {
             \Log::error('TTS Generation Request Error: ' . $e->getMessage());
 
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Request failed. Please check your input and try again.'
+                ], 400);
+            }
             return redirect()->back()->with('error_message', 
                 'Request failed. Please check your input and try again.'
             );
@@ -136,11 +189,23 @@ class TtsController extends Controller
 
             // Check if it's a timeout error
             if (strpos($e->getMessage(), 'timeout') !== false || strpos($e->getMessage(), 'Connection timed out') !== false) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Task timeout - please try again later. The server is currently busy processing requests.'
+                    ], 408);
+                }
                 return redirect()->back()->with('error_message', 
                     'Task timeout - please try again later. The server is currently busy processing requests.'
                 );
             }
 
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'An error occurred while generating speech: ' . $e->getMessage()
+                ], 500);
+            }
             return redirect()->back()->with('error_message', 
                 'An error occurred while generating speech: ' . $e->getMessage()
             );
