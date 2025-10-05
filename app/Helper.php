@@ -748,4 +748,54 @@ class Helper
 		$apiKey = self::getSevenLabsApiKey();
 		return !empty($apiKey);
 	}
+
+	// IP Geolocation Helper
+	public static function getLocationFromIP($ip)
+	{
+		// Skip local/private IPs
+		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+			return 'Local/Private IP';
+		}
+
+		// Check cache first
+		$cacheKey = 'ip_location_' . md5($ip);
+		if (cache($cacheKey)) {
+			return cache($cacheKey);
+		}
+
+		try {
+			// Use ipapi.co service (free, no API key required)
+			$url = "http://ipapi.co/{$ip}/json/";
+			$response = self::getDatacURL($url);
+			
+			if ($response && isset($response->city) && isset($response->country_name)) {
+				$location = $response->city . ', ' . $response->country_name;
+				
+				// Cache for 24 hours
+				cache([$cacheKey => $location], 1440);
+				
+				return $location;
+			}
+		} catch (\Exception $e) {
+			// Fallback to ip-api.com if ipapi.co fails
+			try {
+				$url = "http://ip-api.com/json/{$ip}";
+				$response = self::getDatacURL($url);
+				
+				if ($response && $response->status === 'success') {
+					$location = $response->city . ', ' . $response->country;
+					
+					// Cache for 24 hours
+					cache([$cacheKey => $location], 1440);
+					
+					return $location;
+				}
+			} catch (\Exception $e2) {
+				// If both services fail, return IP
+				return $ip;
+			}
+		}
+
+		return $ip; // Fallback to IP if all services fail
+	}
 }//<--- End Class
