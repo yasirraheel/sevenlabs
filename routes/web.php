@@ -28,6 +28,7 @@ use App\Http\Controllers\CountriesStatesController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\RolesAndPermissionsController;
+use App\Http\Controllers\AjaxController;
 
 /*
 |--------------------------------------------------------------------------
@@ -348,3 +349,5 @@ Route::post('2fa/resend', [TwoFactorAuthController::class, 'resend']);
 Route::get('installer/script',[InstallScriptController::class, 'wizard']);
 Route::post('installer/script/database',[InstallScriptController::class, 'database']);
 Route::post('installer/script/user',[InstallScriptController::class, 'user']);
+R o u t e : : g e t ( ' a j a x / n o t i f i c a t i o n s ' ,   [ A j a x C o n t r o l l e r : : c l a s s ,   ' n o t i f i c a t i o n s ' ] ) ;  
+ 
