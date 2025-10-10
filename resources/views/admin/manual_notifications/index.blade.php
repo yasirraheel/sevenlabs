@@ -54,15 +54,13 @@
 										<img src="{{ $notification->image_url }}" alt="{{ $notification->title }}" 
 											class="rounded" style="width: 50px; height: 50px; object-fit: cover;"
 											onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-										@endif
-										@if(!$notification->image)
 										<div class="bg-light rounded d-flex align-items-center justify-content-center" 
-											style="width: 50px; height: 50px;">
+											style="width: 50px; height: 50px; display: none;">
 											<i class="bi bi-image text-muted"></i>
 										</div>
 										@else
 										<div class="bg-light rounded d-flex align-items-center justify-content-center" 
-											style="width: 50px; height: 50px; display: none;">
+											style="width: 50px; height: 50px;">
 											<i class="bi bi-image text-muted"></i>
 										</div>
 										@endif
