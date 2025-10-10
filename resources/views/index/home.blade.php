@@ -82,7 +82,7 @@
                   @endif
                   
                   <a href="{{ url('category', $category->slug) }}" 
-                     class="btn btn-main btn-sm">
+                     class="btn btn-dark btn-sm">
                     <i class="bi bi-arrow-right me-1"></i>
                     {{ __('misc.view_games') }}
                   </a>
