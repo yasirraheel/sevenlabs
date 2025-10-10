@@ -58,7 +58,7 @@
                 <div class="card-body text-center p-4">
                   @if($category->thumbnail)
                     <div class="mb-3">
-                      <img src="{{ url('public/img', $category->thumbnail) }}" 
+                      <img src="{{ url('public/img-category', $category->thumbnail) }}" 
                            alt="{{ $category->name }}" 
                            class="img-fluid rounded" 
                            style="width: 80px; height: 80px; object-fit: cover;">
