@@ -1,10 +1,10 @@
 <header class="py-3 shadow-sm fixed-top bg-white" id="header">
         <div class="container-fluid d-flex justify-content-between align-items-center px-4">
 
-            <a href="{{ url('/') }}" class="d-flex align-items-center link-dark text-decoration-none fw-bold display-6">
-              <img src="{{ url('public/img', $settings->logo) }}" class="logoMain d-none d-lg-block" width="110" />
-              <img src="{{ url('public/img', $settings->logo_light) }}" class="logoLight d-none d-lg-block" width="110" />
-              <img src="{{ url('public/img', $settings->favicon) }}" class="logo d-block d-lg-none" height="32" />
+            <a href="{{ url('/') }}" class="d-flex align-items-center link-dark text-decoration-none fw-bold display-6" style="padding: 0;">
+              <img src="{{ url('public/img', $settings->logo) }}" class="logoMain d-none d-lg-block" width="140" style="padding: 0;" />
+              <img src="{{ url('public/img', $settings->logo_light) }}" class="logoLight d-none d-lg-block" width="140" style="padding: 0;" />
+              <img src="{{ url('public/img', $settings->favicon) }}" class="logo d-block d-lg-none" height="40" style="padding: 0;" />
             </a>
 
           <div class="d-flex align-items-center">
