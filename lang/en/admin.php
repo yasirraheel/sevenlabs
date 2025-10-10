@@ -282,6 +282,7 @@ return array(
 		'actions' => 'Actions',
 		'back' => 'Back',
 		'cancel' => 'Cancel',
+		'created_at' => 'Created At',
 
 		// Deposits Management
 		'deposits' => 'Deposits',

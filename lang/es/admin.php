@@ -258,5 +258,6 @@ return array(
 		'actions' => 'Acciones',
 		'back' => 'Atrás',
 		'cancel' => 'Cancelar',
+		'created_at' => 'Creado En',
 
 );
