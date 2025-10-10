@@ -33,9 +33,10 @@ class HomeController extends Controller
       return redirect('installer/script');
     }
 
+    $settings = AdminSettings::first();
     $categories = Categories::select(['name', 'slug', 'thumbnail'])->where('mode', 'on')->orderBy('name')->simplePaginate(4);
     $images     = Query::latestImagesHome();
-    $featured   = in_array(config('settings.show_images_index'), ['featured', 'both']) ? Query::featuredImages() : null;
+    $featured   = in_array($settings->show_images_index ?? 'latest', ['featured', 'both']) ? Query::featuredImages() : null;
 
     // Simplified for universal starter kit - just get top categories without image count
     $popularCategories = Categories::where('mode', 'on')->take(5)->get();
@@ -51,13 +52,24 @@ class HomeController extends Controller
       $categoryPopular = false;
     }
 
+    // Get basic stats for display
+    $userCount = User::count();
+    $downloadsCount = 0; // Placeholder since downloads table was removed
+    $imagesCount = 0; // Placeholder since images table was removed
+    $categoriesCount = Categories::where('mode', 'on')->count();
+
     return view(
       'index.home',
       [
+        'settings' => $settings,
         'categories' => $categories,
         'images' => $images,
         'featured' => $featured,
-        'categoryPopular' => $categoryPopular
+        'categoryPopular' => $categoryPopular,
+        'userCount' => $userCount,
+        'downloadsCount' => $downloadsCount,
+        'imagesCount' => $imagesCount,
+        'categoriesCount' => $categoriesCount
       ]
     );
   }

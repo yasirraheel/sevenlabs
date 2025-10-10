@@ -29,7 +29,10 @@ class Query extends Model
 		}
 
 		// POPULAR (followers count)
-		$data->leftjoin('followers', 'users.id', '=', \DB::raw('followers.following AND followers.status = "1"'));
+		$data->leftjoin('followers', function($join) {
+			$join->on('users.id', '=', 'followers.following')
+				 ->where('followers.status', '=', '1');
+		});
 
 		$query = 	$data->where('users.status', '=', 'active')
 			->groupBy('users.id')
@@ -39,8 +42,6 @@ class Query extends Model
 				'users.id',
 				'users.username',
 				'users.name',
-				'users.avatar',
-				'users.cover',
 				'users.status'
 			)
 			->withCount(['followers'])

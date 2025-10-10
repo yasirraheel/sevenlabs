@@ -39,7 +39,7 @@ use App\Http\Controllers\AjaxController;
 */
 
 // Homepage
-Route::get('/', [HomeController::class, 'explore'])->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('home', function() {
     return redirect('/');
 });
