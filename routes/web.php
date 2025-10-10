@@ -16,6 +16,8 @@ use App\Http\Controllers\CommentsController;
 use App\Http\Controllers\TaxRatesController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\ManualNotificationController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\SocialAuthController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -320,7 +322,7 @@ Route::group(['middleware' => 'role'], function() {
     Route::post('panel/admin/roles-and-permissions/delete/{id}', [RolesAndPermissionsController::class, 'destroy']);
 
     // Manual Notifications
-    Route::resource('panel/admin/manual-notifications', Admin\ManualNotificationController::class)->names([
+    Route::resource('panel/admin/manual-notifications', ManualNotificationController::class)->names([
         'index' => 'admin.manual_notifications.index',
         'create' => 'admin.manual_notifications.create',
         'store' => 'admin.manual_notifications.store',
@@ -329,7 +331,7 @@ Route::group(['middleware' => 'role'], function() {
         'update' => 'admin.manual_notifications.update',
         'destroy' => 'admin.manual_notifications.destroy',
     ]);
-    Route::patch('panel/admin/manual-notifications/{manualNotification}/toggle-status', [Admin\ManualNotificationController::class, 'toggleStatus'])->name('admin.manual_notifications.toggle_status');
+    Route::patch('panel/admin/manual-notifications/{manualNotification}/toggle-status', [ManualNotificationController::class, 'toggleStatus'])->name('admin.manual_notifications.toggle_status');
 });
 
 // Language Switching
