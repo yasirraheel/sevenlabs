@@ -671,51 +671,26 @@ class AdminController extends Controller
 
 	public function payments()
 	{
-		$stripeConnectCountries = explode(',', $this->settings->stripe_connect_countries);
-		return view('admin.payments-settings')->withStripeConnectCountries($stripeConnectCountries);
+		return view('admin.payments-settings');
 	}
 
 	public function savePayments(Request $request)
 	{
-
 		$sql = AdminSettings::first();
 
-		$messages = [
-			'stripe_connect_countries.required' => trans('validation.required', ['attribute' => __('misc.stripe_connect_countries')])
-		];
-
 		$rules = [
-			'currency_code' => 'required|alpha',
-			'currency_symbol' => 'required',
-			'stripe_connect_countries' => Rule::requiredIf($request->stripe_connect == 1)
+			'currency_code' => 'required|alpha|max:3',
+			'currency_symbol' => 'required|max:10',
+			'currency_position' => 'required|in:left,right',
+			'decimal_format' => 'required|in:dot,comma'
 		];
 
-		$this->validate($request, $rules, $messages);
+		$this->validate($request, $rules);
 
-		if (isset($request->stripe_connect_countries)) {
-			$stripeConnectCountries = implode(',', $request->stripe_connect_countries);
-		}
-
-		$sql->currency_symbol  = $request->currency_symbol;
-		$sql->currency_code    = strtoupper($request->currency_code);
-		$sql->currency_position    = $request->currency_position;
-		$sql->default_price_photos   = $request->default_price_photos;
-		$sql->extended_license_price   = $request->extended_license_price;
-		$sql->min_sale_amount   = $request->min_sale_amount;
-		$sql->max_sale_amount   = $request->max_sale_amount;
-		$sql->min_deposits_amount   = $request->min_deposits_amount;
-		$sql->max_deposits_amount   = $request->max_deposits_amount;
-		$sql->fee_commission        = $request->fee_commission;
-		$sql->fee_commission_non_exclusive = $request->fee_commission_non_exclusive;
-		$sql->percentage_referred  = $request->percentage_referred;
-		$sql->referral_transaction_limit  = $request->referral_transaction_limit;
-		$sql->amount_min_withdrawal    = $request->amount_min_withdrawal;
+		$sql->currency_code = strtoupper($request->currency_code);
+		$sql->currency_symbol = $request->currency_symbol;
+		$sql->currency_position = $request->currency_position;
 		$sql->decimal_format = $request->decimal_format;
-		$sql->payout_method_paypal = $request->payout_method_paypal;
-		$sql->payout_method_bank = $request->payout_method_bank;
-		$sql->stripe_connect = $request->stripe_connect;
-		$sql->tax_on_wallet = $request->tax_on_wallet;
-		$sql->stripe_connect_countries = $stripeConnectCountries ?? null;
 
 		$sql->save();
 
