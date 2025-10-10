@@ -33,6 +33,7 @@ return array(
 	'success_page_create'       =>      'Page created successfully',
 	'view_page'                 =>      'View Page',
 	'name_site'                 =>      'Name Site',
+	'version'                   =>      'Version',
 	'welcome_text'              =>      'Welcome Text',
 	'welcome_subtitle'          =>      'Welcome Subtitle',
 	'keywords'                  =>      'Keywords',
