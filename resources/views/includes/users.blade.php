@@ -21,10 +21,12 @@ if (auth()->check()) {
  @endphp
 <div class="col-md-4 mb-4">
 <div class="card card-updates h-100 card-user-profile shadow-sm">
-	<div class="card-cover" style="background: @if ($user->cover != '') url({{ Storage::url(config('path.cover').$user->cover) }})  @endif #505050 center center; background-size: cover;"></div>
+	<div class="card-cover" style="background: #505050 center center; background-size: cover;"></div>
 	<div class="card-avatar">
 		<a href="{{url($user->username)}}">
-		<img src="{{Storage::url(config('path.avatar').$user->avatar)}}" width="95" height="95" alt="{{$user->name}}" class="img-user-small">
+		<div class="bg-light d-flex align-items-center justify-content-center rounded-circle img-user-small" style="width: 95px; height: 95px;">
+		  <i class="bi bi-person text-muted" style="font-size: 2rem;"></i>
+		</div>
 		</a>
 	</div>
 	<div class="card-body text-center">

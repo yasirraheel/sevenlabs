@@ -72,13 +72,6 @@
 				$linkDestination = $url_photo;
 				break;
 
-			case 6:
-				$action          = trans('misc.referrals_made');
-				$linkDestination = url('my/referrals');
-				$title           = trans('misc.transaction');
-				$iconNotify      = 'bi bi-person-plus';
-				$notyNormal      = false;
-				break;
 
 			case 7:
 				$action          = trans('misc.video_processed_successfully');

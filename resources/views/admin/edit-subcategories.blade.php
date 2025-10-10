@@ -22,32 +22,11 @@
 						<input type="hidden" name="id" value="{{ $subcategory->id }}">
 
 						<div class="row mb-3">
-							<label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.name') }}</label>
+							<label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.name') }} ({{ __('misc.optional') }})</label>
 							<div class="col-sm-10">
-								<input value="{{ $subcategory->name }}" required name="name" type="text" class="form-control">
+								<input value="{{ $subcategory->name }}" name="name" type="text" class="form-control">
 							</div>
 						</div>
-
-						<div class="row mb-3">
-							<label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.slug') }}</label>
-							<div class="col-sm-10">
-								<input value="{{ $subcategory->slug }}" required name="slug" type="text" class="form-control">
-							</div>
-						</div>
-
-						<div class="row mb-3">
-							<label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.keywords') }} (SEO)</label>
-							<div class="col-sm-10">
-							  <input value="{{ $subcategory->keywords }}" name="keywords" type="text" class="form-control">
-							</div>
-						  </div>
-		  
-								  <div class="row mb-3">
-							<label class="col-sm-2 col-form-labe text-lg-end">{{ __('admin.description') }} (SEO)</label>
-							<div class="col-sm-10">
-						  <textarea class="form-control" name="description" rows="4">{{ $subcategory->description }}</textarea>
-							</div>
-						  </div>
 
 						<div class="row mb-3">
 							<label for="select" class="col-sm-2 col-form-labe text-lg-end">{{ __('misc.category')
@@ -60,6 +39,34 @@
 										@endif value="{{$category->id}}">{{ $category->name }}</option>
 									@endforeach
 								</select>
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.start_date') }}</label>
+							<div class="col-sm-10">
+								<input value="{{ $subcategory->start_date }}" name="start_date" type="date" class="form-control">
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.start_time') }}</label>
+							<div class="col-sm-10">
+								<input value="{{ $subcategory->start_time }}" name="start_time" type="time" class="form-control">
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.close_date') }}</label>
+							<div class="col-sm-10">
+								<input value="{{ $subcategory->close_date }}" name="close_date" type="date" class="form-control">
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.close_time') }}</label>
+							<div class="col-sm-10">
+								<input value="{{ $subcategory->close_time }}" name="close_time" type="time" class="form-control">
 							</div>
 						</div>
 

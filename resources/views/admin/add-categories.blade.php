@@ -30,23 +30,16 @@
 		        </div>
 
             <div class="row mb-3">
-		          <label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.slug') }}</label>
+		          <label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.date') }}</label>
 		          <div class="col-sm-10">
-		            <input value="{{ old('slug') }}" name="slug" required type="text" class="form-control">
-		          </div>
-		        </div>
-            
-            <div class="row mb-3">
-		          <label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.keywords') }} (SEO)</label>
-		          <div class="col-sm-10">
-		            <input value="{{ old('keywords') }}" name="keywords" type="text" class="form-control">
+		            <input value="{{ old('date') }}" name="date" type="date" class="form-control">
 		          </div>
 		        </div>
 
-						<div class="row mb-3">
-		          <label class="col-sm-2 col-form-labe text-lg-end">{{ __('admin.description') }} (SEO)</label>
+            <div class="row mb-3">
+		          <label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.time') }}</label>
 		          <div class="col-sm-10">
-                <textarea class="form-control" name="description" rows="4">{{ old('description')}}</textarea>
+		            <input value="{{ old('time') }}" name="time" type="time" class="form-control">
 		          </div>
 		        </div>
 

@@ -1,88 +1,186 @@
 @extends('admin.layout')
 
 @section('content')
-	<h5 class="mb-4 fw-light">
-    <a class="text-reset" href="{{ url('panel/admin') }}">{{ __('admin.dashboard') }}</a>
-      <i class="bi-chevron-right me-1 fs-6"></i>
-      <span class="text-muted">{{ __('misc.deposits') }} ({{$data->total()}})</span>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-credit-card me-2"></i>
+                        {{ __('admin.deposits') }}
   </h5>
-
-<div class="content">
-	<div class="row">
-
-		<div class="col-lg-12">
-
-			@if (session('success_message'))
+                </div>
+                <div class="card-body">
+                    @if(session('success'))
       <div class="alert alert-success alert-dismissible fade show" role="alert">
-              <i class="bi bi-check2 me-1"></i>	{{ session('success_message') }}
+                            <i class="bi bi-check-circle me-2"></i>
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
 
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                  <i class="bi bi-x-lg"></i>
-                </button>
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
               @endif
 
-			<div class="card shadow-custom border-0">
-				<div class="card-body p-lg-4">
+                    <!-- Filter Tabs -->
+                    <ul class="nav nav-tabs mb-4" id="depositTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
+                                All Deposits ({{ $allDeposits->count() }})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                                Pending ({{ $pendingDeposits->count() }})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved" type="button" role="tab">
+                                Approved ({{ $approvedDeposits->count() }})
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab">
+                                Rejected ({{ $rejectedDeposits->count() }})
+                            </button>
+                        </li>
+                    </ul>
 
-					<div class="table-responsive p-0">
-						<table class="table table-hover">
-						 <tbody>
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="depositTabsContent">
+                        <!-- All Deposits -->
+                        <div class="tab-pane fade show active" id="all" role="tabpanel">
+                            @include('admin.partials.deposits-table', ['deposits' => $allDeposits])
+                        </div>
 
-               @if ($data->total() !=  0 && $data->count() != 0)
-                  <tr>
-                     <th class="active">ID</th>
-                     <th class="active">{{ trans('admin.user') }}</th>
-                     <th class="active">{{ trans('misc.transaction_id') }}</th>
-                     <th class="active">{{ trans('misc.amount') }}</th>
-                     <th class="active">{{ trans('misc.payment_gateway') }}</th>
-                     <th class="active">{{ trans('admin.date') }}</th>
-                     <th class="active">{{ __('admin.status') }}</th>
-                   </tr><!-- /.TR -->
+                        <!-- Pending Deposits -->
+                        <div class="tab-pane fade" id="pending" role="tabpanel">
+                            @include('admin.partials.deposits-table', ['deposits' => $pendingDeposits])
+                        </div>
 
+                        <!-- Approved Deposits -->
+                        <div class="tab-pane fade" id="approved" role="tabpanel">
+                            @include('admin.partials.deposits-table', ['deposits' => $approvedDeposits])
+                        </div>
 
-                 @foreach ($data as $deposit)
+                        <!-- Rejected Deposits -->
+                        <div class="tab-pane fade" id="rejected" role="tabpanel">
+                            @include('admin.partials.deposits-table', ['deposits' => $rejectedDeposits])
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-                   <tr>
-                     <td>{{ $deposit->id }}</td>
-                     <td><a href="{{url($deposit->user()->username)}}" target="_blank">{{$deposit->user()->username}} <i class="bi-box-arrow-up-right"></i></a></td>
-                     <td>
-                      @if ($deposit->status == 'pending' || ! $deposit->invoice())
-                        {{ $deposit->txn_id }} 
-                      @else
-                      <a href="{{ url('invoice', $deposit->invoice()->id) }} " target="_blank" title="{{ __('misc.invoice') }}">
-                        {{ $deposit->txn_id }}  <i class="bi-box-arrow-up-right"></i>
-                      </a>
-                      @endif
-                    </td>
-                     <td>{{ Helper::amountFormat($deposit->amount) }}</td>
-                     <td>{{ $deposit->payment_gateway == 'Bank' ? __('misc.bank_transfer') : $deposit->payment_gateway }}</td>
-                     <td>{{ date('d M, Y', strtotime($deposit->date)) }}</td>
-                     <td>
-                      <span class="rounded-pill badge bg-{{ $deposit->status == 'pending' ? 'warning' : 'success' }} text-uppercase">{{ $deposit->status == 'pending' ? __('admin.pending') : __('misc.success') }}</span>
-                      @if ($deposit->payment_gateway == 'Bank')
-                      <a href="{{ url('panel/admin/deposits', $deposit->id) }}" class="btn btn-success btn-sm rounded-pill" title="{{ __('admin.view') }}">
-                        <i class="bi-eye"></i>
-                      </a>
-                      @endif
-                    </td>
-                   </tr><!-- /.TR -->
-                   @endforeach
+<!-- Deposit Action Modal -->
+<div class="modal fade" id="depositActionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="depositActionModalLabel">Deposit Action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="depositActionForm" method="POST" target="_self">
+                @csrf
+                <div class="modal-body">
+                    <input type="hidden" id="deposit_id" name="deposit_id">
+                    <input type="hidden" id="action_type" name="action_type">
 
-									@else
-										<h5 class="text-center p-5 text-muted fw-light m-0">{{ trans('misc.no_results_found') }}</h5>
-									@endif
+                    <div class="mb-3">
+                        <label for="admin_notes" class="form-label">Admin Notes</label>
+                        <textarea class="form-control" id="admin_notes" name="admin_notes" rows="3" placeholder="Add notes about this deposit..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submitActionBtn">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-								</tbody>
-								</table>
-							</div><!-- /.box-body -->
+<!-- Payment Proof Modal -->
+<div class="modal fade" id="paymentProofModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Payment Proof</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="proof-content">
+                    <!-- Payment proof will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-				 </div><!-- card-body -->
- 			</div><!-- card  -->
+<script>
+function approveDeposit(id) {
+    document.getElementById('deposit_id').value = id;
+    document.getElementById('action_type').value = 'approve';
+    document.getElementById('depositActionModalLabel').textContent = 'Approve Deposit';
+    document.getElementById('submitActionBtn').textContent = 'Approve';
+    document.getElementById('submitActionBtn').className = 'btn btn-success';
+    document.getElementById('depositActionForm').action = '{{ url("panel/admin/deposits/approve") }}';
 
-			{{ $data->onEachSide(0)->links() }}
- 		</div><!-- col-lg-12 -->
+    const modal = new bootstrap.Modal(document.getElementById('depositActionModal'));
+    modal.show();
+}
 
-	</div><!-- end row -->
-</div><!-- end content -->
+function rejectDeposit(id) {
+    document.getElementById('deposit_id').value = id;
+    document.getElementById('action_type').value = 'reject';
+    document.getElementById('depositActionModalLabel').textContent = 'Reject Deposit';
+    document.getElementById('submitActionBtn').textContent = 'Reject';
+    document.getElementById('submitActionBtn').className = 'btn btn-danger';
+    document.getElementById('depositActionForm').action = '{{ url("panel/admin/deposits/reject") }}';
+
+    const modal = new bootstrap.Modal(document.getElementById('depositActionModal'));
+    modal.show();
+}
+
+function viewPaymentProof(proofPath) {
+    const proofContent = document.getElementById('proof-content');
+
+    // Check if it's an image or PDF
+    const extension = proofPath.split('.').pop().toLowerCase();
+
+    if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
+        proofContent.innerHTML = `<img src="{{ url('public/deposits') }}/${proofPath}" class="img-fluid" alt="Payment Proof">`;
+    } else if (extension === 'pdf') {
+        proofContent.innerHTML = `
+            <iframe src="{{ url('public/deposits') }}/${proofPath}" width="100%" height="500px" style="border: none;"></iframe>
+            <div class="mt-3">
+                <a href="{{ url('public/deposits') }}/${proofPath}" target="_blank" class="btn btn-primary">
+                    <i class="bi bi-download me-2"></i>Download PDF
+                </a>
+            </div>
+        `;
+    } else {
+        proofContent.innerHTML = `
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                File type not supported for preview.
+                <a href="{{ url('public/deposits') }}/${proofPath}" target="_blank" class="btn btn-sm btn-outline-primary ms-2">
+                    <i class="bi bi-download me-1"></i>Download
+                </a>
+            </div>
+        `;
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('paymentProofModal'));
+    modal.show();
+}
+</script>
 @endsection

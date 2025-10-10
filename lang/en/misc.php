@@ -117,11 +117,11 @@ return array(
 	'email_exists_invite'       =>      'This email already exists in your database',
 	'for'                       =>      'for',
 	'welcome'                   =>      'Welcome!',
-	'categories'                =>      'Categories',
-	'category'                  =>      'Category',
-	'browse_by_category'        =>      'Browse stock photos by category',
+	'categories'                =>      'Game Categories',
+	'category'                  =>      'Game Category',
+	'browse_by_category'        =>      'Browse games by category',
 	'title_search_bar'          =>      "Find photos: eg. 'Animals'",
-	'members'                   =>      'Members',
+	'members'                   =>      'Customers',
 	'downloads'                 =>      'Downloads',
 	'download'                  =>      'Download',
 	'earnings'                  =>      'Earnings',
@@ -133,7 +133,7 @@ return array(
 	'delete_confirm'	        =>		'Are you sure?',
 	'cancel_confirm'	        =>		'No, cancel!',
 	'yes_confirm'	            =>		'Yes, delete it!',
-	'confirm_delete_category'   => 		'All photos in this category will go to Uncategorized',
+	'confirm_delete_category'   => 		'All games in this category will go to Uncategorized',
 	'recent'                    =>      'Recent',
 	'signup_free'               =>      "Sign up, it's free!",
 	'most_commented'            =>      'Most Commented',
@@ -164,7 +164,7 @@ return array(
 	'with_photos'               =>      'With Photos',
 	'member_since'              =>      'Member since',
 	'menu'                      =>      'Menu',
-	'images_available_category' =>      'photo available in this category|photos available in this category', // Plural
+	'images_available_category' =>      'game available in this category|games available in this category', // Plural
 	'license_and_use'           =>      'License and Use',
 	'attribution_required'      =>      'Attribution required',
 	'no_attribution_required'   =>      'No attribution required',
@@ -190,7 +190,7 @@ return array(
 	'no_comments_yet'           =>      'No comments yet',
 	'loading'                   =>      'Loading...',
 	'select_your_country' => 'Select your country',
-	'please_select_category' => 'Please select a category',
+	'please_select_category' => 'Please select a game category',
 	'alert_delete_account' => 'Are you sure you want to delete your account? if you delete your account, you can not activate again and will be deleted all your photos and data.',
 	'confirm_delete_all_notifications' => 'Sure you want to delete all notifications?',
 	'tagged_images' => 'Tagged photos',
@@ -295,7 +295,7 @@ return array(
 	'yes_withdraw' => 'Yes, withdraw!',
 	'add_funds' => 'Add Funds',
 	'funds' => 'Funds',
-	'add_funds_desc' => 'Add funds - ShahabTech',
+	'add_funds_desc' => 'Add funds - GEO ENTERPRISES',
 	'debit_credit_card' => 'Debit / Credit Card',
 	'handling_fee' => 'Handling fee',
 	'amount_minimum' => 'The minimum amount is :symbol:min :code', // Not remove :symbol:min and :code
@@ -329,8 +329,8 @@ return array(
 	'revenue_week' => 'Revenue this week',
 	'revenue_month' => 'Revenue this month',
 	'sell_option' => 'Turn on/off Sell option',
-	'members_can_sell' => 'Members can sell',
-	'members_cant_sell' => "Members can't sell",
+	'members_can_sell' => 'Customers can sell',
+	'members_cant_sell' => "Customers can't sell",
 	'notice_sell_option' => 'You can only turn off the sale option, if there is no Premium item, Withdrawals pending, or users with a positive balance or funds.',
 	'sell_option_validate' => "You can't deactivate the sale option, because there are items that are Premium. This option is available when there is no item for sale.",
 	'purchase_not_allowed' => 'Error occurred, purchase not allowed.',
@@ -359,7 +359,7 @@ return array(
 	'file_validation' => 'The file must be format: :values', // No delete :values
 
 	// Version 3.2
-	'popular_categories' => 'Popular categories:',
+	'popular_categories' => 'Popular game categories:',
 	'price_formats' => 'Price Formats:',
 	'small_photo_price' => 'Small photo price:',
 	'medium_photo_price' => 'Medium photo price:',
@@ -414,11 +414,11 @@ return array(
 	'exclusivity_items' => 'Exclusivity of your items',
 	'who_can_sell' => 'Who can sell',
 	'only_admin' => 'Only Admin',
-	'all_members' => 'All members',
+	'all_members' => 'All customers',
 	'who_can_upload' => 'Who can upload',
 	'error_upload' => "You don't have permission to upload",
 	'show_counter' => 'Show counters on the homepage',
-	'show_categories_index' => 'Show categories on the homepage',
+	'show_categories_index' => 'Show game categories on the homepage',
 	'allow_free_photos' => 'Allow free photos',
 
 	// Version 3.8
@@ -439,7 +439,7 @@ return array(
 	'most_commented_desc' => 'Explore our most commented about resources by our community.',
 	'most_viewed_desc' => 'Explore our most viewed resources of the highest quality.',
 	'most_downloads_desc' => 'Explore our most downloads resources of the highest quality.',
-	'members_desc' => 'Explore our members and their portfolio of resources.',
+	'members_desc' => 'Explore our customers and their portfolio of resources.',
 	'collections_desc' => 'Explore the world through collections of beautiful, high-quality photos',
 	'or' => 'or',
 	'protected_recaptcha' => 'Protected by reCAPTCHA',
@@ -529,6 +529,20 @@ return array(
 	'address' => 'Address',
 	'city' => 'City',
 	'zip' => 'Postal/ZIP',
+	'bank_or_account_name' => 'Bank or Account Name',
+	'account_title' => 'Account Title',
+	'account_no' => 'Account Number',
+	'bank_image' => 'Bank/Account Image',
+	'payment_methods' => 'Payment Methods',
+	'add_payment_method' => 'Add New Payment Method',
+	'edit_payment_method' => 'Edit Payment Method',
+	'delete_payment_method' => 'Delete Payment Method',
+	'payment_method_added' => 'Payment method added successfully',
+	'payment_method_updated' => 'Payment method updated successfully',
+	'payment_method_deleted' => 'Payment method deleted successfully',
+	'no_payment_methods' => 'No Payment Methods Added',
+	'payment_method_status' => 'Status',
+	'payment_method_sort_order' => 'Sort Order',
 	'disabled' => 'Disabled',
 	'enabled' => 'Enabled',
 	'email_driver' => 'Email driver',
@@ -546,7 +560,7 @@ return array(
 	'default_language' => 'Default language',
 	'default_language_info' => 'This language will be taken by default when the user language does not exist.',
 	'alert_pwa_https' => 'You must use HTTPS (SSL) for PWA to work.',
-	'pwa_short_name' => 'App short name (Ex: ShahabTech)',
+	'pwa_short_name' => 'App short name (Ex: GEO ENTERPRISES)',
 	'connect_stripe_account' => 'Connect Stripe Account',
 	'view_stripe_account' => 'View Stripe account',
 	'connected' => 'Connected',
@@ -619,7 +633,7 @@ return array(
 	'stripe_text_info_5' => 'Please provide your name and e-mail address.',
 	'subscription_plan' => 'Plan :name',// Not remove  :name
 	'subscription_exists' => 'You have an active subscription.',
-	'agree_subscription' => 'By clicking pay you agree to the :terms and authorize ShahabTech to charge your payment method on a recurring basis. You may cancel at any time.', // Not remove :term
+	'agree_subscription' => 'By clicking pay you agree to the :terms and authorize GEO ENTERPRISES to charge your payment method on a recurring basis. You may cancel at any time.', // Not remove :term
 	'terms_services' => 'Terms of service',
 	'subscription' => 'Subscription',
 	'subscription_success' => 'Subscription created successfully!',
@@ -666,7 +680,7 @@ return array(
 	'image_and_vector_graphic' => 'Image and Vector graphic',
 	'cookie_policy_banner' => 'Cookie policy banner',
 	'stripe_connect_countries' => 'Stripe Connect (Countries)',
-	'info_stripe_connect_countries' => 'Countries which you want to send direct payments to your members, configure in',
+	'info_stripe_connect_countries' => 'Countries which you want to send direct payments to your customers, configure in',
 	'install_web_app' => 'Install Web App',
 
 	// Version 4.6
@@ -674,14 +688,14 @@ return array(
 
 	// Version 4.8
 	'show_announcement_to' => 'Show announcement to',
-	'only_members' => 'Only members',
+	'only_members' => 'Only customers',
 	'oldest' => 'Oldest',
 	'extended_license_price' => 'Extended License price',
 	'info_extended_license_price' => 'Number of times the extended license price will be multiplied.',
 
 	// Version 4.9
 	'select' => 'Select...',
-	'subcategory' => 'Subcategory',
+	'subcategory' => 'Game Subcategory',
 	'go_to_sales' => 'Go to Sales',
 	'push_notification_title' => 'Activate Push Notifications to be aware of :app interactions.',// Not remove :app
 	'maybe_later' => 'Maybe Later',
@@ -712,14 +726,28 @@ return array(
 	// Version 5.0
 	'default_theme' => 'Default theme',
 
-	// SevenLabs API
-	'sevenlabs_api_key' => 'SevenLabs API Key',
-	'sevenlabs_api_key_info' => 'Enter your SevenLabs API key to enable voice synthesis features',
 	'signup_bonus_credits' => 'Signup Bonus Credits',
 	'signup_bonus_credits_info' => 'Number of credits to give new users when they sign up',
 	'system_balance' => 'System Balance',
 	'system_credits' => 'System Credits',
-	'text_to_speech' => 'Text to Speech',
-	'task_history' => 'Task History',
 	'services' => 'Services',
+
+	// Recharge/Deposit System
+	'recharge_deposit' => 'Recharge/Deposit',
+	'select_payment_method' => 'Select Payment Method',
+	'choose_payment_method' => 'Choose a payment method',
+	'payment_method_details' => 'Payment Method Details',
+	'amount' => 'Amount',
+	'currency' => 'PKR',
+	'transaction_id' => 'Transaction ID',
+	'payment_proof' => 'Payment Proof',
+	'payment_proof_help' => 'Upload screenshot or receipt of your payment (JPG, PNG, PDF - Max 5MB)',
+	'submit_deposit_request' => 'Submit Deposit Request',
+	'recent_deposits' => 'Recent Deposits',
+	'payment_method' => 'Payment Method',
+	'status' => 'Status',
+	'date' => 'Date',
+	'pending' => 'Pending',
+	'approved' => 'Approved',
+	'rejected' => 'Rejected',
 );

@@ -58,12 +58,6 @@
            <h6 class="text-uppercase">{{__('misc.services')}}</h6>
            <ul class="list-unstyled">
               <li>
-                 <a class="text-white text-decoration-none" href="{{ url('/') }}">{{ __('misc.text_to_speech') }}</a>
-              </li>
-              <li>
-                 <a class="text-white text-decoration-none" href="{{ url('tts/tasks') }}">{{ __('misc.task_history') }}</a>
-              </li>
-              <li>
                  <a class="text-white text-decoration-none" href="{{ url('contact') }}">{{ __('misc.contact') }}</a>
               </li>
            </ul>

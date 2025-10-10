@@ -8,6 +8,8 @@ use App\Models\Query;
 use App\Models\Invoices;
 use App\Models\TaxRates;
 use App\Models\Followers;
+use App\Models\Deposits;
+use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
 use App\Models\AdminSettings;
 use App\Models\Notifications;
@@ -40,18 +42,20 @@ class UserController extends Controller
 			return preg_match('/[a-zA-Z0-9]/', $value);
 		});
 
-		return Validator::make($data, [
+		$rules = [
 			'full_name' => 'required|min:3|max:25',
 			'username'  => 'required|min:3|max:15|ascii_only|alpha_dash|letters|unique:pages,slug|unique:reserved,name|unique:users,username,' . $id,
 			'email'     => 'required|email|unique:users,email,' . $id,
-			'countries_id' => 'required',
-			'paypal_account' => 'email',
-			'website'   => 'url',
-			'facebook'   => 'url',
-			'twitter'   => 'url',
-			'instagram'   => 'url',
-			'description' => 'max:200',
-		]);
+			'account_no' => 'string|max:255',
+		];
+
+		// Add password validation rules if password fields are provided
+		if (!empty($data['old_password']) || !empty($data['password'])) {
+			$rules['old_password'] = 'required|min:6';
+			$rules['password'] = 'required|min:8|confirmed';
+		}
+
+		return Validator::make($data, $rules);
 	} //<--- End Method
 
 	public function profile($slug, Request $request)
@@ -282,15 +286,21 @@ class UserController extends Controller
 		$user->name        = $input['full_name'];
 		$user->email        = trim($input['email']);
 		$user->username = $input['username'];
-		$user->countries_id    = $input['countries_id'];
-		$user->author_exclusive = $input['author_exclusive'] ?? auth()->user()->author_exclusive;
-		$user->paypal_account = trim($input['paypal_account']);
-		$user->website     = trim(strtolower($input['website']));
-		$user->facebook  = trim(strtolower($input['facebook']));
-		$user->twitter       = trim(strtolower($input['twitter']));
-		$user->instagram  = trim(strtolower($input['instagram']));
-		$user->bio = $input['description'];
+		$user->account_no = trim($input['account_no']);
 		$user->two_factor_auth = $input['two_factor_auth'] ?? 'no';
+
+		// Handle password change if provided
+		if (!empty($input['old_password']) && !empty($input['password'])) {
+			// Verify old password
+			if (!\Hash::check($input['old_password'], $user->password)) {
+				return redirect()->back()
+					->withErrors(['old_password' => __('misc.password_incorrect')])
+					->withInput();
+			}
+			// Update password
+			$user->password = \Hash::make($input['password']);
+		}
+
 		$user->save();
 
 		\Session::flash('notification', __('auth.success_update'));
@@ -298,40 +308,6 @@ class UserController extends Controller
 		return redirect('account');
 	} //<--- End Method
 
-	public function password()
-	{
-		return view('users.password');
-	} //<--- End Method
-
-	public function update_password(Request $request)
-	{
-
-		$input = $request->all();
-		$id = auth()->user()->id;
-
-		$validator = Validator::make($input, [
-			'old_password' => 'required|min:6',
-			'password'     => 'required|min:8',
-		]);
-
-		if ($validator->fails()) {
-			return redirect()->back()
-				->withErrors($validator)
-				->withInput();
-		}
-
-		if (!\Hash::check($input['old_password'], auth()->user()->password)) {
-			return redirect('account/password')->with(array('incorrect_pass' => __('misc.password_incorrect')));
-		}
-
-		$user = User::find($id);
-		$user->password  = \Hash::make($input["password"]);
-		$user->save();
-
-		\Session::flash('notification', __('auth.success_update_password'));
-
-		return redirect('account/password');
-	} //<--- End Method
 
 	public function delete()
 	{
@@ -676,14 +652,6 @@ class UserController extends Controller
 		]);
 	}
 
-	public function myReferrals()
-	{
-		$transactions = ReferralTransactions::whereReferredBy(auth()->id())
-			->orderBy('id', 'desc')
-			->paginate(20);
-
-		return view('users.referrals', ['transactions' => $transactions]);
-	} //<--- End Method
 
 	public function subscription()
 	{
@@ -694,5 +662,81 @@ class UserController extends Controller
 			'subscription' => $subscription,
 			'subscriptions' => $subscriptions
 		]);
+	}
+
+	// Recharge/Deposit functionality
+	public function recharge()
+	{
+		$paymentMethods = PaymentMethod::where('is_active', true)->ordered()->get();
+		$recentDeposits = auth()->user()->deposits()->with('paymentMethod')->latest()->limit(5)->get();
+
+		return view('users.recharge', compact('paymentMethods', 'recentDeposits'));
+	}
+
+	public function storeRecharge(Request $request)
+	{
+		$request->validate([
+			'payment_method_id' => 'required|exists:payment_methods,id',
+			'amount' => 'required|numeric|min:1',
+			'transaction_id' => 'required|string|max:255',
+			'payment_proof' => 'required|file|mimes:jpeg,png,jpg,pdf|max:5120'
+		]);
+
+		try {
+			// Handle payment proof upload
+			$paymentProof = null;
+			if ($request->hasFile('payment_proof')) {
+				$paymentProof = $this->handlePaymentProofUpload($request->file('payment_proof'));
+			}
+
+			// Create deposit record
+			$deposit = Deposits::create([
+				'user_id' => auth()->id(),
+				'payment_method_id' => $request->payment_method_id,
+				'amount' => $request->amount,
+				'transaction_id' => $request->transaction_id,
+				'payment_proof' => $paymentProof,
+				'status' => 'pending'
+			]);
+
+			return redirect()->back()->with('success', 'Deposit request submitted successfully. It will be reviewed by admin.');
+
+		} catch (\Exception $e) {
+			\Log::error('Deposit creation error: ' . $e->getMessage());
+			return redirect()->back()->with('error', 'Failed to submit deposit request. Please try again.');
+		}
+	}
+
+	private function handlePaymentProofUpload($file)
+	{
+		try {
+			$temp = 'public/temp/';
+			$path = 'public/deposits/';
+
+			if (!\File::exists($temp)) {
+				\File::makeDirectory($temp, 0755, true);
+			}
+			if (!\File::exists($path)) {
+				\File::makeDirectory($path, 0755, true);
+			}
+
+			$extension = $file->getClientOriginalExtension();
+			$fileName = 'deposit-proof-' . time() . '-' . uniqid() . '.' . $extension;
+
+			if ($file->move($temp, $fileName)) {
+				if (\File::copy($temp . $fileName, $path . $fileName)) {
+					\File::delete($temp . $fileName);
+					return $fileName;
+				} else {
+					\File::delete($temp . $fileName);
+					throw new \Exception('Failed to save payment proof');
+				}
+			} else {
+				throw new \Exception('Failed to upload payment proof');
+			}
+		} catch (\Exception $e) {
+			\Log::error('Payment proof upload error: ' . $e->getMessage());
+			throw $e;
+		}
 	}
 }

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 return array(
 
@@ -26,7 +26,7 @@ return array(
 	'report_user'               =>      'Report user as SPAM',
 	'block_user'                =>      'Block user',
 	'about_me'                  =>      'About me',
-	'no_members_found'          =>      'No members found',
+	'no_members_found'          =>      'No customers found',
 	'edit'					    =>		'Edit',
 	'delete'				    =>		'Delete',
 	'cancel'				    =>		'Cancel',
@@ -42,11 +42,11 @@ return array(
 	'account_validated'         =>      'Your account has been successfully validated',
 	'code_not_valid'            =>      'Code confirmation not valid!',
 	'followed_you'              =>      'followed you',
-	'members'                   =>      'Member|Members',
+	'members'                   =>      'Customer|Customers',
 	'name'                      =>      'Name',
 	'create'                    =>      'Create',
-	'lists_members'             =>      'List Members',
-	'add_members'               =>      'Add members',
+	'lists_members'             =>      'List Customers',
+	'add_members'               =>      'Add customers',
 	'done'                      =>      'Done',
 	'send_msg_private'          =>      'sending you a message',
 	'unblock'                   =>      'UNBLOCK',
@@ -70,7 +70,7 @@ return array(
 	'liked_your_comment' => 'liked your comment in',
 	'delete_all_notifications' => 'Delete all notifications',
 	'user_no_images' => 'There are no photos to display',
-	
-	
-	
+
+
+
 );

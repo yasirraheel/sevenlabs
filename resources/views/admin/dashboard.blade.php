@@ -42,36 +42,6 @@
 		</div><!-- col-lg-3 -->
 
 
-		<!-- GenAI Pro API System Credits -->
-		<div class="col-lg-3 mb-3">
-			<div class="card shadow-custom border-0 overflow-hidden">
-				<div class="card-body">
-					<h3>
-						<i class="bi bi-cash-stack me-2 icon-dashboard"></i>
-						<span class="{{ $apiStatus == 'success' ? 'text-success' : 'text-danger' }}">
-							{{ $apiStatus == 'success' ? number_format($systemBalance, 2) : 'Error' }}
-						</span>
-					</h3>
-					<small>{{ trans('misc.system_balance') }}</small>
-					<span class="icon-wrap icon--admin"><i class="bi bi-cash-stack"></i></span>
-				</div>
-			</div><!-- card -->
-		</div><!-- col-lg-3 -->
-
-		<div class="col-lg-3 mb-3">
-			<div class="card shadow-custom border-0 overflow-hidden">
-				<div class="card-body">
-					<h3>
-						<i class="bi bi-credit-card me-2 icon-dashboard"></i>
-						<span class="{{ $apiStatus == 'success' ? 'text-success' : 'text-danger' }}">
-							{{ $apiStatus == 'success' ? number_format($systemCredits) : 'Error' }}
-						</span>
-					</h3>
-					<small>{{ trans('misc.system_credits') }}</small>
-					<span class="icon-wrap icon--admin"><i class="bi bi-credit-card"></i></span>
-				</div>
-			</div><!-- card -->
-		</div><!-- col-lg-3 -->
 
 	</div><!-- row -->
 
@@ -155,7 +125,9 @@
 					@foreach (User::orderBy('id','DESC')->take(5)->get() as $user)
 						<div class="d-flex mb-3">
 							<div class="flex-shrink-0">
-								<img src="{{ Storage::url(config('path.avatar').$user->avatar) }}" width="50" class="rounded-circle" />
+								<div class="bg-light d-flex align-items-center justify-content-center rounded-circle" style="width: 50px; height: 50px;">
+									<i class="bi bi-person text-muted"></i>
+								</div>
 							</div>
 							<div class="flex-grow-1 ms-3">
 								<h6 class="m-0 fw-light text-break">

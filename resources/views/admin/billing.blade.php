@@ -27,63 +27,59 @@
 			<div class="card shadow-custom border-0">
 				<div class="card-body p-lg-5">
 
-					 <form method="POST" action="{{ url('panel/admin/billing') }}" enctype="multipart/form-data">
-						 @csrf
+					<!-- Add New Payment Method Button -->
+					<div class="row mb-4">
+						<div class="col-12">
+							<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPaymentMethodModal">
+								<i class="bi bi-plus-circle"></i> Add New Payment Method
+							</button>
+						</div>
+					</div>
 
-						<div class="row mb-3">
-		          <label class="col-sm-2 col-form-label text-lg-end">{{ __('misc.company') }}</label>
-		          <div class="col-sm-10">
-		            <input type="text" value="{{ $settings->company }}" name="company" class="form-control">
-		          </div>
-		        </div>
-
-		        <div class="row mb-3">
-		          <label for="select" class="col-sm-2 col-form-labe text-lg-end">{{ __('misc.select_your_country') }}</label>
-		          <div class="col-sm-10">
-		            <select name="country" class="form-select" id="select">
-									<option value="">{{trans('misc.select_your_country')}}</option>
- 										 @foreach (Countries::orderBy('country_name')->get() as $country)
- 											 <option @if ($settings->country == $country->country_name) selected="selected" @endif value="{{$country->country_name}}">{{ $country->country_name }}</option>
- 											 @endforeach
-		           </select>
-		          </div>
-		        </div>
-
-						<div class="row mb-3">
-		          <label class="col-sm-2 col-form-label text-lg-end">{{ __('misc.address') }}</label>
-		          <div class="col-sm-10">
-		            <input type="text" value="{{ $settings->address }}" name="address" class="form-control">
-		          </div>
-		        </div>
-
-						<div class="row mb-3">
-		          <label class="col-sm-2 col-form-label text-lg-end">{{ __('misc.city') }}</label>
-		          <div class="col-sm-10">
-		            <input type="text" value="{{ $settings->city }}" name="city" class="form-control">
-		          </div>
-		        </div>
-
-						<div class="row mb-3">
-		          <label class="col-sm-2 col-form-label text-lg-end">{{ __('misc.zip') }}</label>
-		          <div class="col-sm-10">
-		            <input type="text" value="{{ $settings->zip }}" name="zip" class="form-control">
-		          </div>
-		        </div>
-
-						<div class="row mb-3">
-		          <label class="col-sm-2 col-form-label text-lg-end">{{ __('misc.vat') }}</label>
-		          <div class="col-sm-10">
-		            <input type="text" value="{{ $settings->vat }}" name="vat" class="form-control">
-		          </div>
-		        </div>
-
-						<div class="row mb-3">
-		          <div class="col-sm-10 offset-sm-2">
-		            <button type="submit" class="btn btn-dark mt-3 px-5">{{ __('admin.save') }}</button>
-		          </div>
-		        </div>
-
-		       </form>
+					<!-- Payment Methods List -->
+					<div class="row">
+						@forelse($paymentMethods ?? [] as $method)
+						<div class="col-md-6 col-lg-4 mb-4">
+							<div class="card h-100">
+								@if($method->bank_image)
+								<img src="{{ url('public/img', $method->bank_image) }}" class="card-img-top" alt="Bank Image" style="height: 150px; object-fit: cover;">
+								@else
+								<div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+									<i class="bi bi-bank fs-1 text-muted"></i>
+								</div>
+								@endif
+								<div class="card-body">
+									<h6 class="card-title">{{ $method->bank_or_account_name }}</h6>
+									<p class="card-text">
+										<strong>Account Title:</strong> {{ $method->account_title }}<br>
+										<strong>Account No:</strong> {{ $method->account_no }}
+									</p>
+									<div class="d-flex justify-content-between align-items-center">
+										<span class="badge {{ $method->is_active ? 'bg-success' : 'bg-secondary' }}">
+											{{ $method->is_active ? 'Active' : 'Inactive' }}
+										</span>
+										<div class="btn-group btn-group-sm">
+											<button type="button" class="btn btn-outline-primary" onclick="editPaymentMethod({{ $method->id }})">
+												<i class="bi bi-pencil"></i>
+											</button>
+											<button type="button" class="btn btn-outline-danger" onclick="deletePaymentMethod({{ $method->id }})">
+												<i class="bi bi-trash"></i>
+											</button>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						@empty
+						<div class="col-12">
+							<div class="text-center py-5">
+								<i class="bi bi-credit-card fs-1 text-muted"></i>
+								<h5 class="text-muted mt-3">No Payment Methods Added</h5>
+								<p class="text-muted">Click "Add New Payment Method" to get started.</p>
+							</div>
+						</div>
+						@endforelse
+					</div>
 
 				 </div><!-- card-body -->
  			</div><!-- card  -->
@@ -91,9 +87,338 @@
 
 	</div><!-- end row -->
 </div><!-- end content -->
+
+<!-- Add/Edit Payment Method Modal -->
+<div class="modal fade" id="addPaymentMethodModal" tabindex="-1" aria-labelledby="addPaymentMethodModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="addPaymentMethodModalLabel">Add New Payment Method</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<form id="paymentMethodForm" method="POST" action="{{ url('panel/admin/payment-methods/store') }}" enctype="multipart/form-data">
+				@csrf
+				<input type="hidden" id="method_id" name="method_id" value="">
+				<div class="modal-body">
+					<div class="row mb-3">
+						<label class="col-sm-3 col-form-label">Bank or Account Name</label>
+						<div class="col-sm-9">
+							<input type="text" id="bank_or_account_name" name="bank_or_account_name" class="form-control" placeholder="Easypaisa, ABL, etc." required>
+							<small class="d-block text-muted">Enter the name of your bank or payment service</small>
+						</div>
+					</div>
+
+					<div class="row mb-3">
+						<label class="col-sm-3 col-form-label">Account Title</label>
+						<div class="col-sm-9">
+							<input type="text" id="account_title" name="account_title" class="form-control" placeholder="Account holder name" required>
+							<small class="d-block text-muted">Enter the account holder's name or title</small>
+						</div>
+					</div>
+
+					<div class="row mb-3">
+						<label class="col-sm-3 col-form-label">Account Number</label>
+						<div class="col-sm-9">
+							<input type="text" id="account_no" name="account_no" class="form-control" placeholder="Account number" required>
+							<small class="d-block text-muted">Enter your bank account number or mobile wallet number</small>
+						</div>
+					</div>
+
+					<div class="row mb-3">
+						<label class="col-sm-3 col-form-label">Bank/Account Image</label>
+						<div class="col-sm-9">
+							<div class="file-upload-wrapper">
+								<input type="file" name="bank_image" id="modal_bank_image" class="form-control d-none" accept="image/*" onchange="previewModalImage(this)">
+								<div class="file-upload-area" onclick="document.getElementById('modal_bank_image').click()">
+									<div class="file-upload-content">
+										<i class="bi bi-cloud-upload fs-1 text-muted"></i>
+										<p class="mb-2">Click to upload bank image</p>
+										<small class="text-muted">JPG, PNG, GIF up to 5MB</small>
+									</div>
+								</div>
+							</div>
+
+							<!-- Image Preview -->
+							<div id="modal-image-preview" class="mt-3" style="display: none;">
+								<img id="modal-preview-img" src="" alt="Preview" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+								<div class="mt-2">
+									<button type="button" class="btn btn-sm btn-outline-danger" onclick="removeModalImage()">
+										<i class="bi bi-trash"></i> Remove
+									</button>
+								</div>
+							</div>
+
+							<!-- Current Image Display -->
+							<div id="modal-current-image" class="mt-3" style="display: none;">
+								<h6>Current Image:</h6>
+								<img id="modal-current-img" src="" alt="Current Image" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+								<div class="mt-2">
+									<button type="button" class="btn btn-sm btn-outline-danger" onclick="removeCurrentModalImage()">
+										<i class="bi bi-trash"></i> Remove Current Image
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="row mb-3">
+						<label class="col-sm-3 col-form-label">Status</label>
+						<div class="col-sm-9">
+							<div class="form-check form-switch">
+								<input type="hidden" name="is_active" value="0">
+								<input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" checked>
+								<label class="form-check-label" for="is_active">Active</label>
+							</div>
+						</div>
+					</div>
+
+					<div class="row mb-3">
+						<label class="col-sm-3 col-form-label">Sort Order</label>
+						<div class="col-sm-9">
+							<input type="number" id="sort_order" name="sort_order" class="form-control" value="0" min="0">
+							<small class="d-block text-muted">Lower numbers appear first</small>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="submit" class="btn btn-primary">Save Payment Method</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
 @endsection
 
 @section('javascript')
 
-<script type="text/javascript"></script>
+<style>
+.file-upload-wrapper {
+  position: relative;
+}
+
+.file-upload-area {
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #f8f9fa;
+}
+
+.file-upload-area:hover {
+  border-color: #007bff;
+  background-color: #e3f2fd;
+}
+
+.file-upload-area.dragover {
+  border-color: #007bff;
+  background-color: #e3f2fd;
+}
+
+.file-upload-content {
+  pointer-events: none;
+}
+
+.current-image {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #f8f9fa;
+}
+
+#image-preview {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #f8f9fa;
+}
+</style>
+
+<script type="text/javascript">
+// Modal image preview functions
+function previewModalImage(input) {
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB');
+      input.value = '';
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.match('image.*')) {
+      alert('Please select a valid image file');
+      input.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('modal-preview-img').src = e.target.result;
+      document.getElementById('modal-image-preview').style.display = 'block';
+
+      // Hide current image section when new image is selected
+      const currentImage = document.getElementById('modal-current-image');
+      if (currentImage) {
+        currentImage.style.display = 'none';
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function removeModalImage() {
+  document.getElementById('modal_bank_image').value = '';
+  document.getElementById('modal-image-preview').style.display = 'none';
+
+  // Show current image section again
+  const currentImage = document.getElementById('modal-current-image');
+  if (currentImage && currentImage.querySelector('img').src) {
+    currentImage.style.display = 'block';
+  }
+}
+
+function removeCurrentModalImage() {
+  document.getElementById('modal-current-img').src = '';
+  document.getElementById('modal-current-image').style.display = 'none';
+}
+
+// Payment method CRUD functions
+function editPaymentMethod(id) {
+  // Fetch payment method data via AJAX
+  fetch(`{{ url('panel/admin/payment-methods') }}/${id}`)
+    .then(response => response.json())
+    .then(data => {
+      // Populate form with existing data
+      document.getElementById('method_id').value = data.id;
+      document.getElementById('bank_or_account_name').value = data.bank_or_account_name;
+      document.getElementById('account_title').value = data.account_title;
+      document.getElementById('account_no').value = data.account_no;
+      document.getElementById('is_active').checked = data.is_active;
+      document.getElementById('sort_order').value = data.sort_order;
+
+      // Update modal title
+      document.getElementById('addPaymentMethodModalLabel').textContent = 'Edit Payment Method';
+
+      // Show current image if exists
+      if (data.bank_image) {
+        const imageUrl = `{{ url('public/img') }}/${data.bank_image}`;
+        console.log('Setting image URL:', imageUrl);
+        const imgElement = document.getElementById('modal-current-img');
+        imgElement.src = imageUrl;
+        imgElement.onerror = function() {
+          console.log('Image failed to load:', imageUrl);
+          this.style.display = 'none';
+        };
+        imgElement.onload = function() {
+          console.log('Image loaded successfully:', imageUrl);
+        };
+        document.getElementById('modal-current-image').style.display = 'block';
+      } else {
+        console.log('No bank image found');
+        document.getElementById('modal-current-image').style.display = 'none';
+      }
+
+      // Update form action
+      document.getElementById('paymentMethodForm').action = '{{ url("panel/admin/payment-methods/update") }}';
+
+      // Show modal
+      const modal = new bootstrap.Modal(document.getElementById('addPaymentMethodModal'));
+      modal.show();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error loading payment method data');
+    });
+}
+
+function deletePaymentMethod(id) {
+  if (confirm('Are you sure you want to delete this payment method?')) {
+    // Create a form to submit DELETE request
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `{{ url('panel/admin/payment-methods') }}/${id}`;
+
+    // Add CSRF token
+    const csrfToken = document.createElement('input');
+    csrfToken.type = 'hidden';
+    csrfToken.name = '_token';
+    csrfToken.value = '{{ csrf_token() }}';
+    form.appendChild(csrfToken);
+
+    // Add method override for DELETE
+    const methodField = document.createElement('input');
+    methodField.type = 'hidden';
+    methodField.name = '_method';
+    methodField.value = 'DELETE';
+    form.appendChild(methodField);
+
+    document.body.appendChild(form);
+    form.submit();
+  }
+}
+
+// Reset modal when closed
+document.getElementById('addPaymentMethodModal').addEventListener('hidden.bs.modal', function () {
+  // Reset form
+  document.getElementById('paymentMethodForm').reset();
+  document.getElementById('method_id').value = '';
+  document.getElementById('addPaymentMethodModalLabel').textContent = 'Add New Payment Method';
+  document.getElementById('paymentMethodForm').action = '{{ url("panel/admin/payment-methods/store") }}';
+
+  // Hide image previews
+  document.getElementById('modal-image-preview').style.display = 'none';
+  document.getElementById('modal-current-image').style.display = 'none';
+});
+
+// Debug form submission
+document.getElementById('paymentMethodForm').addEventListener('submit', function(e) {
+  console.log('Form action:', this.action);
+  console.log('Form method:', this.method);
+  console.log('Form data:', new FormData(this));
+
+  // Check if the action is correct
+  if (this.action.includes('panel/admin/payment-methods/store') || this.action.includes('panel/admin/payment-methods/update')) {
+    console.log('Form action is correct');
+  } else {
+    console.log('Form action is WRONG:', this.action);
+    e.preventDefault();
+    alert('Form action is incorrect: ' + this.action);
+  }
+});
+
+// Drag and drop functionality for modal
+document.addEventListener('DOMContentLoaded', function() {
+  const uploadAreas = document.querySelectorAll('.file-upload-area');
+
+  uploadAreas.forEach(uploadArea => {
+    uploadArea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        const input = uploadArea.parentElement.querySelector('input[type="file"]');
+        input.files = files;
+        previewModalImage(input);
+      }
+    });
+  });
+});
+</script>
   @endsection

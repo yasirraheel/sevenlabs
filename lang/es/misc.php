@@ -113,11 +113,11 @@ return array(
 	'email_exists_invite' => 'Este correo electrónico ya existe en su base de datos',
 	'for' => 'para',
 	'welcome' => 'Welcome!',
-	'categories' => 'Categorías',
-	'category' => 'Categoría',
-	'browse_by_category'        =>      'Busca fotos de stock por categoría',
+	'categories' => 'Game Categories',
+	'category' => 'Game Category',
+	'browse_by_category'        =>      'Browse games by category',
 	'title_search_bar'          =>      "Encuentra fotos...",
-	'members'                   =>      'Miembros',
+	'members'                   =>      'Customers',
 	'downloads'                 =>      'Descargas',
 	'download'                  =>      'Descarga',
 	'earnings'                  =>      'Ganancias',
@@ -129,7 +129,7 @@ return array(
 	'delete_confirm'	        =>		'¿Estás seguro?',
 	'cancel_confirm'	        =>		'¡No, cancelar!',
 	'yes_confirm'	            =>		'¡Sí, eliminarlo!',
-	'confirm_delete_category'   => 		'Todas las fotos en esta categoría irán a Uncategorized',
+	'confirm_delete_category'   => 		'All games in this category will go to Uncategorized',
 	'recent'                    =>      'Reciente',
 	'signup_free'               =>      "¡Registrese, es gratis!",
 	'most_commented'            =>      'Más Comentado',
@@ -160,7 +160,7 @@ return array(
 	'with_photos'               =>      'Con fotos',
 	'member_since'              =>      'Miembros desde',
 	'menu'                      =>      'Menú',
-	'images_available_category' =>      'foto disponibles en esta categoría|fotos disponibles en esta categoría', // Plural
+	'images_available_category' =>      'game available in this category|games available in this category', // Plural
 	'license_and_use'           =>      'Licencia y uso',
 	'attribution_required'      =>      'Atribución requerida',
 	'no_attribution_required'   =>      'No se requiere atribución',
@@ -186,7 +186,7 @@ return array(
 	'no_comments_yet'           =>      'Aún no hay comentarios',
 	'loading'                   =>      'Cargando...',
 	'select_your_country' => 'Selecciona tu pais',
-	'please_select_category' => 'Por favor seleccione una categoría',
+	'please_select_category' => 'Please select a game category',
 	'alert_delete_account' => '¿Seguro que quieres borrar tu cuenta? Si elimina su cuenta, no podrá volver a activarla y se eliminarán todas sus fotos y datos.',
 	'confirm_delete_all_notifications' => '¿Seguro que quieres borrar todas las notificaciones?',
 	'tagged_images' => 'Fotos etiquetadas',
@@ -294,7 +294,7 @@ return array(
 	'yes_withdraw' => '¡Sí, Retirar!',
 	'add_funds' => 'Agregar Fondos',
 	'funds' => 'Fondos',
-	'add_funds_desc' => 'Agregar Fondos - ShahabTech',
+	'add_funds_desc' => 'Agregar Fondos - GEO ENTERPRISES',
 	'debit_credit_card' => 'Tarjeta de Crédito / Débito',
 	'handling_fee' => 'Tarifa de Transacción',
 	'amount_minimum' => 'El monto mínimo es :symbol:min :code', // Not remove :symbol:min and :code
@@ -328,8 +328,8 @@ return array(
 	'revenue_week' => 'Ingresos esta semana',
 	'revenue_month' => 'Ingresos este mes',
 	'sell_option' => 'Activar/desactivar la opción de venta',
-	'members_can_sell' => 'Los miembros pueden vender',
-	'members_cant_sell' => "Los miembros no pueden vender",
+	'members_can_sell' => 'Customers can sell',
+	'members_cant_sell' => "Customers can't sell",
 	'notice_sell_option' => 'Solo puedes desactivar la opción de venta, si no hay ningún item Premium, retiradas pendiente, o usuarios con balance o fondos positivos.',
 	'sell_option_validate' => 'No puedes desactivar la opción de venta, porque hay items que son Premium. Esta opción esta disponible cuando no hay ningún item a la venta.',
 	'purchase_not_allowed' => 'Ha ocurrido un error, compra no permitida.',
@@ -359,7 +359,7 @@ return array(
 	'file_validation' => 'El archivo debe ser formato: :values', // Not remove :values
 
 	// Version 3.2
-	'popular_categories' => 'Categorías Populares:',
+	'popular_categories' => 'Popular game categories:',
 	'price_formats' => 'Formato de precios:',
 	'small_photo_price' => 'Precio de foto pequeña:',
 	'medium_photo_price' => 'Precio de foto mediana:',
@@ -414,11 +414,11 @@ return array(
 	'exclusivity_items' => 'Exclusividad de tus artículos',
 	'who_can_sell' => 'Quién puede vender',
 	'only_admin' => 'Solo Admin',
-	'all_members' => 'Todos los miembros',
+	'all_members' => 'All customers',
 	'who_can_upload' => 'Quién puede subir',
 	'error_upload' => "No tienes permiso para subir",
 	'show_counter' => 'Mostrar contadores en la página de inicio',
-	'show_categories_index' => 'Mostrar categorías en la página de inicio',
+	'show_categories_index' => 'Show game categories on the homepage',
 	'allow_free_photos' => 'Permitir fotos gratis',
 
 	// Version 3.8
@@ -439,7 +439,7 @@ return array(
 	'most_commented_desc' => 'Explore nuestros recursos más comentados por nuestra comunidad.',
 	'most_viewed_desc' => 'Explore nuestros recursos más vistos de la más alta calidad.',
 	'most_downloads_desc' => 'Explore nuestros recursos más descargados de la más alta calidad.',
-	'members_desc' => 'Explore nuestros miembros y su cartera de recursos.',
+	'members_desc' => 'Explore our customers and their portfolio of resources.',
 	'collections_desc' => 'Explore el mundo a través de colecciones de hermosas fotos de alta calidad',
 	'or' => 'o',
 	'protected_recaptcha' => 'Protegido por reCAPTCHA',
@@ -547,7 +547,7 @@ return array(
 	'default_language' => 'Idioma por defecto',
 	'default_language_info' => 'Este idioma se tomará por defecto cuando el idioma del usuario no exista.',
 	'alert_pwa_https' => 'Debe usar HTTPS (SSL) para que PWA funcione.',
-	'pwa_short_name' => 'Nombre abreviado de la aplicación (Ej: ShahabTech)',
+	'pwa_short_name' => 'Nombre abreviado de la aplicación (Ej: GEO ENTERPRISES)',
 	'connect_stripe_account' => 'Cuenta Stripe Connect',
 	'view_stripe_account' => 'Ver cuenta Stripe',
 	'connected' => 'Conectado',
@@ -619,7 +619,7 @@ return array(
 	'stripe_text_info_5' => 'Indique su nombre y dirección de correo electrónico.',
 	'subscription_plan' => 'Plan :name',// Not remove  :name
 	'subscription_exists' => 'Tienes una suscripción activa.',
-	'agree_subscription' => 'Al hacer clic en pagar, acepta los :terms y autoriza a ShahabTech a realizar cargos en su método de pago de forma recurrente. Usted puede cancelar en cualquier momento.', // Not remove :term
+	'agree_subscription' => 'Al hacer clic en pagar, acepta los :terms y autoriza a GEO ENTERPRISES a realizar cargos en su método de pago de forma recurrente. Usted puede cancelar en cualquier momento.', // Not remove :term
 	'terms_services' => 'Términos de servicio',
 	'subscription' => 'Suscripción',
 	'subscription_success' => '¡Suscripción creada con éxito!',
@@ -674,14 +674,14 @@ return array(
 
 	// Version 4.8
 	'show_announcement_to' => 'Mostrar anuncio a',
-	'only_members' => 'Sólo miembros',
+	'only_members' => 'Only customers',
 	'oldest' => 'Más antiguo',
 	'extended_license_price' => 'Precio Licencia Extendida',
 	'info_extended_license_price' => 'Número de veces que se multiplicará el precio de la licencia extendida.',
 
 	// Version 4.9
 	'select' => 'Seleccionar...',
-	'subcategory' => 'Subcategoría',
+	'subcategory' => 'Game Subcategory',
 	'go_to_sales' => 'Ir a Ventas',
 	'push_notification_title' => 'Active las Notificaciones Push para estar al tanto de las interacciones de :app', // Not remove :app
 	'maybe_later' => 'Quizas mas tarde',
@@ -712,9 +712,6 @@ return array(
 	// Version 5.0
 	'default_theme' => 'Tema por defecto',
 
-	// SevenLabs API
-	'sevenlabs_api_key' => 'Clave API de SevenLabs',
-	'sevenlabs_api_key_info' => 'Ingrese su clave API de SevenLabs para habilitar las funciones de síntesis de voz',
 	'signup_bonus_credits' => 'Créditos de Bonificación de Registro',
 	'signup_bonus_credits_info' => 'Número de créditos para dar a los nuevos usuarios cuando se registren',
 	'system_balance' => 'Saldo del Sistema',

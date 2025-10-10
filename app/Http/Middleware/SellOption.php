@@ -36,30 +36,7 @@ class SellOption
 	 */
 	public function handle($request, Closure $next)
 	{
-    $settings = AdminSettings::first();
-
-		if ($settings->sell_option == 'off'
-        && $request->is('user/dashboard')
-
-        || $settings->sell_option == 'off'
-        && $request->is('user/dashboard/sales')
-
-				|| $settings->sell_option == 'off'
-				&& $request->is('user/dashboard/purchases')
-
-				|| $settings->sell_option == 'off'
-				&& $request->is('user/dashboard/withdrawals/configure')
-
-				|| $settings->sell_option == 'off'
-				&& $request->is('user/dashboard/withdrawals')
-
-				|| $settings->sell_option == 'off'
-				&& $request->is('user/dashboard/add/funds')
-
-      ) {
-      abort(404);
-		}
-
+		// Sell option functionality removed - always allow access
 		return $next($request);
 	}
 

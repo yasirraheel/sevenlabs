@@ -66,13 +66,6 @@
          </div>
        </div><!-- end row -->
 
-       <div class="row mb-3">
-         <label class="col-sm-2 col-form-labe text-lg-end">{{ __('misc.sevenlabs_api_key') }}</label>
-         <div class="col-sm-10">
-           <input type="password" value="{{ $settings->sevenlabs_api_key ?? '' }}" name="sevenlabs_api_key" class="form-control" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
-           <small class="d-block text-muted">{{ __('misc.sevenlabs_api_key_info') }}</small>
-         </div>
-       </div><!-- end row -->
 
        <div class="row mb-3">
          <label class="col-sm-2 col-form-labe text-lg-end">{{ __('misc.signup_bonus_credits') }}</label>
@@ -94,214 +87,81 @@
 				 </div>
 			 </div>
 
-       <fieldset class="row mb-3">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('misc.sell_option') }}</legend>
-         <div class="col-sm-10">
-           <div class="form-check">
-             <input class="form-check-input" type="radio" name="sell_option" id="radio1" @if ($settings->sell_option == 'on') checked="checked" @endif value="on">
-             <label class="form-check-label" for="radio1">
-               On ({{ __('misc.members_can_sell') }})
-             </label>
-           </div>
-           <div class="form-check">
-             <input class="form-check-input" type="radio" name="sell_option" id="radio2" @if ($settings->sell_option == 'off') checked="checked" @endif value="off">
-             <label class="form-check-label" for="radio2">
-               Off ({{ __('misc.members_cant_sell') }})
-             </label>
-           </div>
-           <div class="alert alert-info py-2 mb-0">
-            <i class="bi-info-circle me-2"></i> {{ __('misc.notice_sell_option') }}
-           </div>
+
+
+
+
+       <!-- Settings Row - Desktop Layout -->
+       <div class="row mb-4">
+         <!-- Default Theme -->
+         <div class="col-lg-3 col-md-6 mb-3">
+           <fieldset>
+             <legend class="col-form-label pt-0 mb-2">{{ __('misc.default_theme') }}</legend>
+             <div class="form-check">
+               <input class="form-check-input" type="radio" name="theme" id="light_mode" @if ($settings->theme == 'light') checked="checked" @endif value="light">
+               <label class="form-check-label" for="light_mode">
+                 {{ __('misc.light_mode') }}
+               </label>
+             </div>
+             <div class="form-check">
+               <input class="form-check-input" type="radio" name="theme" id="dark_mode" @if ($settings->theme == 'dark') checked="checked" @endif value="dark">
+               <label class="form-check-label" for="dark_mode">
+                 {{ __('misc.dark_mode') }}
+               </label>
+             </div>
+           </fieldset>
          </div>
-       </fieldset><!-- end row -->
 
-       <fieldset class="row mb-3">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('misc.who_can_sell') }}</legend>
-         <div class="col-sm-10">
-           <div class="form-check">
-             <input class="form-check-input" type="radio" name="who_can_sell" id="radio3" @if ($settings->who_can_sell == 'all') checked="checked" @endif value="all">
-             <label class="form-check-label" for="radio3">
-               {{ __('misc.all_members') }}
-             </label>
-           </div>
-           <div class="form-check">
-             <input class="form-check-input" type="radio" name="who_can_sell" id="radio4" @if ($settings->who_can_sell == 'admin') checked="checked" @endif value="admin">
-             <label class="form-check-label" for="radio4">
-               {{ __('misc.only_admin') }}
-             </label>
-           </div>
+         <!-- Email Verification -->
+         <div class="col-lg-2 col-md-6 mb-3">
+           <fieldset>
+             <legend class="col-form-label pt-0 mb-2">{{ __('admin.email_verification') }}</legend>
+             <div class="form-check form-switch form-switch-md">
+               <input class="form-check-input" type="checkbox" name="email_verification" @if ($settings->email_verification == '1') checked="checked" @endif value="1" role="switch">
+             </div>
+           </fieldset>
          </div>
-       </fieldset><!-- end row -->
 
-       <fieldset class="row mb-3">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('misc.who_can_upload') }}</legend>
-         <div class="col-sm-10">
-           <div class="form-check">
-             <input class="form-check-input" type="radio" name="who_can_upload" id="radio8" @if ($settings->who_can_upload == 'all') checked="checked" @endif value="all">
-             <label class="form-check-label" for="radio8">
-               {{ __('misc.all_members') }}
-             </label>
-           </div>
-           <div class="form-check">
-             <input class="form-check-input" type="radio" name="who_can_upload" id="radio9" @if ($settings->who_can_upload == 'admin') checked="checked" @endif value="admin">
-             <label class="form-check-label" for="radio9">
-               {{ __('misc.only_admin') }}
-             </label>
-           </div>
+         <!-- Captcha -->
+         <div class="col-lg-2 col-md-6 mb-3">
+           <fieldset>
+             <legend class="col-form-label pt-0 mb-2">Captcha</legend>
+             <div class="form-check form-switch form-switch-md">
+               <input class="form-check-input" type="checkbox" name="captcha" @if ($settings->captcha == 'on') checked="checked" @endif value="1" role="switch">
+             </div>
+           </fieldset>
          </div>
-       </fieldset><!-- end row -->
 
-       <fieldset class="row mb-3">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('admin.show_images_index') }}</legend>
-         <div class="col-sm-10">
-           <div class="form-check">
-             <input class="form-check-input" type="radio" name="show_images_index" id="radio5" @if ($settings->show_images_index == 'latest') checked="checked" @endif value="latest">
-             <label class="form-check-label" for="radio5">
-               {{ __('misc.latest') }}
-             </label>
-           </div>
-           <div class="form-check">
-             <input class="form-check-input" type="radio" name="show_images_index" id="radio6" @if ($settings->show_images_index == 'featured') checked="checked" @endif value="featured">
-             <label class="form-check-label" for="radio6">
-               {{ __('misc.featured') }}
-             </label>
-           </div>
-           <div class="form-check">
-            <input class="form-check-input" type="radio" name="show_images_index" id="radioBoth" @if ($settings->show_images_index == 'both') checked="checked" @endif value="both">
-            <label class="form-check-label" for="radioBoth">
-              {{ __('admin.both') }}
-            </label>
-          </div>
+         <!-- New Registrations -->
+         <div class="col-lg-2 col-md-6 mb-3">
+           <fieldset>
+             <legend class="col-form-label pt-0 mb-2">{{ __('admin.new_registrations') }}</legend>
+             <div class="form-check form-switch form-switch-md">
+               <input class="form-check-input" type="checkbox" name="registration_active" @if ($settings->registration_active == '1') checked="checked" @endif value="1" role="switch">
+             </div>
+           </fieldset>
          </div>
-       </fieldset><!-- end row -->
 
-       <fieldset class="row mb-3">
-        <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('misc.default_theme') }}</legend>
-        <div class="col-sm-10">
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="theme" id="light_mode" @if ($settings->theme == 'light') checked="checked" @endif value="light">
-            <label class="form-check-label" for="light_mode">
-              {{ __('misc.light_mode') }}
-            </label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="theme" id="dark_mode" @if ($settings->theme == 'dark') checked="checked" @endif value="dark">
-            <label class="form-check-label" for="dark_mode">
-              {{ __('misc.dark_mode') }}
-            </label>
-          </div>
-        </div>
-      </fieldset><!-- end row -->
 
-       <fieldset class="row mb-4">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('admin.email_verification') }}</legend>
-         <div class="col-sm-10">
-           <div class="form-check form-switch form-switch-md">
-            <input class="form-check-input" type="checkbox" name="email_verification" @if ($settings->email_verification == '1') checked="checked" @endif value="1" role="switch">
-          </div>
+
+
+
+
+
+
+
+         <!-- Cookie Policy Banner -->
+         <div class="col-lg-3 col-md-6 mb-3">
+           <fieldset>
+             <legend class="col-form-label pt-0 mb-2">{{ __('misc.cookie_policy_banner') }}</legend>
+             <div class="form-check form-switch form-switch-md">
+               <input class="form-check-input" type="checkbox" name="banner_cookies" @if ($settings->banner_cookies) checked="checked" @endif value="1" role="switch">
+             </div>
+           </fieldset>
          </div>
-       </fieldset><!-- end row -->
+       </div><!-- end row -->
 
-       <fieldset class="row mb-4">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">Captcha</legend>
-         <div class="col-sm-10">
-           <div class="form-check form-switch form-switch-md">
-            <input class="form-check-input" type="checkbox" name="captcha" @if ($settings->captcha == 'on') checked="checked" @endif value="1" role="switch">
-          </div>
-         </div>
-       </fieldset><!-- end row -->
-
-       <fieldset class="row mb-4">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('admin.new_registrations') }}</legend>
-         <div class="col-sm-10">
-           <div class="form-check form-switch form-switch-md">
-            <input class="form-check-input" type="checkbox" name="registration_active" @if ($settings->registration_active == '1') checked="checked" @endif value="1" role="switch">
-          </div>
-         </div>
-       </fieldset><!-- end row -->
-
-       <fieldset class="row mb-4">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('admin.show_watermark') }}</legend>
-         <div class="col-sm-10">
-           <div class="form-check form-switch form-switch-md">
-            <input class="form-check-input" type="checkbox" name="show_watermark" @if ($settings->show_watermark == '1') checked="checked" @endif value="1" role="switch">
-          </div>
-         </div>
-       </fieldset><!-- end row -->
-
-       <fieldset class="row mb-4">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('misc.allow_free_photos') }}</legend>
-         <div class="col-sm-10">
-           <div class="form-check form-switch form-switch-md">
-            <input class="form-check-input" type="checkbox" name="free_photo_upload" @if ($settings->free_photo_upload == 'on') checked="checked" @endif value="on" role="switch">
-          </div>
-         </div>
-       </fieldset><!-- end row -->
-
-       <fieldset class="row mb-4">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('misc.show_counter') }}</legend>
-         <div class="col-sm-10">
-           <div class="form-check form-switch form-switch-md">
-            <input class="form-check-input" type="checkbox" name="show_counter" @if ($settings->show_counter == 'on') checked="checked" @endif value="on" role="switch">
-          </div>
-         </div>
-       </fieldset><!-- end row -->
-
-       <fieldset class="row mb-4">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('misc.show_categories_index') }}</legend>
-         <div class="col-sm-10">
-           <div class="form-check form-switch form-switch-md">
-            <input class="form-check-input" type="checkbox" name="show_categories_index" @if ($settings->show_categories_index == 'on') checked="checked" @endif value="on" role="switch">
-          </div>
-         </div>
-       </fieldset><!-- end row -->
-
-       <fieldset class="row mb-4">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('admin.google_ads_index') }}</legend>
-         <div class="col-sm-10">
-           <div class="form-check form-switch form-switch-md">
-            <input class="form-check-input" type="checkbox" name="google_ads_index" @if ($settings->google_ads_index == 'on') checked="checked" @endif value="on" role="switch">
-          </div>
-         </div>
-       </fieldset><!-- end row -->
-
-			 <fieldset class="row mb-4">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('misc.referral_system') }}</legend>
-         <div class="col-sm-10">
-           <div class="form-check form-switch form-switch-md">
-            <input class="form-check-input" type="checkbox" name="referral_system" @if ($settings->referral_system == 'on') checked="checked" @endif value="on" role="switch">
-          </div>
-         </div>
-       </fieldset><!-- end row -->
-
-			 <fieldset class="row mb-4">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('misc.comment_system') }}</legend>
-         <div class="col-sm-10">
-           <div class="form-check form-switch form-switch-md">
-            <input class="form-check-input" type="checkbox" name="comments" @if ($settings->comments) checked="checked" @endif value="1" role="switch">
-          </div>
-         </div>
-       </fieldset><!-- end row -->
-
-       <fieldset class="row mb-4">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">Lightbox</legend>
-         <div class="col-sm-10">
-           <div class="form-check form-switch form-switch-md">
-            <input class="form-check-input" type="checkbox" name="lightbox" @if ($settings->lightbox == 'on') checked="checked" @endif value="on" role="switch">
-          </div>
-         </div>
-       </fieldset><!-- end row -->
-
-			 <fieldset class="row mb-4">
-         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('misc.cookie_policy_banner') }}</legend>
-         <div class="col-sm-10">
-           <div class="form-check form-switch form-switch-md">
-            <input class="form-check-input" type="checkbox" name="banner_cookies" @if ($settings->banner_cookies) checked="checked" @endif value="1" role="switch">
-          </div>
-         </div>
-       </fieldset><!-- end row -->
-
-       <!-- SEO Settings Section -->
+       {{-- SEO Settings Section - Commented Out
        <div class="row mb-4">
          <div class="col-12">
            <h6 class="text-muted mb-3 border-bottom pb-2">{{ __('admin.seo_settings') }}</h6>
@@ -369,6 +229,7 @@
            <small class="d-block text-muted">{{ __('admin.canonical_url_info') }}</small>
          </div>
        </div>
+       --}}
 
        <div class="row mb-3">
          <div class="col-sm-10 offset-sm-2">

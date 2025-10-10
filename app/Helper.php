@@ -732,20 +732,4 @@ class Helper
 		return true;
 	}
 
-	// SevenLabs API Helper
-	public static function getSevenLabsApiKey()
-	{
-		try {
-			$settings = \App\Models\AdminSettings::first();
-			return $settings ? $settings->sevenlabs_api_key : null;
-		} catch (\Exception $e) {
-			return null;
-		}
-	}
-
-	public static function hasSevenLabsApiKey()
-	{
-		$apiKey = self::getSevenLabsApiKey();
-		return !empty($apiKey);
-	}
 }//<--- End Class

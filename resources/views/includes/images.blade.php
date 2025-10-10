@@ -10,7 +10,7 @@
 			}  else {
 				$background = 'background-color: #'.$color.';';
 			}
-			
+
 			$stockImage = $image->stock->where('type', 'medium')->first();
 			$resolution = explode('x', Helper::resolutionPreview($stockImage->resolution));
 			$newWidth   = $resolution[0];
@@ -33,7 +33,9 @@
 
 			<div class="sub-hover d-flex align-items-center">
 				<div class="flex-shrink-0">
-				  <img src="{{ Storage::url(config('path.avatar').$image->author->avatar) }}"class="rounded-circle avatarUser" style="width: 32px; height: 32px;">
+				  <div class="bg-light d-flex align-items-center justify-content-center rounded-circle avatarUser" style="width: 32px; height: 32px;">
+				    <i class="bi bi-person text-muted"></i>
+				  </div>
 				</div>
 				<div class="flex-grow-1 ms-3 text-truncate">
 					<span class="d-block w-100 text-truncate">{{$image->title}}</span>

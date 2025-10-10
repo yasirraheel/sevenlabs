@@ -63,73 +63,57 @@
 				<div class="col-md-6">
 
           <div class="form-floating mb-3">
-          <select name="countries_id" class="form-select" id="inputSelectCountry">
-            <option value="">{{trans('misc.select_your_country')}}</option>
-
-            @foreach (Countries::orderBy('country_name')->get() as $country)
-              <option @if( auth()->user()->countries_id == $country->id ) selected="selected" @endif value="{{$country->id}}">{{ $country->country_name }}</option>
-              @endforeach
-          </select>
-          <label for="inputSelectCountry">{{ trans('misc.country') }}</label>
+          <input type="text" readonly class="form-control" id="inputCity" value="{{auth()->user()->city}}" placeholder="City">
+          <label for="inputCity">City</label>
         </div>
 
 				</div><!-- End Col MD-->
 			</div><!-- End row -->
 
-      @if ($settings->who_can_sell == 'all'
-          || $settings->who_can_sell == 'admin'
-          && auth()->user()->isSuperAdmin())
+			<div class="row">
+				<div class="col-md-6">
+					<div class="form-floating mb-3">
+						<input type="text" class="form-control" id="inputaccount_no" value="{{auth()->user()->account_no}}" name="account_no" placeholder="Account No">
+						<label for="inputaccount_no">Account No</label>
+					</div>
+				</div><!-- End Col MD-->
 
-      <div class="form-floating">
-      <select name="author_exclusive" class="form-select" id="authorExclusive">
-        <option @if (auth()->user()->author_exclusive == 'yes') selected="selected" @endif value="yes">{{trans('misc.exclusive_author')}}</option>
-        <option @if (auth()->user()->author_exclusive == 'no') selected="selected" @endif value="no">{{trans('misc.non_exclusive_author')}}</option>
-      </select>
-      <small class="d-block pb-3 fw-bold mt-1">
+				<div class="col-md-6">
+					<!-- Empty column for balance -->
+				</div><!-- End Col MD-->
+			</div><!-- End row -->
 
-        <span id="percentage">
-          @if (auth()->user()->author_exclusive == 'yes')
-            * {{ trans('misc.user_gain', ['percentage' => (100 - $settings->fee_commission)]) }}
-          @else
-            * {{ trans('misc.user_gain', ['percentage' => (100 - $settings->fee_commission_non_exclusive)]) }}
-            @endif
-        </span>
+     <hr class="my-4">
+     <h6 class="mb-3">{{ trans('auth.password') }}</h6>
 
-        <i class="bi bi-info-circle showTooltip ms-1" title="{{trans('misc.earnings_information')}}"></i>
-      </small>
-      <label for="authorExclusive">{{ trans('misc.exclusivity_items') }}</label>
-    </div>
-  @endif
+			<div class="row">
+				<div class="col-md-6">
+					<div class="form-floating mb-3">
+						<input type="password" class="form-control" id="input-oldpassword" name="old_password" placeholder="{{ trans('misc.old_password') }}">
+						<label for="input-oldpassword">{{ trans('misc.old_password') }}</label>
+					</div>
+				</div><!-- End Col MD-->
 
-      <div class="form-floating mb-3">
-       <input type="email" class="form-control" id="inputpaypal_account" value="{{auth()->user()->paypal_account}}" name="paypal_account" placeholder="{{ trans('admin.paypal_account') }}">
-       <label for="inputpaypal_account">{{ trans('admin.paypal_account') }}</label>
-     </div>
+				<div class="col-md-6">
+					<div class="form-floating mb-3">
+						<input type="password" class="form-control" id="input-password" name="password" placeholder="{{ trans('misc.new_password') }}">
+						<label for="input-password">{{ trans('misc.new_password') }}</label>
+					</div>
+				</div><!-- End Col MD-->
+			</div><!-- End row -->
 
-       <div class="form-floating mb-3">
-        <input type="url" class="form-control" id="input-website_misc" value="{{auth()->user()->website}}" name="website" placeholder="{{ trans('misc.website_misc') }}">
-        <label for="input-website_misc">{{ trans('misc.website_misc') }}</label>
-      </div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="form-floating mb-3">
+						<input type="password" class="form-control" id="input-password-confirm" name="password_confirmation" placeholder="{{ trans('auth.confirm_password') }}">
+						<label for="input-password-confirm">{{ trans('auth.confirm_password') }}</label>
+					</div>
+				</div><!-- End Col MD-->
 
-      <div class="form-floating mb-3">
-       <input type="url" class="form-control" id="input-facebook" value="{{auth()->user()->facebook}}" name="facebook" placeholder="Facebook">
-       <label for="input-facebook">Facebook (URL)</label>
-     </div>
-
-       <div class="form-floating mb-3">
-        <input type="url" class="form-control" id="input-twitter" value="{{auth()->user()->twitter}}" name="twitter" placeholder="Twitter">
-        <label for="input-twitter">Twitter (URL)</label>
-      </div>
-
-      <div class="form-floating mb-3">
-       <input type="url" class="form-control" id="input-instagram" value="{{auth()->user()->instagram}}" name="instagram" placeholder="Instagram">
-       <label for="input-instagram">Instagram (URL)</label>
-     </div>
-
-     <div class="form-floating mb-3">
-      <textarea class="form-control" placeholder="{{ trans('misc.description') }}" name="description" id="input-description" style="height: 100px">{{ auth()->user()->bio }}</textarea>
-      <label for="input-description">{{ trans('misc.description') }}</label>
-    </div>
+				<div class="col-md-6">
+					<!-- Empty column for balance -->
+				</div><!-- End Col MD-->
+			</div><!-- End row -->
 
     <div class="form-check form-switch form-switch-md mb-3">
       <input class="form-check-input" @if (auth()->user()->two_factor_auth == 'yes') checked @endif name="two_factor_auth" type="checkbox" value="yes" id="flexSwitchCheckDefault">

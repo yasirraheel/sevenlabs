@@ -8,7 +8,6 @@ use App\Models\Deposits;
 use App\Models\TaxRates;
 use App\Models\Languages;
 use App\Models\Categories;
-use App\Models\Withdrawals;
 use App\Models\AdminSettings;
 use App\Models\UsersReported;
 use Illuminate\Support\ServiceProvider;
@@ -41,7 +40,7 @@ class ViewServiceProvider extends ServiceProvider
 		$userCount = User::whereStatus('active')->count();
 		$plansActive = Plans::whereStatus('1')->count();
 		$depositsPendingCount = Deposits::selectRaw('COUNT(id) as total')->whereStatus('pending')->pluck('total')->first();
-		$withdrawalsPendingCount = Withdrawals::selectRaw('COUNT(id) as total')->whereStatus('pending')->pluck('total')->first();
+		$withdrawalsPendingCount = 0; // Withdrawals functionality removed
 		$usersReported = UsersReported::selectRaw('COUNT(id) as total')->pluck('total')->first();
 
 		// Universal starter kit - set default values for removed stock photo functionality

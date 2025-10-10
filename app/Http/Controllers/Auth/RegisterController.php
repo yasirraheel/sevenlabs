@@ -63,6 +63,7 @@ class RegisterController extends Controller
 			"letters"    => trans('validation.letters'),
       'g-recaptcha-response.required_if' => trans('misc.captcha_error_required'),
       'g-recaptcha-response.captcha' => trans('misc.captcha_error'),
+      'phone.pakistan_phone' => trans('auth.phone_pakistan'),
         );
 
 		 Validator::extend('ascii_only', function($attribute, $value, $parameters){
@@ -74,8 +75,29 @@ class RegisterController extends Controller
     	return preg_match('/[a-zA-Z0-9]/', $value);
 	});
 
+		// Validate Pakistan phone number
+	Validator::extend('pakistan_phone', function($attribute, $value, $parameters){
+    	// Remove any non-digit characters
+    	$phone = preg_replace('/[^0-9]/', '', $value);
+
+    	// Check if it starts with +92 or 92
+    	if (strpos($value, '+92') === 0) {
+    		$phone = substr($phone, 2); // Remove 92
+    	} elseif (strpos($value, '92') === 0) {
+    		$phone = substr($phone, 2); // Remove 92
+    	}
+
+    	// Pakistan mobile numbers are 11 digits starting with 03
+    	// Valid formats: 03XXXXXXXXX (11 digits starting with 03)
+    	// The number +923006859611 becomes 3006859611 after removing 92
+    	// We need to check if it's 10 digits starting with 3 (after removing 92)
+    	return preg_match('/^3[0-9]{9}$/', $phone) && strlen($phone) === 10;
+	});
+
         return Validator::make($data, [
-            'username'  => 'required|min:3|max:15|ascii_only|alpha_dash|letters|unique:users|unique:pages,slug|unique:reserved,name',
+            'full_name' => 'required|string|max:255',
+            'phone' => 'required|pakistan_phone|unique:users',
+            'city' => 'required|string|max:100',
             'email' => 'required|email|max:255|unique:users',
             'password' => 'required|min:8|confirmed',
             'agree_gdpr' => 'required',
@@ -144,10 +166,24 @@ class RegisterController extends Controller
     // Get user country
     $country = Countries::whereCountryCode(Helper::userCountry())->first();
 
+		// Format phone number properly
+		$phone = $data['phone'];
+		$phone = preg_replace('/[^0-9]/', '', $phone); // Remove non-digits
+
+		// If it starts with 92, remove it
+		if (strpos($phone, '92') === 0) {
+			$phone = substr($phone, 2);
+		}
+
+		// Add +92 prefix for storage
+		$formattedPhone = '+92' . $phone;
+
 		$user = User::create([
-			'username'        => $data['username'],
-			'name'            => '',
-      'bio'             => '',
+			'username'        => $data['full_name'], // Use full_name as username
+			'name'            => $data['full_name'],
+			'full_name'       => $data['full_name'],
+			'phone'           => $formattedPhone,
+			'city'            => $data['city'],
       'countries_id'    => $country->id ?? '',
 			'password'        => bcrypt($data['password']),
 			'email'           => strtolower($data['email']),
@@ -155,9 +191,7 @@ class RegisterController extends Controller
 			'cover'           => $settings->cover,
 			'status'          => $status,
 			'type_account'    => '1',
-      'website'         => '',
-      'twitter'         => '',
-      'paypal_account'  => '',
+      'account_no'      => '',
 			'activation_code' => $confirmation_code,
       'oauth_uid'       => '',
       'oauth_provider'  => '',
@@ -184,7 +218,7 @@ class RegisterController extends Controller
         event(new Registered($user = $this->create($request->all())));
 
         // Check Referral
-        if ($this->settings->referral_system == 'on') {
+        if ($settings->referral_system == 'on') {
 
           $referredBy = User::find(Cookie::get('referred'));
 

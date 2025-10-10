@@ -100,62 +100,7 @@
 		          </div>
 		        </div>
 
-            <div class="row mb-3">
-		          <label class="col-sm-2 col-form-label text-lg-end">Watermark</label>
-		          <div class="col-lg-5 col-sm-10">
-                <div class="d-block mb-2">
-                  <img src="{{url('/public/img', $settings->watermark)}}" class="bg-secondary" style="width:300px">
-                </div>
 
-                <div class="input-group mb-1">
-                  <input name="watermark" type="file" class="form-control custom-file rounded-pill">
-                </div>
-                <small class="d-block">{{ __('misc.recommended_size') }} 700px (PNG)</small>
-								<small class="d-block fst-italic">* {{ __('misc.clean_cache_browser') }}</small>
-		          </div>
-		        </div>
-
-            <div class="row mb-3">
-		          <label class="col-sm-2 col-form-label text-lg-end">Avatar default</label>
-		          <div class="col-lg-5 col-sm-10">
-                <div class="d-block mb-2">
-                  <img src="{{Storage::url(config('path.avatar').$settings->avatar)}}" style="width:180px">
-                </div>
-
-                <div class="input-group mb-1">
-                  <input name="avatar" type="file" class="form-control custom-file rounded-pill">
-                </div>
-                <small class="d-block">{{ __('misc.recommended_size') }} 250x250 px (JPG)</small>
-		          </div>
-		        </div>
-
-            <div class="row mb-3">
-		          <label class="col-sm-2 col-form-label text-lg-end">Cover User</label>
-		          <div class="col-lg-5 col-sm-10">
-                <div class="d-block mb-2">
-                  <img src="{{Storage::url(config('path.cover').$settings->cover)}}" style="width:200px">
-                </div>
-
-                <div class="input-group mb-1">
-                  <input name="cover" type="file" class="form-control custom-file rounded-pill">
-                </div>
-                <small class="d-block">{{ __('misc.recommended_size') }} 1280x850 px (JPG)</small>
-		          </div>
-		        </div>
-
-            <div class="row mb-3">
-		          <label class="col-sm-2 col-form-label text-lg-end">Image default in categories</label>
-		          <div class="col-lg-5 col-sm-10">
-                <div class="d-block mb-2">
-                  <img src="{{url('public/img-category', $settings->img_category)}}" style="width:250px">
-                </div>
-
-                <div class="input-group mb-1">
-                  <input name="img_category" type="file" class="form-control custom-file rounded-pill">
-                </div>
-                <small class="d-block">{{ __('misc.recommended_size') }} 457x357 px (JPG)</small>
-		          </div>
-		        </div>
 
             <div class="row mb-3">
 		          <label class="col-sm-2 col-form-label text-lg-end">{{ __('misc.color_default') }}</label>

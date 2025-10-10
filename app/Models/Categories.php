@@ -11,10 +11,9 @@ class Categories extends Model
 
 	protected $fillable = [
 		'name',
-		'slug',
-		'description',
-		'thumbnail',
-		'mode'
+		'mode',
+		'date',
+		'time'
 	];
 
 	public function subcategories()

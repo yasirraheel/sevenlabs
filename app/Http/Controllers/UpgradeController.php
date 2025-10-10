@@ -14,12 +14,10 @@ use Illuminate\Database\Schema\Blueprint;
 class UpgradeController extends Controller
 {
 
-	public function __construct(AdminSettings $settings, Images $images, Collections $collections, User $user, Categories $categories)
+	public function __construct(AdminSettings $settings, User $user, Categories $categories)
 	{
 		$this->user         = $user::first();
 		$this->settings     = $settings::first();
-		$this->images       = $images::first();
-		$this->collections  = $collections::first();
 		$this->categories   = $categories::first();
 	}
 

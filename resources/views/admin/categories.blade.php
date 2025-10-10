@@ -35,16 +35,28 @@
 
                @if ($data->count() !=  0)
                   <tr>
-                     <th class="active">ID</th>
+                     <th class="active">{{ trans('admin.thumbnail') }}</th>
                      <th class="active">{{ trans('admin.name') }}</th>
+                     <th class="active">{{ trans('admin.date') }}</th>
+                     <th class="active">{{ trans('admin.time') }}</th>
                      <th class="active">{{ trans('admin.status') }}</th>
                      <th class="active">{{ trans('admin.actions') }}</th>
                    </tr>
 
                  @foreach ($data as $category)
                    <tr>
-                     <td>{{ $category->id }}</td>
+                     <td>
+                       @if($category->thumbnail)
+                         <img src="{{ url('public/img-category', $category->thumbnail) }}" alt="{{ $category->name }}" class="img-thumbnail" style="width: 50px; height: 40px; object-fit: cover;">
+                       @else
+                         <div class="bg-light d-flex align-items-center justify-content-center" style="width: 50px; height: 40px; border: 1px solid #dee2e6;">
+                           <i class="bi bi-image text-muted"></i>
+                         </div>
+                       @endif
+                     </td>
                      <td>{{ $category->name }}</td>
+                     <td>{{ $category->date ? \Carbon\Carbon::parse($category->date)->format('M d, Y') : '-' }}</td>
+                     <td>{{ $category->time ? \Carbon\Carbon::parse($category->time)->format('H:i') : '-' }}</td>
                      <td><span class="badge bg-{{ $category->mode == 'on' ? 'success' : 'danger' }}">{{ ucfirst($category->mode) }}</span></td>
                      <td>
                        <a href="{{ url('panel/admin/categories/edit/').'/'.$category->id }}" class="text-reset fs-5 me-2">

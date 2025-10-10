@@ -37,7 +37,7 @@ use App\Http\Controllers\AjaxController;
 */
 
 // Homepage
-Route::get('/', [HomeController::class, 'sevenhome'])->name('home');
+Route::get('/', [HomeController::class, 'explore'])->name('home');
 Route::get('home', function() {
     return redirect('/');
 });
@@ -74,12 +74,10 @@ Route::get('contact',[HomeController::class, 'contact']);
 Route::post('contact',[HomeController::class, 'contactStore']);
 
 // TTS Routes
-Route::get('tts/tasks', function() {
-    return view('tts.tasks');
-})->name('tts.tasks');
+// TTS tasks route removed - app converted
 
 // TTS Callback (no auth required - called by external API)
-Route::post('api/tts/callback', [App\Http\Controllers\Api\TtsController::class, 'callback']);
+// TTS routes removed - app converted
 
 // Account Verification
 Route::get('verify/account/{confirmation_code}', [HomeController::class, 'getVerifyAccount'])->where('confirmation_code','[A-Za-z0-9]+');
@@ -98,9 +96,6 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('account',[UserController::class, 'account']);
     Route::post('account',[UserController::class, 'update_account']);
 
-    // Password
-    Route::get('account/password',[UserController::class, 'password']);
-    Route::post('account/password',[UserController::class, 'update_password']);
 
     // Delete Account
     Route::get('account/delete',[UserController::class, 'delete']);
@@ -124,28 +119,10 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('comment/delete',[CommentsController::class, 'destroy']);
     Route::post('comment/like',[CommentsController::class, 'like']);
 
-    // User Credits API
-    Route::get('api/user/credits', [App\Http\Controllers\Api\TtsController::class, 'getUserCredits']);
+    // User Balance API
+    Route::get('api/user/balance', [App\Http\Controllers\Api\UserController::class, 'getUserBalance']);
 
-    // TTS API Routes (session-based authentication)
-    Route::prefix('api/tts')->group(function () {
-        // Generate TTS
-        Route::post('generate', [App\Http\Controllers\Api\TtsController::class, 'generate']);
-        
-        // Task Management
-        Route::get('task/{taskId}', [App\Http\Controllers\Api\TtsController::class, 'getTask']);
-        Route::get('tasks', [App\Http\Controllers\Api\TtsController::class, 'getTasks']);
-        Route::delete('task/{taskId}', [App\Http\Controllers\Api\TtsController::class, 'deleteTask']);
-        Route::post('task/{taskId}/subtitle', [App\Http\Controllers\Api\TtsController::class, 'exportSubtitle']);
-        
-        // Voice and Model info
-        Route::get('voices', [App\Http\Controllers\Api\TtsController::class, 'getVoices']);
-        Route::get('voices/local', [App\Http\Controllers\Api\TtsController::class, 'getLocalVoices']);
-        Route::get('models', [App\Http\Controllers\Api\TtsController::class, 'getModels']);
-        
-        // User info
-        Route::get('me', [App\Http\Controllers\Api\TtsController::class, 'getMe']);
-    });
+    // TTS API Routes removed - app converted
 
     // AJAX Routes
     Route::get('ajax/notifications', [AjaxController::class, 'notifications']);
@@ -157,11 +134,6 @@ Route::group(['middleware' => 'auth'], function() {
     Route::post('user/dashboard/add/funds',[AddFundsController::class, 'send']);
 
     // Withdrawals
-    Route::get('user/dashboard/withdrawals',[DashboardController::class, 'showWithdrawal']);
-    Route::post('request/withdrawal',[DashboardController::class, 'withdrawal']);
-    Route::get('user/dashboard/withdrawals/configure',[DashboardController::class, 'withdrawalsConfigureView']);
-    Route::post('user/withdrawals/configure/{type}',[DashboardController::class, 'withdrawalConfigure']);
-    Route::post('delete/withdrawal/{id}',[DashboardController::class, 'withdrawalDelete']);
 
     // Stripe Connect
     Route::get('stripe/connect', [StripeConnectController::class, 'redirectToStripe'])->name('redirect.stripe');
@@ -172,6 +144,10 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('account/subscription',[UserController::class, 'subscription']);
     Route::get('buy/subscription/success',[SubscriptionsController::class, 'success'])->name('success.subscription');
     Route::post('account/subscription/cancel',[SubscriptionsController::class, 'cancel']);
+
+    // Recharge/Deposit
+    Route::get('account/recharge',[UserController::class, 'recharge']);
+    Route::post('account/recharge',[UserController::class, 'storeRecharge']);
 });
 
 // Comments Likes (Public)
@@ -265,23 +241,22 @@ Route::group(['middleware' => 'role'], function() {
 
     // Deposits Management
     Route::get('panel/admin/deposits',[AdminController::class, 'deposits'])->name('deposits');
-    Route::get('panel/admin/deposits/{id}',[AdminController::class, 'depositsView']);
-    Route::post('approve/deposits',[AdminController::class, 'approveDeposits']);
-    Route::post('delete/deposits',[AdminController::class, 'deleteDeposits']);
+    Route::post('panel/admin/deposits/approve',[AdminController::class, 'approveDeposit'])->name('deposits.approve');
+    Route::post('panel/admin/deposits/reject',[AdminController::class, 'rejectDeposit'])->name('deposits.reject');
 
     // Withdrawals Management
-    Route::get('panel/admin/withdrawals',[AdminController::class, 'withdrawals'])->name('withdrawals');
-    Route::get('panel/admin/withdrawal/{id}',[AdminController::class, 'withdrawalsView']);
-    Route::post('panel/admin/withdrawals/paid/{id}',[AdminController::class, 'withdrawalsPaid']);
 
     // Maintenance
     Route::view('panel/admin/maintenance', 'admin.maintenance')->name('maintenance_mode');
     Route::post('panel/admin/maintenance',[AdminController::class, 'maintenance']);
     Route::get('panel/admin/clear-cache', [AdminController::class, 'clearCache']);
 
-    // Billing
-    Route::view('panel/admin/billing','admin.billing')->name('billing');
-    Route::post('panel/admin/billing',[AdminController::class, 'billingStore']);
+    // Billing - Payment Methods
+    Route::get('panel/admin/billing',[AdminController::class, 'billing'])->name('billing');
+    Route::post('panel/admin/payment-methods/store',[AdminController::class, 'storePaymentMethod'])->name('payment-methods.store');
+    Route::get('panel/admin/payment-methods/{id}',[AdminController::class, 'getPaymentMethod'])->name('payment-methods.get');
+    Route::post('panel/admin/payment-methods/update',[AdminController::class, 'updatePaymentMethod'])->name('payment-methods.update');
+    Route::delete('panel/admin/payment-methods/{id}',[AdminController::class, 'deletePaymentMethod'])->name('payment-methods.delete');
 
     // Tax Rates
     Route::get('panel/admin/tax-rates',[TaxRatesController::class, 'show'])->name('tax_rates');
@@ -370,7 +345,6 @@ Route::post('stripe/webhook', [StripeWebHookController::class, 'handleWebhook'])
 
 // Miscellaneous Routes
 Route::get('invoice/{id}',[UserController::class, 'invoice']);
-Route::get('my/referrals',[UserController::class, 'myReferrals'])->middleware('auth');
 Route::post('verify/2fa', [TwoFactorAuthController::class, 'verify']);
 Route::post('2fa/resend', [TwoFactorAuthController::class, 'resend']);
 

@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="shortcut icon" href="{{ url('public/img', $settings->favicon) }}" />
 
-    <title>{{ __('admin.admin') }}</title>
+    <title>GEO ENTERPRISES - {{ __('admin.admin') }}</title>
 
     <link href="{{ asset('public/css/core.min.css') }}?v={{$settings->version}}" rel="stylesheet">
     <link href="{{ asset('public/css/bootstrap.min.css') }}?v={{$settings->version}}" rel="stylesheet">
@@ -72,11 +72,11 @@
                   <i class="bi-chevron-right fs-7 me-1"></i> {{ trans('admin.general') }}
                   </a>
                 </li>
-                <li>
+                {{-- <li>
                 <a class="nav-link text-truncate @if (request()->is('panel/admin/settings/limits')) text-white @endif" href="{{ url('panel/admin/settings/limits') }}">
                   <i class="bi-chevron-right fs-7 me-1"></i> {{ trans('admin.limits') }}
                   </a>
-                </li>
+                </li> --}}
               </div><!-- /end collapse settings -->
 
               @if (auth()->user()->hasPermission('announcements'))
@@ -103,6 +103,7 @@
               </li><!-- /end list -->
             @endif
 
+
               <!-- Purchases menu removed - stock photo functionality -->
 
             <!-- Images permission check removed - stock photo functionality -->
@@ -122,19 +123,6 @@
               </li><!-- /end list -->
               @endif
 
-              @if (auth()->user()->hasPermission('withdrawals'))
-              <li class="nav-item">
-                  <a href="{{ url('panel/admin/withdrawals') }}" class="nav-link text-truncate @if (request()->is('panel/admin/withdrawals')) active @endif">
-                      <i class="bi-bank me-2"></i>
-
-                      @if ($withdrawalsPendingCount <> 0)
-                        <span class="badge rounded-pill bg-warning text-dark me-1">{{ $withdrawalsPendingCount }}</span>
-                      @endif
-
-                      {{ __('admin.withdrawals') }}
-                  </a>
-              </li><!-- /end list -->
-              @endif
 
             @if (auth()->user()->hasPermission('push_notifications'))
               <li class="nav-item">
@@ -144,45 +132,38 @@
               </li><!-- /end list -->
             @endif
 
-                @if (auth()->user()->hasPermission('tax_rates'))
+                {{-- @if (auth()->user()->hasPermission('tax_rates'))
               <li class="nav-item">
                   <a href="{{ url('panel/admin/tax-rates') }}" class="nav-link text-truncate @if (request()->is('panel/admin/tax-rates')) active @endif">
                       <i class="bi-receipt me-2"></i> {{ __('admin.tax_rates') }}
                   </a>
               </li><!-- /end list -->
-            @endif
+            @endif --}}
 
-            @if (auth()->user()->hasPermission('plans'))
-            <li class="nav-item">
-                <a href="{{ url('panel/admin/plans') }}" class="nav-link text-truncate @if (request()->is('panel/admin/plans')) active @endif">
-                    <i class="bi-box2 me-2"></i> {{ __('admin.plans') }}
-                </a>
-            </li><!-- /end list -->
-            @endif
 
-            @if (auth()->user()->hasPermission('subscriptions'))
+            {{-- @if (auth()->user()->hasPermission('subscriptions'))
             <li class="nav-item">
                 <a href="{{ url('panel/admin/subscriptions') }}" class="nav-link text-truncate @if (request()->is('panel/admin/subscriptions')) active @endif">
                     <i class="bi-arrow-repeat me-2"></i> {{ __('admin.subscriptions') }}
                 </a>
             </li><!-- /end list -->
-            @endif
+            @endif --}}
 
-            @if (auth()->user()->hasPermission('countries'))
+            {{-- @if (auth()->user()->hasPermission('countries'))
               <li class="nav-item">
                   <a href="{{ url('panel/admin/countries') }}" class="nav-link text-truncate @if (request()->is('panel/admin/countries')) active @endif">
                       <i class="bi-globe me-2"></i> {{ __('admin.countries') }}
                   </a>
               </li><!-- /end list -->
-              @endif
+              @endif --}}
 
-              @if (auth()->user()->hasPermission('states'))
+              {{-- @if (auth()->user()->hasPermission('states'))
               <li class="nav-item">
                   <a href="{{ url('panel/admin/states') }}" class="nav-link text-truncate @if (request()->is('panel/admin/states')) active @endif">
                       <i class="bi-pin-map me-2"></i> {{ __('admin.states') }}
                   </a>
               </li><!-- /end list -->
-              @endif
+              @endif --}}
 
               @if (auth()->user()->hasPermission('email_settings'))
               <li class="nav-item">
@@ -192,13 +173,13 @@
               </li><!-- /end list -->
               @endif
 
-              @if (auth()->user()->hasPermission('storage'))
+              {{-- @if (auth()->user()->hasPermission('storage'))
               <li class="nav-item">
                   <a href="{{ url('panel/admin/storage') }}" class="nav-link text-truncate @if (request()->is('panel/admin/storage')) active @endif">
                       <i class="bi-server me-2"></i> {{ __('admin.storage') }}
                   </a>
               </li><!-- /end list -->
-              @endif
+              @endif --}}
 
               @foreach (Addons::all() as $addon)
                 @if (auth()->user()->hasPermission($addon->name))
@@ -218,23 +199,23 @@
               </li><!-- /end list -->
               @endif
 
-              @if (auth()->user()->hasPermission('custom_css_js'))
+              {{-- @if (auth()->user()->hasPermission('custom_css_js'))
               <li class="nav-item">
                   <a href="{{ url('panel/admin/custom-css-js') }}" class="nav-link text-truncate @if (request()->is('panel/admin/custom-css-js')) active @endif">
                       <i class="bi-code-slash me-2"></i> {{ __('admin.custom_css_js') }}
                   </a>
               </li><!-- /end list -->
-              @endif
+              @endif --}}
 
               <!-- Collections menu removed - stock photo functionality -->
 
-              @if (auth()->user()->hasPermission('languages'))
+              {{-- @if (auth()->user()->hasPermission('languages'))
               <li class="nav-item">
                   <a href="{{ url('panel/admin/languages') }}" class="nav-link text-truncate @if (request()->is('panel/admin/languages')) active @endif">
                       <i class="bi-translate me-2"></i> {{ __('admin.languages') }}
                   </a>
               </li><!-- /end list -->
-              @endif
+              @endif --}}
 
               @if (auth()->user()->hasPermission('categories'))
               <li class="nav-item">
@@ -260,15 +241,8 @@
               </li><!-- /end list -->
               @endif
 
-              @if (auth()->user()->hasPermission('role_and_permissions'))
-              <li class="nav-item">
-                  <a href="{{ url('panel/admin/roles-and-permissions') }}" class="nav-link text-truncate @if (request()->is('panel/admin/roles-and-permissions')) active @endif">
-                      <i class="bi-person-badge me-2"></i> {{ __('admin.role_and_permissions') }}
-                  </a>
-              </li><!-- /end list -->
-            @endif
 
-            @if (auth()->user()->hasPermission('members_reported'))
+            {{-- @if (auth()->user()->hasPermission('members_reported'))
               <li class="nav-item">
                   <a href="{{ url('panel/admin/members-reported') }}" class="nav-link text-truncate @if (request()->is('panel/admin/members-reported')) active @endif">
                       <i class="bi-person-x me-2"></i>
@@ -280,7 +254,7 @@
                       {{ __('admin.members_reported') }}
                   </a>
               </li><!-- /end list -->
-                @endif
+                @endif --}}
 
               <!-- Images reported menu removed - stock photo functionality -->
 
@@ -292,29 +266,6 @@
               </li><!-- /end list -->
                 @endif
 
-                @if (auth()->user()->hasPermission('payment_settings'))
-              <li class="nav-item">
-                  <a href="#payments" data-bs-toggle="collapse" class="nav-link text-truncate dropdown-toggle @if (request()->is('panel/admin/payments') || request()->is('panel/admin/payments/*')) active @endif" @if (request()->is('panel/admin/payments') || request()->is('panel/admin/payments/*')) aria-expanded="true" @endif>
-                      <i class="bi-credit-card me-2"></i> {{ __('admin.payment_settings') }}
-                  </a>
-              </li><!-- /end list -->
-
-              <div class="collapse w-100 ps-3 @if (request()->is('panel/admin/payments') || request()->is('panel/admin/payments/*')) show @endif" id="payments">
-                <li>
-                <a class="nav-link text-truncate @if (request()->is('panel/admin/payments')) text-white @endif" href="{{ url('panel/admin/payments') }}">
-                  <i class="bi-chevron-right fs-7 me-1"></i> {{ trans('admin.general') }}
-                  </a>
-                </li>
-
-                @foreach (PaymentGateways::all() as $key)
-                <li>
-                <a class="nav-link text-truncate @if (request()->is('panel/admin/payments/'.$key->id.'')) text-white @endif" href="{{ url('panel/admin/payments', $key->id) }}">
-                  <i class="bi-chevron-right fs-7 me-1"></i> {{ $key->type == 'bank' ? __('misc.bank_transfer') : $key->name }}
-                  </a>
-                </li>
-              @endforeach
-              </div><!-- /end collapse settings -->
-              @endif
 
               @if (auth()->user()->hasPermission('profiles_social'))
               <li class="nav-item">
@@ -332,13 +283,6 @@
               </li><!-- /end list -->
               @endif
 
-              @if (auth()->user()->hasPermission('google'))
-              <li class="nav-item">
-                  <a href="{{ url('panel/admin/google') }}" class="nav-link text-truncate @if (request()->is('panel/admin/google')) active @endif">
-                      <i class="bi-google me-2"></i> Google
-                  </a>
-              </li><!-- /end list -->
-              @endif
 
               @if (auth()->user()->hasPermission('pwa'))
               <li class="nav-item">
@@ -364,7 +308,9 @@
 
         <div class="flex-shrink-0 dropdown">
           <a href="#" class="d-block link-dark text-decoration-none" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
-           <img src="{{ Storage::url(config('path.avatar').auth()->user()->avatar) }}" width="32" height="32" class="rounded-circle">
+           <div class="bg-light d-flex align-items-center justify-content-center rounded-circle" style="width: 32px; height: 32px;">
+             <i class="bi bi-person text-muted"></i>
+           </div>
           </a>
           <ul class="dropdown-menu dropdown-menu-macos arrow-dm" aria-labelledby="dropdownUser2">
             @include('includes.menu-dropdown')
@@ -404,24 +350,20 @@
 
     @auth
     <script>
-    // Load SevenLabs user data when dropdown is opened (Admin Panel)
+    // Load user data when dropdown is opened (Admin Panel)
     document.addEventListener('DOMContentLoaded', function() {
         const dropdownToggle = document.getElementById('dropdownUser2');
         const balanceElement = document.getElementById('balance-amount');
-        const creditsElement = document.getElementById('credits-amount');
-        
         console.log('Admin Panel - Dropdown elements found:', {
             dropdownToggle: !!dropdownToggle,
-            balanceElement: !!balanceElement,
-            creditsElement: !!creditsElement
+            balanceElement: !!balanceElement
         });
-        
-        if (dropdownToggle && balanceElement && creditsElement) {
+
+        if (dropdownToggle && balanceElement) {
             dropdownToggle.addEventListener('show.bs.dropdown', function() {
                 console.log('Admin Panel - Dropdown opened!');
                 console.log('Admin Panel - Balance element text:', balanceElement.textContent);
-                console.log('Admin Panel - Credits element text:', creditsElement.textContent);
-                
+
                 // Always load data for debugging
                 console.log('Admin Panel - Loading user data...');
                 loadUserData();
@@ -429,11 +371,10 @@
         } else {
             console.error('Admin Panel - Missing elements:', {
                 dropdownToggle: !!dropdownToggle,
-                balanceElement: !!balanceElement,
-                creditsElement: !!creditsElement
+                balanceElement: !!balanceElement
             });
         }
-        
+
         function showLoadingDots(element) {
             let dots = 0;
             const interval = setInterval(() => {
@@ -442,16 +383,15 @@
             }, 500);
             return interval;
         }
-        
+
         function loadUserData() {
             // Show animated loading dots
             const balanceInterval = showLoadingDots(balanceElement);
-            const creditsInterval = showLoadingDots(creditsElement);
-            
-            console.log('Loading user credits from:', '{{ url("api/user/credits") }}');
-            
-            // Get user credits from Laravel (not SevenLabs API)
-            fetch('{{ url("api/user/credits") }}', {
+
+            console.log('Loading user balance from:', '{{ url("api/user/balance") }}');
+
+            // Get user balance from Laravel
+            fetch('{{ url("api/user/balance") }}', {
                 method: 'GET',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -464,34 +404,26 @@
             })
             .then(data => {
                 console.log('API Response data:', data);
-                
+
                 // Clear loading intervals
                 clearInterval(balanceInterval);
-                clearInterval(creditsInterval);
-                
+
                 if (data.success) {
                     // Update balance (show user's own balance)
                     balanceElement.textContent = data.user_balance || 0;
-                    
-                    // Update credits (show user's own credits)
-                    creditsElement.textContent = data.user_credits || 0;
-                    
+
                     console.log('Updated balance:', data.user_balance);
-                    console.log('Updated credits:', data.user_credits);
                 } else {
                     // Show error state
                     balanceElement.textContent = 'Error';
-                    creditsElement.textContent = 'Error';
                 }
             })
             .catch(error => {
                 // Clear loading intervals
                 clearInterval(balanceInterval);
-                clearInterval(creditsInterval);
-                
+
                 console.error('Error loading user data:', error);
                 balanceElement.textContent = 'Error';
-                creditsElement.textContent = 'Error';
             });
         }
     });

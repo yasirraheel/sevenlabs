@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'GEO ENTERPRISES - Prize Bond Booking System'),
 
     /*
     |--------------------------------------------------------------------------
@@ -240,7 +240,6 @@ return [
         'PaymentGateways' => App\Models\PaymentGateways::class,
         'CommentsLikes' => App\Models\CommentsLikes::class,
         'UsersReported' => App\Models\UsersReported::class,
-        'Withdrawals' => App\Models\Withdrawals::class,
         'RolesAndPermissions' => App\Models\RolesAndPermissions::class,
         'Plans' => App\Models\Plans::class,
         'Addons' => App\Models\Addons::class,

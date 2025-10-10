@@ -63,8 +63,8 @@
 
                   <div class="col-md-6">
                    <div class="form-floating mb-3">
-                    <input type="text" required class="form-control" id="inputname" value="{{ old('username') }}" name="username" placeholder="{{ trans('auth.username') }}" autocomplete="off">
-                    <label for="inputname">{{ trans('auth.username') }}</label>
+                    <input type="text" required class="form-control" id="inputfullname" value="{{ old('full_name') }}" name="full_name" placeholder="{{ trans('auth.full_name') }}" autocomplete="off">
+                    <label for="inputfullname">{{ trans('auth.full_name') }}</label>
                   </div>
                   </div>
 
@@ -72,6 +72,24 @@
                     <div class="form-floating mb-3">
                      <input type="email" required class="form-control" id="inputemail" value="{{old('email')}}" name="email" placeholder="{{ trans('auth.email') }}" autocomplete="off">
                      <label for="inputemail">{{ trans('auth.email') }}</label>
+                   </div>
+                  </div>
+
+               </div><!-- row -->
+
+               <div class="row">
+
+                  <div class="col-md-6">
+                   <div class="form-floating mb-3">
+                    <input type="tel" required class="form-control" id="inputphone" value="{{ old('phone') }}" name="phone" placeholder="03001234567" autocomplete="off" maxlength="13">
+                    <label for="inputphone">{{ trans('auth.phone') }} (+92)</label>
+                  </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-floating mb-3">
+                     <input type="text" required class="form-control" id="inputcity" value="{{old('city')}}" name="city" placeholder="{{ trans('auth.city') }}" autocomplete="off">
+                     <label for="inputcity">{{ trans('auth.city') }}</label>
                    </div>
                   </div>
 
@@ -103,10 +121,10 @@
 
               @if ($settings->captcha == 'on')
                 {!! NoCaptcha::displaySubmit('signup_form', __('auth.sign_up'), [
-                  'data-size' => 'invisible', 
+                  'data-size' => 'invisible',
                   'class' => 'btn w-100 btn-lg btn-custom'
                   ]) !!}
-      
+
                 {!! NoCaptcha::renderJs() !!}
               @else
 
@@ -121,6 +139,33 @@
               @endif
 
               </form>
+
+              <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                const phoneInput = document.getElementById('inputphone');
+
+                // Simple input formatting - only format on blur
+                phoneInput.addEventListener('blur', function(e) {
+                  let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+
+                  // If it's a valid Pakistan number, format it
+                  if (value.length === 11 && value.startsWith('03')) {
+                    e.target.value = '+92' + value;
+                  } else if (value.length === 13 && value.startsWith('92')) {
+                    e.target.value = '+' + value;
+                  }
+                });
+
+                // Show clean number when focusing for editing
+                phoneInput.addEventListener('focus', function(e) {
+                  let value = e.target.value.replace(/\+/g, '');
+                  if (value.startsWith('92')) {
+                    value = value.substring(2); // Remove 92 prefix
+                  }
+                  e.target.value = value;
+                });
+              });
+              </script>
 
               @if ($settings->registration_active == 1)
               <p class="login-wrapper-footer-text mt-3">

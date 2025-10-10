@@ -25,6 +25,8 @@ return [
 	'username_or_email'		  =>	  'Username or Email',
 	'username'		          =>	  'Username',
 	'full_name'		          =>	  'Full name',
+	'phone'		              =>	  'Phone number',
+	'city'		              =>	  'City',
 	'team_name'		          =>	  'Team name',
 	'status'		          =>	  'Status',
 	'login'				      =>	  'Login',
@@ -58,5 +60,6 @@ return [
 	'error_desc'              =>      'Whoops! There were some problems with your input.',
 	'error_logging'           =>      'These credentials do not match our records.',
 	'login_download'          =>      'Please log-in for download',
+	'phone_pakistan'          =>      'Please enter a valid Pakistan phone number (e.g., +923001234567)',
 
 ];

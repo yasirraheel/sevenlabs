@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('user_credits', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedInteger('user_id');
             $table->integer('credits')->default(0);
             $table->integer('used_credits')->default(0);
             $table->timestamps();

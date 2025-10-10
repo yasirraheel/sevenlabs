@@ -37,8 +37,11 @@
                   <tr>
                      <th class="active">ID</th>
                      <th class="active">{{ __('admin.name') }}</th>
-										 <th class="active">{{ __('admin.slug') }}</th>
                      <th class="active">{{ __('misc.category') }}</th>
+                     <th class="active">{{ __('admin.start_date') }}</th>
+                     <th class="active">{{ __('admin.start_time') }}</th>
+                     <th class="active">{{ __('admin.close_date') }}</th>
+                     <th class="active">{{ __('admin.close_time') }}</th>
                      <th class="active">{{ __('admin.status') }}</th>
                      <th class="active">{{ __('admin.actions') }}</th>
                    </tr>
@@ -46,9 +49,12 @@
                  @foreach ($subcategories as $subcategory)
                    <tr>
                      <td>{{ $subcategory->id }}</td>
-                     <td>{{ $subcategory->name }}</td>
-										 <td>{{ $subcategory->slug }}</td>
+                     <td>{{ $subcategory->name ?? '-' }}</td>
                      <td>{{ $subcategory->category->name ?? '-' }}</td>
+                     <td>{{ $subcategory->start_date ? \Carbon\Carbon::parse($subcategory->start_date)->format('M d, Y') : '-' }}</td>
+                     <td>{{ $subcategory->start_time ? \Carbon\Carbon::parse($subcategory->start_time)->format('H:i') : '-' }}</td>
+                     <td>{{ $subcategory->close_date ? \Carbon\Carbon::parse($subcategory->close_date)->format('M d, Y') : '-' }}</td>
+                     <td>{{ $subcategory->close_time ? \Carbon\Carbon::parse($subcategory->close_time)->format('H:i') : '-' }}</td>
                      <td><span class="badge bg-{{ $subcategory->mode == 'on' ? 'success' : 'danger' }}">{{ ucfirst($subcategory->mode) }}</span></td>
                      <td>
                        <a href="{{ url('panel/admin/subcategories/edit/').'/'.$subcategory->id }}" class="btn btn-success rounded-pill btn-sm me-2">

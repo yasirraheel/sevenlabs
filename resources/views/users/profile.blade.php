@@ -47,9 +47,9 @@
                                     </form><!-- *********** AVATAR ************* -->
                                 @endif
 
-                                <img class="mb-3 shadow rounded-circle avatar-profile avatarUser profile-user-over"
-                                    src="{{ Storage::url(config('path.avatar') . $user->avatar) }}" width="150"
-                                    height="150" />
+                                <div class="mb-3 shadow rounded-circle avatar-profile avatarUser profile-user-over bg-light d-flex align-items-center justify-content-center" style="width: 150px; height: 150px;">
+                                    <i class="bi bi-person text-muted" style="font-size: 3rem;"></i>
+                                </div>
                             </div>
 
                         </div>
@@ -115,45 +115,7 @@
                                 </div>
                             @endif
 
-                            @if ($user->bio != '')
-                                <div class="d-block w-100 mb-2">
-                                    <p class="text-break m-0">{{ e($user->bio) }}</p>
-                                </div>
-                            @endif
 
-                            @if ($user->website != '' || $user->twitter != '' || $user->facebook != '')
-                                <div class="d-block w-100 mb-2">
-
-                                    @if ($user->website != '')
-                                        <a target="_blank" href="{{ $user->website }}"
-                                            title="{{ trans('misc.website_misc') }}" class="text-muted fs-5 showTooltip">
-                                            <i class="fa fa-link me-2"></i>
-                                        </a>
-                                    @endif
-
-                                    @if ($user->twitter != '')
-                                        <a target="_blank" href="{{ $user->twitter }}" title="Twitter"
-                                            class="text-muted fs-5 showTooltip">
-                                            <i class="bi-twitter-x me-2"></i>
-                                        </a>
-                                    @endif
-
-                                    @if ($user->facebook != '')
-                                        <a target="_blank" href="{{ $user->facebook }}" title="Facebook"
-                                            class="text-muted fs-5 showTooltip">
-                                            <i class="fab fa-facebook me-2"></i>
-                                        </a>
-                                    @endif
-
-                                    @if ($user->instagram != '')
-                                        <a target="_blank" href="{{ $user->instagram }}" title="Instagram"
-                                            class="text-muted fs-5 showTooltip">
-                                            <i class="fab fa-instagram"></i>
-                                        </a>
-                                    @endif
-
-                                </div>
-                            @endif
 
                         </div><!-- col-6 -->
 
@@ -312,7 +274,7 @@
                         url: "{{ url($user->username) }}"
                     })
                 } else {
-                    // Alerts user if API not available 
+                    // Alerts user if API not available
                     alert("Browser doesn't support this API !");
                 }
             });

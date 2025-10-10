@@ -23,17 +23,15 @@ class User extends Authenticatable
   protected $fillable = [
     'username',
     'name',
-    'bio',
+    'full_name',
+    'phone',
+    'city',
     'countries_id',
     'email',
     'password',
-    'avatar',
-    'cover',
     'status',
     'type_account',
-    'website',
-    'twitter',
-    'paypal_account',
+    'account_no',
     'activation_code',
     'oauth_uid',
     'oauth_provider',
@@ -42,8 +40,7 @@ class User extends Authenticatable
     'ip',
     'stripe_connect_id',
     'completed_stripe_onboarding',
-    'balance',
-    'credits'
+    'balance'
   ];
 
   /**
@@ -276,14 +273,10 @@ class User extends Authenticatable
     return $this->hasMany(UserDevices::class);
   }
 
-  public function userCredits()
-  {
-    return $this->hasOne(UserCredits::class);
-  }
+  // UserCredits relationship removed - using balance column instead
 
-  public function getAvailableCreditsAttribute()
+  public function deposits()
   {
-    $credits = $this->userCredits;
-    return $credits ? $credits->available_credits : 0;
+    return $this->hasMany(Deposits::class);
   }
 }

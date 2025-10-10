@@ -12,9 +12,9 @@ return [
     | you want to customize your views to better match your application.
     |
     */
-    "welcome_text" => "SevenLabs TTS",
-    "welcome_subtitle" => "AI-Powered Text to Speech Generation",
-    "description" => "Convert text to natural-sounding speech with advanced AI technology. Generate high-quality voice synthesis for content creators, developers, and businesses.",
-  	"keywords" => "text to speech,tts,ai voice,voice synthesis,speech generation,voice cloning,ai audio,voice technology",
+    "welcome_text" => "GEO ENTERPRISES",
+    "welcome_subtitle" => "Prize Bond Booking System",
+    "description" => "Professional prize bond booking and management system. Secure, reliable, and efficient platform for prize bond transactions and customer management.",
+  	"keywords" => "prize bond,booking system,lottery,bond management,prize bond booking,lottery system,prize bond platform",
 
 ];

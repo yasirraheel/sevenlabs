@@ -16,7 +16,6 @@
 			</div>
 		</a><!-- end link -->
 
-    @if ($settings->sell_option == 'on')
     <a class="list-group-item list-group-item-action d-flex justify-content-between @if (request()->is('user/dashboard'))active @endif" href="{{ url('user/dashboard') }}">
 			<div>
 				<i class="bi bi-speedometer2 me-2"></i>
@@ -27,7 +26,6 @@
 				<i class="bi bi-chevron-right"></i>
 			</div>
 		</a><!-- end link -->
-  @endif
 
     {{-- Images menu removed - not applicable for TTS application --}}
 
@@ -37,7 +35,6 @@
 
     {{-- Downloads menu removed - not applicable for TTS application --}}
 
-    @if ($settings->sell_option == 'on')
     <a class="list-group-item list-group-item-action d-flex justify-content-between @if (request()->is('account/subscription'))active @endif" href="{{ url('account/subscription') }}">
 			<div>
 				<i class="bi-arrow-repeat me-2"></i>
@@ -48,7 +45,17 @@
 				<i class="bi bi-chevron-right"></i>
 			</div>
 		</a><!-- end link -->
-  @endif
+
+    <a class="list-group-item list-group-item-action d-flex justify-content-between @if (request()->is('account/recharge'))active @endif" href="{{ url('account/recharge') }}">
+			<div>
+				<i class="bi bi-credit-card me-2"></i>
+				<span>{{ __('misc.recharge_deposit') }}</span>
+			</div>
+
+			<div>
+				<i class="bi bi-chevron-right"></i>
+			</div>
+		</a><!-- end link -->
 
     <a class="list-group-item list-group-item-action d-flex justify-content-between @if (request()->is('account'))active @endif" href="{{ url('account') }}">
 			<div>
@@ -61,54 +68,7 @@
 			</div>
 		</a><!-- end link -->
 
-    <a class="list-group-item list-group-item-action d-flex justify-content-between @if (request()->is('account/password'))active @endif" href="{{ url('account/password') }}">
-			<div>
-				<i class="bi bi-key me-2"></i>
-				<span>{{ __('auth.password') }}</span>
-			</div>
 
-			<div>
-				<i class="bi bi-chevron-right"></i>
-			</div>
-		</a><!-- end link -->
 
-    @if ($settings->referral_system == 'on')
-      <a class="list-group-item list-group-item-action d-flex justify-content-between @if (request()->is('my/referrals'))active @endif" href="{{ url('my/referrals') }}">
-  			<div>
-  				<i class="bi bi-person-plus me-2"></i>
-  				<span>{{ __('misc.referrals') }}</span>
-  			</div>
-
-  			<div>
-  				<i class="bi bi-chevron-right"></i>
-  			</div>
-  		</a><!-- end link -->
-    @endif
-
-    @if ($settings->sell_option == 'on')
-    <a class="list-group-item list-group-item-action d-flex justify-content-between @if (request()->is('user/dashboard/withdrawals/configure'))active @endif" href="{{ url('user/dashboard/withdrawals/configure') }}">
-			<div>
-				<i class="bi bi-credit-card me-2"></i>
-				<span>{{ __('misc.payout_method') }}</span>
-			</div>
-
-			<div>
-				<i class="bi bi-chevron-right"></i>
-			</div>
-		</a><!-- end link -->
-  @endif
-
-  @if ($settings->sell_option == 'on')
-    <a class="list-group-item list-group-item-action d-flex justify-content-between @if (request()->is('user/dashboard/withdrawals'))active @endif" href="{{ url('user/dashboard/withdrawals') }}">
-			<div>
-				<i class="bi bi-arrow-left-right me-2"></i>
-				<span>{{ __('misc.withdrawals') }}</span>
-			</div>
-
-			<div>
-				<i class="bi bi-chevron-right"></i>
-			</div>
-		</a><!-- end link -->
-  @endif
   </div>
 </div>

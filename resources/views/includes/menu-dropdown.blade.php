@@ -9,12 +9,6 @@
     <i class="bi bi-cash-stack me-2"></i> {{ __('misc.balance') }}: <span id="balance-amount">...</span>
   </span>
 </li>
-
-<li>
-  <span class="dropdown-item disable-item" id="sevenlabs-credits">
-    <i class="bi bi-credit-card me-2"></i> {{ __('misc.credits') }}: <span id="credits-amount">...</span>
-  </span>
-</li>
 @endif
 
 @if ($settings->daily_limit_downloads != 0 && auth()->user()->role != 'admin')
@@ -39,8 +33,6 @@
     </a>
 </li>
 
-<li><hr class="dropdown-divider"></li>
-
 @if ($settings->sell_option == 'on')
 <li>
 <a class="dropdown-item" href="{{ url('account/subscription') }}">
@@ -60,8 +52,8 @@
   <a class="dropdown-item" href="javascript:void(0);" id="switchTheme">
     @if (is_null(request()->cookie('theme')))
 
-        <i class="bi-{{ $settings->theme == 'light' ? 'moon-stars' : 'sun' }} me-2"></i> 
-          {{ $settings->theme == 'light' ? __('misc.dark_mode') : __('misc.light_mode') }} 
+        <i class="bi-{{ $settings->theme == 'light' ? 'moon-stars' : 'sun' }} me-2"></i>
+          {{ $settings->theme == 'light' ? __('misc.dark_mode') : __('misc.light_mode') }}
 
       @elseif (request()->cookie('theme') == 'light')
       <i class="bi-moon-stars me-2"></i> {{ __('misc.dark_mode') }}

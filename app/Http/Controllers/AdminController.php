@@ -8,7 +8,6 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Deposits;
 use App\Models\Categories;
-use App\Models\Withdrawals;
 use Illuminate\Http\Request;
 use App\Models\AdminSettings;
 use App\Models\Notifications;
@@ -16,6 +15,7 @@ use App\Models\Subcategories;
 use App\Models\Subscriptions;
 use App\Models\UsersReported;
 use App\Models\PaymentGateways;
+use App\Models\PaymentMethod;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
@@ -107,38 +107,6 @@ class AdminController extends Controller
 		$totalUsers  = User::count();
 		$totalTransactions = Deposits::whereStatus('approved')->count();
 
-		// Fetch GenAI Pro API system balance and credits
-		$systemBalance = 0;
-		$systemCredits = 0;
-		$apiStatus = 'error';
-		
-		try {
-			$apiKey = Helper::getSevenLabsApiKey();
-			if ($apiKey) {
-				$response = \Illuminate\Support\Facades\Http::withHeaders([
-					'Authorization' => 'Bearer ' . $apiKey,
-					'Content-Type' => 'application/json'
-				])->get('https://genaipro.vn/api/v1/me');
-
-				if ($response->successful()) {
-					$userData = $response->json();
-					$systemBalance = $userData['balance'] ?? 0;
-					
-					// Calculate total credits from all credit entries
-					$systemCredits = 0;
-					if (isset($userData['credits']) && is_array($userData['credits'])) {
-						foreach ($userData['credits'] as $credit) {
-							if (isset($credit['amount'])) {
-								$systemCredits += $credit['amount'];
-							}
-						}
-					}
-					$apiStatus = 'success';
-				}
-			}
-		} catch (\Exception $e) {
-			\Log::error('Admin Dashboard - GenAI Pro API Error: ' . $e->getMessage());
-		}
 
 		return view('admin.dashboard', [
 			'earningNetAdmin' => $totalRevenue,
@@ -152,10 +120,7 @@ class AdminController extends Controller
 			'stat_revenue_week' => $stat_revenue_week,
 			'stat_revenue_last_week' => $stat_revenue_last_week,
 			'stat_revenue_month' => $stat_revenue_month,
-			'stat_revenue_last_month' => $stat_revenue_last_month,
-			'systemBalance' => $systemBalance,
-			'systemCredits' => $systemCredits,
-			'apiStatus' => $apiStatus
+			'stat_revenue_last_month' => $stat_revenue_last_month
 		]);
 	}
 
@@ -183,8 +148,9 @@ class AdminController extends Controller
 
 		$rules = [
 			'name'        => 'required',
-			'slug'        => 'required|ascii_only|unique:categories',
 			'thumbnail'   => 'image|dimensions:min_width=457,min_height=359',
+			'date'        => 'nullable|date',
+			'time'        => 'nullable|date_format:H:i',
 		];
 
 		$this->validate($request, $rules);
@@ -192,7 +158,7 @@ class AdminController extends Controller
 		if ($request->hasFile('thumbnail')) {
 
 			$extension        = $request->file('thumbnail')->extension();
-			$thumbnail        = $request->slug . '-' . str_random(32) . '.' . $extension;
+			$thumbnail        = str_slug($request->name) . '-' . str_random(32) . '.' . $extension;
 
 			if ($request->file('thumbnail')->move($temp, $thumbnail)) {
 
@@ -216,11 +182,10 @@ class AdminController extends Controller
 
 		$sql              = new Categories();
 		$sql->name        = trim($request->name);
-		$sql->slug        = strtolower($request->slug);
-		$sql->keywords    = $request->keywords;
-		$sql->description = $request->description;
 		$sql->thumbnail   = $thumbnail;
 		$sql->mode        = $request->mode ?? 'off';
+		$sql->date        = $request->date;
+		$sql->time        = $request->time;
 		$sql->save();
 
 		return redirect('panel/admin/categories')->withSuccessMessage(__('admin.success_add_category'));
@@ -248,8 +213,9 @@ class AdminController extends Controller
 
 		$rules = [
 			'name'      => 'required',
-			'slug'      => 'required|ascii_only|unique:categories,slug,' . $request->id,
 			'thumbnail' => 'image|dimensions:min_width=457,min_height=359',
+			'date'      => 'nullable|date',
+			'time'      => 'nullable|date_format:H:i',
 		];
 
 		$this->validate($request, $rules);
@@ -259,7 +225,7 @@ class AdminController extends Controller
 			$extension        = $request->file('thumbnail')->getClientOriginalExtension();
 			$type_mime_shot   = $request->file('thumbnail')->getMimeType();
 			$sizeFile         = $request->file('thumbnail')->getSize();
-			$thumbnail        = $request->slug . '-' . str_random(32) . '.' . $extension;
+			$thumbnail        = str_slug($request->name) . '-' . str_random(32) . '.' . $extension;
 
 			if ($request->file('thumbnail')->move($temp, $thumbnail)) {
 
@@ -286,11 +252,10 @@ class AdminController extends Controller
 
 		// UPDATE CATEGORY
 		$categories->name       = $request->name;
-		$categories->slug       = strtolower($request->slug);
-		$categories->keywords   = $request->keywords;
-		$categories->description = $request->description;
 		$categories->thumbnail  = $thumbnail;
 		$categories->mode       = $request->mode ?? 'off';
+		$categories->date       = $request->date;
+		$categories->time       = $request->time;
 		$categories->save();
 
 		return redirect('panel/admin/categories')->withSuccessMessage(__('misc.success_update'));
@@ -315,7 +280,7 @@ class AdminController extends Controller
 			// Delete Category
 			$categories->delete();
 
-			return redirect('panel/admin/categories');
+			return redirect('panel/admin/categories')->withSuccessMessage(__('admin.success_delete_category'));
 		}
 	}
 
@@ -327,29 +292,21 @@ class AdminController extends Controller
 
 	public function saveSettings(Request $request)
 	{
-		Validator::extend('sell_option_validate', function ($attribute, $value, $parameters) {
-			// Images functionality removed - always return true
-			return true;
-		});
 
 		if ($request->captcha && !config('captcha.sitekey') && !config('captcha.secret')) {
 			return back()->withErrors(['error' => __('misc.error_active_captcha')]);
 		}
 
-		$messages = [
-			'sell_option.sell_option_validate' => trans('misc.sell_option_validate')
-		];
 
 		$rules = array(
 			'title'        => 'required',
 			'link_terms'   => 'required|url',
 			'link_privacy' => 'required|url',
 			'link_license' => 'url',
-			'link_blog'    => 'url',
-			'sell_option'  => 'sell_option_validate'
+			'link_blog'    => 'url'
 		);
 
-		$this->validate($request, $rules, $messages);
+		$this->validate($request, $rules);
 
 		$sql                      = AdminSettings::first();
 		$sql->title               = $request->title;
@@ -357,55 +314,42 @@ class AdminController extends Controller
 		$sql->link_privacy        = $request->link_privacy;
 		$sql->link_license        = $request->link_license;
 		$sql->link_blog           = $request->link_blog;
-		$sql->sevenlabs_api_key   = $request->sevenlabs_api_key;
 		$sql->signup_bonus_credits = $request->signup_bonus_credits;
 		$sql->captcha             = $request->captcha ?? 'off';
 		$sql->registration_active = $request->registration_active ?? '0';
 		$sql->email_verification  = $request->email_verification ?? '0';
-		$sql->google_ads_index    = $request->google_ads_index ?? 'off';
-		$sql->referral_system    = $request->referral_system ?? 'off';
-		$sql->comments            = $request->comments ?? 'off';
-		$sql->sell_option         = $request->sell_option;
-		$sql->who_can_sell        = $request->who_can_sell;
-		$sql->who_can_upload      = $request->who_can_upload;
-		$sql->free_photo_upload   = $request->free_photo_upload ?? 'off';
-		$sql->show_counter        = $request->show_counter ?? 'off';
-		$sql->show_categories_index = $request->show_categories_index ?? 'off';
-		$sql->show_images_index    = $request->show_images_index;
 		$sql->theme                = $request->theme;
-		$sql->show_watermark       = $request->show_watermark ?? '0';
-		$sql->lightbox             = $request->lightbox ?? 'off';
 		$sql->banner_cookies       = $request->banner_cookies ?? false;
-		
-		// SEO Settings
-		$sql->seo_title            = $request->seo_title;
-		$sql->seo_description      = $request->seo_description;
-		$sql->seo_keywords         = $request->seo_keywords;
-		$sql->og_title             = $request->og_title;
-		$sql->og_description       = $request->og_description;
-		$sql->canonical_url        = $request->canonical_url;
-		
-		// Handle OG Image upload
-		if ($request->hasFile('og_image')) {
-			$temp = 'public/temp/';
-			$path = 'public/img/';
-			
-			$extension = $request->file('og_image')->getClientOriginalExtension();
-			$file = 'og-image-' . time() . '.' . $extension;
-			
-			if ($request->file('og_image')->move($temp, $file)) {
-				\File::copy($temp . $file, $path . $file);
-				\File::delete($temp . $file);
-				
-				// Delete old OG image if exists
-				if ($sql->og_image && \File::exists($path . $sql->og_image)) {
-					\File::delete($path . $sql->og_image);
-				}
-				
-				$sql->og_image = $file;
-			}
-		}
-		
+
+		// SEO Settings - Commented out
+		// $sql->seo_title            = $request->seo_title;
+		// $sql->seo_description      = $request->seo_description;
+		// $sql->seo_keywords         = $request->seo_keywords;
+		// $sql->og_title             = $request->og_title;
+		// $sql->og_description       = $request->og_description;
+		// $sql->canonical_url        = $request->canonical_url;
+
+		// Handle OG Image upload - Commented out (SEO section)
+		// if ($request->hasFile('og_image')) {
+		// 	$temp = 'public/temp/';
+		// 	$path = 'public/img/';
+
+		// 	$extension = $request->file('og_image')->getClientOriginalExtension();
+		// 	$file = 'og-image-' . time() . '.' . $extension;
+
+		// 	if ($request->file('og_image')->move($temp, $file)) {
+		// 		\File::copy($temp . $file, $path . $file);
+		// 		\File::delete($temp . $file);
+
+		// 		// Delete old OG image if exists
+		// 		if ($sql->og_image && \File::exists($path . $sql->og_image)) {
+		// 			\File::delete($path . $sql->og_image);
+		// 		}
+
+		// 		$sql->og_image = $file;
+		// 	}
+		// }
+
 		$sql->save();
 
 		// Default locale
@@ -710,86 +654,7 @@ class AdminController extends Controller
 		} // HasFile
 
 		//======== Watermark
-		if ($request->hasFile('watermark')) {
 
-			$extension  = $request->file('watermark')->getClientOriginalExtension();
-			$file       = 'watermark-' . time() . '.' . $extension;
-
-			if ($request->file('watermark')->move($temp, $file)) {
-				\File::copy($temp . $file, $path . $file);
-				\File::delete($temp . $file);
-				\File::delete($path . $this->settings->watermark);
-			} // End File
-
-			$this->settings->watermark = $file;
-			$this->settings->save();
-		} // HasFile
-
-		//======== avatar
-		if ($request->hasFile('avatar')) {
-
-			$extension  = $request->file('avatar')->getClientOriginalExtension();
-			$file       = 'default-' . time() . '.' . $extension;
-
-			$manager = Image::read($request->file('avatar'));
-
-			// Process the image
-			$imgAvatar = $manager->cover(180, 180)->encodeByExtension($extension);
-
-			// Copy folder
-			Storage::put($pathAvatar . $file, $imgAvatar, 'public');
-
-			// Update Avatar all users
-			User::where('avatar', $this->settings->avatar)->update([
-				'avatar' => $file
-			]);
-
-			// Delete old Avatar
-			Storage::delete(config('path.avatar') . $this->settings->avatar);
-
-			$this->settings->avatar = $file;
-			$this->settings->save();
-		} // HasFile
-
-		//======== cover
-		if ($request->hasFile('cover')) {
-
-			$extension  = $request->file('cover')->getClientOriginalExtension();
-			$file       = 'cover-' . time() . '.' . $extension;
-
-			// Copy folder
-			$request->file('cover')->storePubliclyAs($pathCover, $file);
-
-			// Update Avatar all users
-			User::where('cover', $this->settings->cover)->update([
-				'cover' => $file
-			]);
-
-			// Delete old Avatar
-			Storage::delete(config('path.cover') . $this->settings->cover);
-
-			$this->settings->cover = $file;
-			$this->settings->save();
-		} // HasFile
-
-		//======== img_category
-		if ($request->hasFile('img_category')) {
-
-			$extension  = $request->file('img_category')->getClientOriginalExtension();
-			$file       = 'default-' . time() . '.' . $extension;
-
-			if ($request->file('img_category')->move($temp, $file)) {
-
-				Image::read($temp . $file)->cover(width: 457, height: 359)
-						->encodeByExtension($extension)
-						->save($pathCategory . $file);
-
-				\File::delete($pathCategory . $this->settings->img_category);
-			} // End File
-
-			$this->settings->img_category = $file;
-			$this->settings->save();
-		} // HasFile
 
 		// Update Color Default, and Button style
 		$this->settings->whereId(1)
@@ -865,11 +730,7 @@ class AdminController extends Controller
 		$data = Purchases::with(['images', 'invoice'])->whereApproved('1')->orderBy('id', 'desc')->paginate(30);
 		return view('admin.purchases', compact('data'));
 	}
-	END COMMENTED OUT */	public function deposits()
-	{
-		$data = Deposits::orderBy('id', 'desc')->paginate(30);
-		return view('admin.deposits', compact('data'));
-	}
+	END COMMENTED OUT */
 
 	public function depositsView($id)
 	{
@@ -943,56 +804,6 @@ class AdminController extends Controller
 		return redirect('panel/admin/deposits');
 	}
 
-	public function withdrawals()
-	{
-		$data = Withdrawals::orderBy('id', 'DESC')->paginate(50);
-		return view('admin.withdrawals', ['data' => $data, 'settings' => $this->settings]);
-	}
-
-	public function withdrawalsView($id)
-	{
-		$data = Withdrawals::findOrFail($id);
-		return view('admin.withdrawal-view', ['data' => $data, 'settings' => $this->settings]);
-	}
-
-	public function withdrawalsPaid(Request $request)
-	{
-		$data = Withdrawals::findOrFail($request->id);
-
-		// Set Withdrawal as Paid
-		$data->status    = 'paid';
-		$data->date_paid = \Carbon\Carbon::now();
-		$data->save();
-
-		$user = $data->user();
-
-		// Set Balance a zero
-		$user->balance = 0;
-		$user->save();
-
-		//<------ Send Email to User ---------->>>
-		$amount       = Helper::amountFormatDecimal($data->amount) . ' ' . $this->settings->currency_code;
-		$sender       = $this->settings->email_no_reply;
-		$titleSite    = $this->settings->title;
-		$fullNameUser = $user->name ? $user->name : $user->username;
-		$_emailUser   = $user->email;
-
-		Mail::send(
-			'emails.withdrawal-processed',
-			[
-				'amount'     => $amount,
-				'fullname'   => $fullNameUser
-			],
-			function ($message) use ($sender, $fullNameUser, $titleSite, $_emailUser) {
-				$message->from($sender, $titleSite)
-					->to($_emailUser, $fullNameUser)
-					->subject(trans('misc.withdrawal_processed') . ' - ' . $titleSite);
-			}
-		);
-		//<------ Send Email to User ---------->>>
-
-		return redirect('panel/admin/withdrawals');
-	}
 
 	public function paymentsGateways($id)
 	{
@@ -1087,17 +898,157 @@ class AdminController extends Controller
 		}
 	}
 
-	public function billingStore(Request $request)
+	// Show billing page with payment methods
+	public function billing()
 	{
-		$this->settings->company = $request->company;
-		$this->settings->country = $request->country;
-		$this->settings->address = $request->address;
-		$this->settings->city = $request->city;
-		$this->settings->zip = $request->zip;
-		$this->settings->vat = $request->vat;
-		$this->settings->save();
+		$paymentMethods = PaymentMethod::ordered()->get();
+		return view('admin.billing', compact('paymentMethods'));
+	}
 
-		return back()->withSuccessMessage(trans('admin.success_update'));
+	// Store new payment method
+	public function storePaymentMethod(Request $request)
+	{
+		$request->validate([
+			'bank_or_account_name' => 'required|string|max:255',
+			'account_title' => 'required|string|max:255',
+			'account_no' => 'required|string|max:100',
+			'bank_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+			'is_active' => 'required|in:0,1',
+			'sort_order' => 'integer|min:0'
+		]);
+
+		$paymentMethod = new PaymentMethod();
+		$paymentMethod->bank_or_account_name = $request->bank_or_account_name;
+		$paymentMethod->account_title = $request->account_title;
+		$paymentMethod->account_no = $request->account_no;
+		$paymentMethod->is_active = (bool) $request->is_active;
+		$paymentMethod->sort_order = $request->sort_order ?? 0;
+
+		// Handle image upload
+		if ($request->hasFile('bank_image')) {
+			$paymentMethod->bank_image = $this->handleImageUpload($request->file('bank_image'));
+		}
+
+		$paymentMethod->save();
+
+		return back()->withSuccessMessage('Payment method added successfully.');
+	}
+
+	// Get payment method for editing
+	public function getPaymentMethod($id)
+	{
+		$paymentMethod = PaymentMethod::findOrFail($id);
+		return response()->json($paymentMethod);
+	}
+
+	// Update payment method
+	public function updatePaymentMethod(Request $request)
+	{
+		$request->validate([
+			'method_id' => 'required|exists:payment_methods,id',
+			'bank_or_account_name' => 'required|string|max:255',
+			'account_title' => 'required|string|max:255',
+			'account_no' => 'required|string|max:100',
+			'bank_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+			'is_active' => 'required|in:0,1',
+			'sort_order' => 'integer|min:0'
+		]);
+
+		$paymentMethod = PaymentMethod::findOrFail($request->method_id);
+		$paymentMethod->bank_or_account_name = $request->bank_or_account_name;
+		$paymentMethod->account_title = $request->account_title;
+		$paymentMethod->account_no = $request->account_no;
+		$paymentMethod->is_active = (bool) $request->is_active;
+		$paymentMethod->sort_order = $request->sort_order ?? 0;
+
+		// Handle image upload
+		if ($request->hasFile('bank_image')) {
+			// Delete old image if exists
+			if ($paymentMethod->bank_image && \File::exists('public/img/' . $paymentMethod->bank_image)) {
+				\File::delete('public/img/' . $paymentMethod->bank_image);
+			}
+			$paymentMethod->bank_image = $this->handleImageUpload($request->file('bank_image'));
+		}
+
+		$paymentMethod->save();
+
+		return back()->withSuccessMessage('Payment method updated successfully.');
+	}
+
+	// Delete payment method
+	public function deletePaymentMethod($id)
+	{
+		$paymentMethod = PaymentMethod::findOrFail($id);
+
+		// Delete associated image
+		if ($paymentMethod->bank_image && \File::exists('public/img/' . $paymentMethod->bank_image)) {
+			\File::delete('public/img/' . $paymentMethod->bank_image);
+		}
+
+		$paymentMethod->delete();
+
+		return back()->withSuccessMessage('Payment method deleted successfully.');
+	}
+
+	// Helper method for image upload
+	private function handleImageUpload($file)
+	{
+		try {
+			$temp = 'public/temp/';
+			$path = 'public/img/';
+
+			// Ensure directories exist
+			if (!\File::exists($temp)) {
+				\File::makeDirectory($temp, 0755, true);
+			}
+			if (!\File::exists($path)) {
+				\File::makeDirectory($path, 0755, true);
+			}
+
+			$extension = $file->getClientOriginalExtension();
+			$fileName = 'payment-method-' . time() . '-' . uniqid() . '.' . $extension;
+
+			// Move file to temp directory first
+			if ($file->move($temp, $fileName)) {
+				// Copy to final location
+				if (\File::copy($temp . $fileName, $path . $fileName)) {
+					// Delete temp file
+					\File::delete($temp . $fileName);
+					return $fileName;
+				} else {
+					// Clean up temp file if copy failed
+					\File::delete($temp . $fileName);
+					throw new \Exception('Failed to save image');
+				}
+			} else {
+				throw new \Exception('Failed to upload image');
+			}
+		} catch (\Exception $e) {
+			\Log::error('Payment method image upload error: ' . $e->getMessage());
+			throw $e;
+		}
+	}
+
+	// Method to delete bank image
+	public function deleteBankImage()
+	{
+		try {
+			$path = 'public/img/';
+
+			// Delete the image file if it exists
+			if ($this->settings->bank_image && \File::exists($path . $this->settings->bank_image)) {
+				\File::delete($path . $this->settings->bank_image);
+			}
+
+			// Remove from database
+			$this->settings->bank_image = null;
+			$this->settings->save();
+
+			return back()->withSuccessMessage('Bank image deleted successfully.');
+		} catch (\Exception $e) {
+			\Log::error('Bank image deletion error: ' . $e->getMessage());
+			return back()->withErrors(['error' => 'Failed to delete bank image. Please try again.']);
+		}
 	}
 
 	public function emailSettings(Request $request)
@@ -1308,20 +1259,24 @@ class AdminController extends Controller
 		});
 
 		$rules = [
-			'name' => 'required',
-			'slug' => 'required|ascii_only|unique:subcategories',
+			'name' => 'nullable',
 			'category' => 'required',
+			'start_date' => 'nullable|date',
+			'start_time' => 'nullable|date_format:H:i',
+			'close_date' => 'nullable|date',
+			'close_time' => 'nullable|date_format:H:i',
 		];
 
 		$this->validate($request, $rules);
 
 		$sql              = new Subcategories();
-		$sql->name        = trim($request->name);
-		$sql->slug        = strtolower($request->slug);
-		$sql->keywords    = $request->keywords;
-		$sql->description = $request->description;
+		$sql->name        = $request->name ? trim($request->name) : null;
 		$sql->category_id = $request->category;
 		$sql->mode        = $request->mode ?? 'off';
+		$sql->start_date  = $request->start_date;
+		$sql->start_time  = $request->start_time;
+		$sql->close_date  = $request->close_date;
+		$sql->close_time  = $request->close_time;
 		$sql->save();
 
 		return redirect('panel/admin/subcategories')
@@ -1344,20 +1299,24 @@ class AdminController extends Controller
 		});
 
 		$rules = [
-			'name'      => 'required',
-			'slug'      => 'required|ascii_only|unique:subcategories,slug,' . $request->id,
+			'name'      => 'nullable',
 			'category' => 'required',
+			'start_date' => 'nullable|date',
+			'start_time' => 'nullable|date_format:H:i',
+			'close_date' => 'nullable|date',
+			'close_time' => 'nullable|date_format:H:i',
 		];
 
 		$this->validate($request, $rules);
 
-		// UPDATE CATEGORY
-		$subcategory->name       = $request->name;
-		$subcategory->slug       = strtolower($request->slug);
-		$subcategory->keywords    = $request->keywords;
-		$subcategory->description = $request->description;
+		// UPDATE SUBCATEGORY
+		$subcategory->name       = $request->name ? trim($request->name) : null;
 		$subcategory->category_id  = $request->category;
 		$subcategory->mode       = $request->mode ?? 'off';
+		$subcategory->start_date = $request->start_date;
+		$subcategory->start_time = $request->start_time;
+		$subcategory->close_date = $request->close_date;
+		$subcategory->close_time = $request->close_time;
 		$subcategory->save();
 
 		return redirect('panel/admin/subcategories')
@@ -1380,5 +1339,67 @@ class AdminController extends Controller
 		$this->settings->save();
 
 		return back()->withSuccessMessage(__('admin.success_update'));
+	}
+
+	// Deposit Management
+	public function deposits()
+	{
+		$allDeposits = Deposits::with(['user', 'paymentMethod'])->latest()->paginate(20);
+		$pendingDeposits = Deposits::with(['user', 'paymentMethod'])->pending()->latest()->paginate(20);
+		$approvedDeposits = Deposits::with(['user', 'paymentMethod'])->approved()->latest()->paginate(20);
+		$rejectedDeposits = Deposits::with(['user', 'paymentMethod'])->rejected()->latest()->paginate(20);
+
+		return view('admin.deposits', compact('allDeposits', 'pendingDeposits', 'approvedDeposits', 'rejectedDeposits'));
+	}
+
+	public function approveDeposit(Request $request)
+	{
+		$request->validate([
+			'deposit_id' => 'required|exists:deposits,id',
+			'admin_notes' => 'nullable|string|max:1000'
+		]);
+
+		$deposit = Deposits::findOrFail($request->deposit_id);
+
+		if ($deposit->status !== 'pending') {
+			return back()->withErrorMessage('This deposit has already been processed.');
+		}
+
+		$deposit->status = 'approved';
+		$deposit->admin_notes = $request->admin_notes;
+		$deposit->save();
+
+		// Add amount to user's balance
+		$user = $deposit->user;
+		$user->balance += $deposit->amount;
+		$user->save();
+
+		// Send notification to user
+		$deposit->user->notify(new \App\Notifications\DepositVerification($deposit, 'approved'));
+
+		return back()->withSuccessMessage('Deposit approved successfully. Amount has been added to user balance.');
+	}
+
+	public function rejectDeposit(Request $request)
+	{
+		$request->validate([
+			'deposit_id' => 'required|exists:deposits,id',
+			'admin_notes' => 'required|string|max:1000'
+		]);
+
+		$deposit = Deposits::findOrFail($request->deposit_id);
+
+		if ($deposit->status !== 'pending') {
+			return back()->withErrorMessage('This deposit has already been processed.');
+		}
+
+		$deposit->status = 'rejected';
+		$deposit->admin_notes = $request->admin_notes;
+		$deposit->save();
+
+		// Send notification to user
+		$deposit->user->notify(new \App\Notifications\DepositVerification($deposit, 'rejected'));
+
+		return back()->withSuccessMessage('Deposit rejected successfully.');
 	}
 }

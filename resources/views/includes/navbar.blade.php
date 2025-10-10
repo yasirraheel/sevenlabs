@@ -113,7 +113,9 @@
             <div class="flex-shrink-0 dropdown">
 
               <a href="javascript:void(0);" class="d-block link-dark text-decoration-none" id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="{{ Storage::url(config('path.avatar').auth()->user()->avatar) }}" width="32" height="32" class="rounded-circle avatarUser">
+                <div class="bg-light d-flex align-items-center justify-content-center rounded-circle avatarUser" style="width: 32px; height: 32px;">
+                  <i class="bi bi-person text-muted"></i>
+                </div>
               </a>
               <ul class="dropdown-menu dropdown-menu-macos arrow-dm" aria-labelledby="dropdownUser2">
                 @include('includes.menu-dropdown')
@@ -137,24 +139,20 @@
 
             @auth
             <script>
-            // Load SevenLabs user data when dropdown is opened
+            // Load user data when dropdown is opened
             document.addEventListener('DOMContentLoaded', function() {
                 const dropdownToggle = document.getElementById('dropdownUser2');
                 const balanceElement = document.getElementById('balance-amount');
-                const creditsElement = document.getElementById('credits-amount');
-                
                 console.log('Dropdown elements found:', {
                     dropdownToggle: !!dropdownToggle,
-                    balanceElement: !!balanceElement,
-                    creditsElement: !!creditsElement
+                    balanceElement: !!balanceElement
                 });
-                
-                if (dropdownToggle && balanceElement && creditsElement) {
+
+                if (dropdownToggle && balanceElement) {
                     dropdownToggle.addEventListener('show.bs.dropdown', function() {
                         console.log('Dropdown opened!');
                         console.log('Balance element text:', balanceElement.textContent);
-                        console.log('Credits element text:', creditsElement.textContent);
-                        
+
                         // Always load data for debugging
                         console.log('Loading user data...');
                         loadUserData();
@@ -162,11 +160,10 @@
                 } else {
                     console.error('Missing elements:', {
                         dropdownToggle: !!dropdownToggle,
-                        balanceElement: !!balanceElement,
-                        creditsElement: !!creditsElement
+                        balanceElement: !!balanceElement
                     });
                 }
-                
+
                 function showLoadingDots(element) {
                     let dots = 0;
                     const interval = setInterval(() => {
@@ -175,16 +172,15 @@
                     }, 500);
                     return interval;
                 }
-                
+
                 function loadUserData() {
                     // Show animated loading dots
                     const balanceInterval = showLoadingDots(balanceElement);
-                    const creditsInterval = showLoadingDots(creditsElement);
-                    
-                    console.log('Loading user credits from:', '{{ url("api/user/credits") }}');
-                    
-                    // Get user credits from Laravel (not SevenLabs API)
-                    fetch('{{ url("api/user/credits") }}', {
+
+                    console.log('Loading user balance from:', '{{ url("api/user/balance") }}');
+
+                    // Get user balance from Laravel
+                    fetch('{{ url("api/user/balance") }}', {
                         method: 'GET',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -197,34 +193,27 @@
                     })
                     .then(data => {
                         console.log('API Response data:', data);
-                        
+
                         // Clear loading intervals
                         clearInterval(balanceInterval);
                         clearInterval(creditsInterval);
-                        
+
                         if (data.success) {
                             // Update balance (show user's own balance)
                             balanceElement.textContent = data.user_balance || 0;
-                            
-                            // Update credits (show user's own credits)
-                            creditsElement.textContent = data.user_credits || 0;
-                            
+
                             console.log('Updated balance:', data.user_balance);
-                            console.log('Updated credits:', data.user_credits);
                         } else {
                             // Show error state
                             balanceElement.textContent = 'Error';
-                            creditsElement.textContent = 'Error';
                         }
                     })
                     .catch(error => {
                         // Clear loading intervals
                         clearInterval(balanceInterval);
-                        clearInterval(creditsInterval);
-                        
+
                         console.error('Error loading user data:', error);
                         balanceElement.textContent = 'Error';
-                        creditsElement.textContent = 'Error';
                     });
                 }
             });

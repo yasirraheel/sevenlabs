@@ -12,7 +12,12 @@ class Deposits extends Model
 
 	public function user()
 	{
-		return $this->belongsTo(User::class)->first();
+		return $this->belongsTo(User::class);
+	}
+
+	public function paymentMethod()
+	{
+		return $this->belongsTo(PaymentMethod::class);
 	}
 
 	public function invoice()
@@ -23,5 +28,20 @@ class Deposits extends Model
 	public function invoicePending()
 	{
 		return $this->hasOne(Invoices::class)->whereStatus('pending');
+	}
+
+	public function scopePending($query)
+	{
+		return $query->where('status', 'pending');
+	}
+
+	public function scopeApproved($query)
+	{
+		return $query->where('status', 'approved');
+	}
+
+	public function scopeRejected($query)
+	{
+		return $query->where('status', 'rejected');
 	}
 }
