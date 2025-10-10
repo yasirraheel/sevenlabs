@@ -8,13 +8,13 @@
           @if ($settings->announcement != '' && $settings->announcement_show == 'all'
               || $settings->announcement != '' && $settings->announcement_show == 'users' && auth()->check())
             <div class="alert alert-{{$settings->type_announcement}} announcements display-none alert-dismissible fade show" role="alert">
-              
+
               <h4 class="alert-heading"><i class="bi-megaphone me-2"></i> {{ __('admin.announcements') }}</h4>
 
               <p class="update-text">
                 {!! $settings->announcement !!}
               </p>
-  
+
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" id="closeAnnouncements">
                   <i class="bi bi-x-lg"></i>
                 </button>
@@ -52,16 +52,53 @@
         </div>
 
         <div class="row">
-          @include('includes.categories-listing')
-
-          @if ($categoriesCount > 4)
-          <div class="w-100 d-block text-center mt-4">
-            <a href="{{ url('categories') }}" class="btn btn-lg btn-main rounded-pill btn-custom px-4 arrow px-5">
-              {{ __('misc.view_all') }}
-            </a>
-          </div>
-          @endif
+          @foreach($categories as $category)
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+              <div class="card shadow-custom border-0">
+                <div class="card-body text-center p-4">
+                  @if($category->thumbnail)
+                    <div class="mb-3">
+                      <img src="{{ url('public/img', $category->thumbnail) }}" 
+                           alt="{{ $category->name }}" 
+                           class="img-fluid rounded" 
+                           style="width: 80px; height: 80px; object-fit: cover;">
+                    </div>
+                  @else
+                    <div class="mb-3">
+                      <div class="bg-main text-white rounded d-flex align-items-center justify-content-center" 
+                           style="width: 80px; height: 80px; margin: 0 auto;">
+                        <i class="bi bi-trophy fs-1"></i>
+                      </div>
+                    </div>
+                  @endif
+                  
+                  <h5 class="mb-2">{{ $category->name }}</h5>
+                  
+                  @if($category->date && $category->time)
+                    <p class="text-muted small mb-3">
+                      <i class="bi bi-calendar-event me-1"></i>
+                      {{ \Carbon\Carbon::parse($category->date)->format('M d, Y') }} at {{ \Carbon\Carbon::parse($category->time)->format('h:i A') }}
+                    </p>
+                  @endif
+                  
+                  <a href="{{ url('category', $category->slug) }}" 
+                     class="btn btn-main btn-sm">
+                    <i class="bi bi-arrow-right me-1"></i>
+                    {{ __('misc.view_games') }}
+                  </a>
+                </div>
+              </div>
+            </div>
+          @endforeach
         </div>
+
+        @if ($categoriesCount > 8)
+        <div class="w-100 d-block text-center mt-5">
+          <a href="{{ url('categories') }}" class="btn btn-lg btn-main rounded-pill btn-custom px-4 arrow px-5">
+            {{ __('misc.view_all') }}
+          </a>
+        </div>
+        @endif
       </div>
     </section>
   @endif

@@ -148,6 +148,7 @@ return array(
 	'language'                  =>      'Language',
 	'online'                    =>      'Online',
 	'view_all'                  =>      'View all',
+	'view_games'                =>      'View Games',
 	'add_tag'                   =>      'Add a tag and press Enter or comma',
 	'add_tags_guide'            =>      'Press Enter or comma to add tag',
 	'collections'               =>      'Collections',

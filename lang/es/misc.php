@@ -144,6 +144,7 @@ return array(
 	'language'                  =>      'Lenguaje',
 	'online'                    =>      'En línea',
 	'view_all'                  =>      'Ver todo',
+	'view_games'                =>      'Ver Juegos',
 	'add_tag'                   =>      'Agrega una etiqueta y presiona Enter o coma',
 	'add_tags_guide'            =>      'Presione Enter o coma para agregar etiqueta',
 	'collections'               =>      'Colecciones',
