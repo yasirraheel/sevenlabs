@@ -5,7 +5,7 @@
 
 <li>
   <span class="dropdown-item disable-item" id="sevenlabs-balance">
-    <i class="bi bi-cash-stack me-2"></i> {{ __('misc.balance') }}: <span id="balance-amount">...</span>
+    <i class="bi bi-cash-stack me-2"></i> {{ __('misc.balance') }}: <span id="balance-amount">...</span> {{ $settings->currency_symbol ?? '$' }}
   </span>
 </li>
 
