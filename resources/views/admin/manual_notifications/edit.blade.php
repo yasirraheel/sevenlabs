@@ -49,25 +49,48 @@
 							</div>
 						</div>
 
-						@if($manualNotification->image)
 						<div class="row mb-3">
-							<label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.current_image') }}</label>
+							<label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.image') }}</label>
 							<div class="col-sm-10">
-								<img src="{{ $manualNotification->image_url }}" alt="{{ $manualNotification->title }}" 
-									class="img-thumbnail" style="max-width: 200px;">
-							</div>
-						</div>
-						@endif
+								<div class="file-upload-wrapper">
+									<input type="file" name="image" id="notification_image" 
+										class="form-control d-none @error('image') is-invalid @enderror" 
+										accept="image/*" onchange="previewNotificationImage(this)">
+									<div class="file-upload-area" onclick="document.getElementById('notification_image').click()">
+										<div class="file-upload-content">
+											<i class="bi bi-cloud-upload fs-1 text-muted"></i>
+											<p class="mb-2">Click to upload notification image</p>
+											<small class="text-muted">JPG, PNG, GIF up to 2MB</small>
+										</div>
+									</div>
+								</div>
 
-						<div class="row mb-3">
-							<label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.new_image') }}</label>
-							<div class="col-sm-10">
-								<input type="file" name="image" 
-									class="form-control @error('image') is-invalid @enderror" 
-									accept="image/*">
-								<div class="form-text">{{ __('admin.image_help_text') }}</div>
+								<!-- Current Image Display -->
+								@if($manualNotification->image)
+								<div id="notification-current-image" class="mt-3">
+									<h6>Current Image:</h6>
+									<img src="{{ $manualNotification->image_url }}" alt="{{ $manualNotification->title }}" 
+										class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+									<div class="mt-2">
+										<button type="button" class="btn btn-sm btn-outline-danger" onclick="removeCurrentNotificationImage()">
+											<i class="bi bi-trash"></i> Remove Current Image
+										</button>
+									</div>
+								</div>
+								@endif
+
+								<!-- Image Preview -->
+								<div id="notification-image-preview" class="mt-3" style="display: none;">
+									<img id="notification-preview-img" src="" alt="Preview" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+									<div class="mt-2">
+										<button type="button" class="btn btn-sm btn-outline-danger" onclick="removeNotificationImage()">
+											<i class="bi bi-trash"></i> Remove
+										</button>
+									</div>
+								</div>
+
 								@error('image')
-								<div class="invalid-feedback">{{ $message }}</div>
+								<div class="invalid-feedback d-block">{{ $message }}</div>
 								@enderror
 							</div>
 						</div>
@@ -102,4 +125,134 @@
 		</div>
 	</div>
 </div>
+@endsection
+
+@section('javascript')
+<style>
+.file-upload-wrapper {
+  position: relative;
+}
+
+.file-upload-area {
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #f8f9fa;
+}
+
+.file-upload-area:hover {
+  border-color: #007bff;
+  background-color: #e3f2fd;
+}
+
+.file-upload-area.dragover {
+  border-color: #007bff;
+  background-color: #e3f2fd;
+}
+
+.file-upload-content {
+  pointer-events: none;
+}
+
+#notification-image-preview {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #f8f9fa;
+}
+
+#notification-current-image {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #f8f9fa;
+}
+</style>
+
+<script type="text/javascript">
+// Notification image preview functions
+function previewNotificationImage(input) {
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+
+    // Validate file size (2MB limit)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('File size must be less than 2MB');
+      input.value = '';
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.match('image.*')) {
+      alert('Please select a valid image file');
+      input.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('notification-preview-img').src = e.target.result;
+      document.getElementById('notification-image-preview').style.display = 'block';
+
+      // Hide current image section when new image is selected
+      const currentImage = document.getElementById('notification-current-image');
+      if (currentImage) {
+        currentImage.style.display = 'none';
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function removeNotificationImage() {
+  document.getElementById('notification_image').value = '';
+  document.getElementById('notification-image-preview').style.display = 'none';
+
+  // Show current image section again
+  const currentImage = document.getElementById('notification-current-image');
+  if (currentImage && currentImage.querySelector('img').src) {
+    currentImage.style.display = 'block';
+  }
+}
+
+function removeCurrentNotificationImage() {
+  document.getElementById('notification_image').value = '';
+  const currentImage = document.getElementById('notification-current-image');
+  if (currentImage) {
+    currentImage.style.display = 'none';
+  }
+}
+
+// Drag and drop functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const uploadAreas = document.querySelectorAll('.file-upload-area');
+
+  uploadAreas.forEach(uploadArea => {
+    uploadArea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', function(e) {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        const input = uploadArea.parentElement.querySelector('input[type="file"]');
+        input.files = files;
+        previewNotificationImage(input);
+      }
+    });
+  });
+});
+</script>
 @endsection
