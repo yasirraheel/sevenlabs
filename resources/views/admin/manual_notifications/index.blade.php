@@ -91,12 +91,11 @@
 												</button>
 											</form>
 											<form action="{{ route('admin.manual_notifications.destroy', $notification) }}" 
-												method="POST" class="d-inline" 
-												onsubmit="return confirm('{{ __('admin.confirm_delete_notification') }}')">
+												method="POST" class="d-inline-block align-top">
 												@csrf
 												@method('DELETE')
-												<button type="submit" class="btn btn-outline-danger btn-sm" title="{{ __('admin.delete') }}">
-													<i class="bi bi-trash"></i>
+												<button type="button" class="btn btn-link text-danger e-none fs-5 p-0 actionDelete" title="{{ __('admin.delete') }}">
+													<i class="bi-trash-fill"></i>
 												</button>
 											</form>
 										</div>

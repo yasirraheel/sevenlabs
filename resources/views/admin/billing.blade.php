@@ -62,9 +62,13 @@
 											<button type="button" class="btn btn-outline-primary" onclick="editPaymentMethod({{ $method->id }})">
 												<i class="bi bi-pencil"></i>
 											</button>
-											<button type="button" class="btn btn-outline-danger" onclick="deletePaymentMethod({{ $method->id }})">
-												<i class="bi bi-trash"></i>
-											</button>
+											<form action="{{ url('panel/admin/payment-methods') }}/{{ $method->id }}" method="POST" class="d-inline-block align-top">
+												@csrf
+												@method('DELETE')
+												<button type="button" class="btn btn-link text-danger e-none fs-5 p-0 actionDelete" title="Delete Payment Method">
+													<i class="bi-trash-fill"></i>
+												</button>
+											</form>
 										</div>
 									</div>
 								</div>
@@ -337,31 +341,6 @@ function editPaymentMethod(id) {
     });
 }
 
-function deletePaymentMethod(id) {
-  if (confirm('Are you sure you want to delete this payment method?')) {
-    // Create a form to submit DELETE request
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = `{{ url('panel/admin/payment-methods') }}/${id}`;
-
-    // Add CSRF token
-    const csrfToken = document.createElement('input');
-    csrfToken.type = 'hidden';
-    csrfToken.name = '_token';
-    csrfToken.value = '{{ csrf_token() }}';
-    form.appendChild(csrfToken);
-
-    // Add method override for DELETE
-    const methodField = document.createElement('input');
-    methodField.type = 'hidden';
-    methodField.name = '_method';
-    methodField.value = 'DELETE';
-    form.appendChild(methodField);
-
-    document.body.appendChild(form);
-    form.submit();
-  }
-}
 
 // Reset modal when closed
 document.getElementById('addPaymentMethodModal').addEventListener('hidden.bs.modal', function () {
