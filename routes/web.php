@@ -110,6 +110,10 @@ Route::group(['middleware' => 'auth'], function() {
     Route::get('feed',[UserController::class, 'followingFeed']);
     Route::get('notifications',[UserController::class, 'notifications']);
     Route::get('notifications/delete',[UserController::class, 'notificationsDelete']);
+    
+    // Manual Notifications
+    Route::get('manual-notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('manual-notifications/{notification}', [NotificationController::class, 'show'])->name('notifications.show');
 
     // Report User
     Route::post('report/user',[UserController::class, 'report']);
@@ -315,9 +319,17 @@ Route::group(['middleware' => 'role'], function() {
     Route::post('panel/admin/roles-and-permissions/update', [RolesAndPermissionsController::class, 'update']);
     Route::post('panel/admin/roles-and-permissions/delete/{id}', [RolesAndPermissionsController::class, 'destroy']);
 
-    // Push Notifications
-    Route::view('panel/admin/push-notifications', 'admin.push_notifications')->name('push_notifications');
-    Route::post('panel/admin/push-notifications', [AdminController::class, 'savePushNotifications']);
+    // Manual Notifications
+    Route::resource('panel/admin/manual-notifications', Admin\ManualNotificationController::class)->names([
+        'index' => 'admin.manual_notifications.index',
+        'create' => 'admin.manual_notifications.create',
+        'store' => 'admin.manual_notifications.store',
+        'show' => 'admin.manual_notifications.show',
+        'edit' => 'admin.manual_notifications.edit',
+        'update' => 'admin.manual_notifications.update',
+        'destroy' => 'admin.manual_notifications.destroy',
+    ]);
+    Route::patch('panel/admin/manual-notifications/{manualNotification}/toggle-status', [Admin\ManualNotificationController::class, 'toggleStatus'])->name('admin.manual_notifications.toggle_status');
 });
 
 // Language Switching

@@ -126,8 +126,8 @@
 
             @if (auth()->user()->hasPermission('push_notifications'))
               <li class="nav-item">
-                  <a href="{{ url('panel/admin/push-notifications') }}" class="nav-link text-truncate @if (request()->is('panel/admin/push-notifications')) active @endif">
-                      <i class="bi-app-indicator me-2"></i> {{ __('admin.push_notifications') }}
+                  <a href="{{ route('admin.manual_notifications.index') }}" class="nav-link text-truncate @if (request()->is('panel/admin/manual-notifications*')) active @endif">
+                      <i class="bi-bell me-2"></i> {{ __('admin.manual_notifications') }}
                   </a>
               </li><!-- /end list -->
             @endif
