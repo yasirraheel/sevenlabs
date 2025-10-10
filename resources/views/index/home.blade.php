@@ -41,16 +41,16 @@
 
 <div class="container-fluid py-5 py-large">
   <!-- Game Categories Section -->
-  @if ($settings->show_categories_index == 'on')
-    <section class="section py-5 py-large">
-      <div class="container">
-        <div class="btn-block text-center mb-5">
-          <h3 class="m-0">{{__('misc.categories')}}</h3>
-          <p>
-            {{__('misc.browse_by_category')}}
-          </p>
-        </div>
+  <section class="section py-5 py-large">
+    <div class="container">
+      <div class="btn-block text-center mb-5">
+        <h3 class="m-0">{{__('misc.categories')}}</h3>
+        <p>
+          {{__('misc.browse_by_category')}}
+        </p>
+      </div>
 
+      @if($categories->count() > 0)
         <div class="row">
           @foreach($categories as $category)
             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
@@ -91,17 +91,25 @@
             </div>
           @endforeach
         </div>
-
-        @if ($categoriesCount > 8)
-        <div class="w-100 d-block text-center mt-5">
-          <a href="{{ url('categories') }}" class="btn btn-lg btn-main rounded-pill btn-custom px-4 arrow px-5">
-            {{ __('misc.view_all') }}
-          </a>
+      @else
+        <div class="text-center py-5">
+          <div class="mb-4">
+            <i class="bi bi-trophy display-1 text-muted"></i>
+          </div>
+          <h4 class="text-muted">{{ __('misc.no_categories_available') }}</h4>
+          <p class="text-muted">{{ __('misc.check_back_later') }}</p>
         </div>
-        @endif
+      @endif
+
+      @if ($categoriesCount > 8)
+      <div class="w-100 d-block text-center mt-5">
+        <a href="{{ url('categories') }}" class="btn btn-lg btn-main rounded-pill btn-custom px-4 arrow px-5">
+          {{ __('misc.view_all') }}
+        </a>
       </div>
-    </section>
-  @endif
+      @endif
+    </div>
+  </section>
 </div><!-- container categories -->
 
 

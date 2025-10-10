@@ -149,6 +149,7 @@ return array(
 	'online'                    =>      'Online',
 	'view_all'                  =>      'View all',
 	'view_games'                =>      'View Games',
+	'no_categories_available'   =>      'No Game Categories Available',
 	'add_tag'                   =>      'Add a tag and press Enter or comma',
 	'add_tags_guide'            =>      'Press Enter or comma to add tag',
 	'collections'               =>      'Collections',

@@ -145,6 +145,7 @@ return array(
 	'online'                    =>      'En línea',
 	'view_all'                  =>      'Ver todo',
 	'view_games'                =>      'Ver Juegos',
+	'no_categories_available'   =>      'No Hay Categorías de Juegos Disponibles',
 	'add_tag'                   =>      'Agrega una etiqueta y presiona Enter o coma',
 	'add_tags_guide'            =>      'Presione Enter o coma para agregar etiqueta',
 	'collections'               =>      'Colecciones',
