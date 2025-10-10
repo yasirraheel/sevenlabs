@@ -1,10 +1,10 @@
-<header class="py-3 shadow-sm fixed-top bg-white" id="header">
-        <div class="container-fluid d-flex justify-content-between align-items-center px-4">
+<header class="py-4 shadow-sm fixed-top bg-white" id="header" style="min-height: 80px;">
+        <div class="container-fluid d-flex justify-content-between align-items-center px-2">
 
-            <a href="{{ url('/') }}" class="d-flex align-items-center link-dark text-decoration-none fw-bold display-6" style="padding: 0;">
-              <img src="{{ url('public/img', $settings->logo) }}" class="logoMain d-none d-lg-block" width="140" style="padding: 0;" />
-              <img src="{{ url('public/img', $settings->logo_light) }}" class="logoLight d-none d-lg-block" width="140" style="padding: 0;" />
-              <img src="{{ url('public/img', $settings->favicon) }}" class="logo d-block d-lg-none" height="40" style="padding: 0;" />
+            <a href="{{ url('/') }}" class="d-flex align-items-center link-dark text-decoration-none fw-bold display-6" style="padding: 0; height: 60px;">
+              <img src="{{ url('public/img', $settings->logo) }}" class="logoMain d-none d-lg-block" style="padding: 0; height: 60px; width: auto;" />
+              <img src="{{ url('public/img', $settings->logo_light) }}" class="logoLight d-none d-lg-block" style="padding: 0; height: 60px; width: auto;" />
+              <img src="{{ url('public/img', $settings->favicon) }}" class="logo d-block d-lg-none" style="padding: 0; height: 50px; width: auto;" />
             </a>
 
           <div class="d-flex align-items-center">
