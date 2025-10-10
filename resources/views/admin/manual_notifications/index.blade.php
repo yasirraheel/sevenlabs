@@ -55,10 +55,17 @@
 											class="rounded" style="width: 50px; height: 50px; object-fit: cover;"
 											onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
 										@endif
+										@if(!$notification->image)
 										<div class="bg-light rounded d-flex align-items-center justify-content-center" 
-											style="width: 50px; height: 50px; {{ $notification->image ? 'display: none;' : '' }}">
+											style="width: 50px; height: 50px;">
 											<i class="bi bi-image text-muted"></i>
 										</div>
+										@else
+										<div class="bg-light rounded d-flex align-items-center justify-content-center" 
+											style="width: 50px; height: 50px; display: none;">
+											<i class="bi bi-image text-muted"></i>
+										</div>
+										@endif
 									</td>
 									<td>
 										<strong>{{ $notification->title }}</strong>
