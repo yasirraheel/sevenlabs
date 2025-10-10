@@ -196,7 +196,6 @@
 
                         // Clear loading intervals
                         clearInterval(balanceInterval);
-                        clearInterval(creditsInterval);
 
                         if (data.success) {
                             // Update balance (show user's own balance)
