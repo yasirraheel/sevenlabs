@@ -132,6 +132,14 @@
               </li><!-- /end list -->
             @endif
 
+            @if (auth()->user()->hasPermission('payment_settings'))
+              <li class="nav-item">
+                  <a href="{{ route('payment_settings') }}" class="nav-link text-truncate @if (request()->is('panel/admin/payments')) active @endif">
+                      <i class="bi-credit-card me-2"></i> {{ __('admin.payment_settings') }}
+                  </a>
+              </li><!-- /end list -->
+            @endif
+
                 {{-- @if (auth()->user()->hasPermission('tax_rates'))
               <li class="nav-item">
                   <a href="{{ url('panel/admin/tax-rates') }}" class="nav-link text-truncate @if (request()->is('panel/admin/tax-rates')) active @endif">
