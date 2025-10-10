@@ -58,18 +58,16 @@
 										<span class="badge {{ $method->is_active ? 'bg-success' : 'bg-secondary' }}">
 											{{ $method->is_active ? 'Active' : 'Inactive' }}
 										</span>
-										<div class="btn-group btn-group-sm">
-											<button type="button" class="btn btn-outline-primary" onclick="editPaymentMethod({{ $method->id }})">
-												<i class="bi bi-pencil"></i>
+										<button type="button" class="text-reset fs-5 me-2" onclick="editPaymentMethod({{ $method->id }})" title="Edit Payment Method">
+											<i class="far fa-edit"></i>
+										</button>
+										<form action="{{ url('panel/admin/payment-methods') }}/{{ $method->id }}" method="POST" class="d-inline-block align-top">
+											@csrf
+											@method('DELETE')
+											<button type="button" class="btn btn-link text-danger e-none fs-5 p-0 actionDelete" title="Delete Payment Method">
+												<i class="bi-trash-fill"></i>
 											</button>
-											<form action="{{ url('panel/admin/payment-methods') }}/{{ $method->id }}" method="POST" class="d-inline-block align-top">
-												@csrf
-												@method('DELETE')
-												<button type="button" class="btn btn-link text-danger e-none fs-5 p-0 actionDelete" title="Delete Payment Method">
-													<i class="bi-trash-fill"></i>
-												</button>
-											</form>
-										</div>
+										</form>
 									</div>
 								</div>
 							</div>

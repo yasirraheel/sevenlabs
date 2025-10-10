@@ -71,34 +71,32 @@
 									<td>
 										<span class="text-muted">{{ $notification->created_at->format('M d, Y H:i') }}</span>
 									</td>
-									<td class="text-center">
-										<div class="btn-group" role="group">
-											<a href="{{ route('admin.manual_notifications.show', $notification) }}" 
-												class="btn btn-outline-primary btn-sm" title="{{ __('admin.view') }}">
-												<i class="bi bi-eye"></i>
-											</a>
-											<a href="{{ route('admin.manual_notifications.edit', $notification) }}" 
-												class="btn btn-outline-secondary btn-sm" title="{{ __('admin.edit') }}">
-												<i class="bi bi-pencil"></i>
-											</a>
-											<form action="{{ route('admin.manual_notifications.toggle_status', $notification) }}" 
-												method="POST" class="d-inline">
-												@csrf
-												@method('PATCH')
-												<button type="submit" class="btn btn-outline-{{ $notification->is_active ? 'warning' : 'success' }} btn-sm" 
-													title="{{ $notification->is_active ? __('admin.deactivate') : __('admin.activate') }}">
-													<i class="bi bi-{{ $notification->is_active ? 'pause' : 'play' }}"></i>
-												</button>
-											</form>
-											<form action="{{ route('admin.manual_notifications.destroy', $notification) }}" 
-												method="POST" class="d-inline-block align-top">
-												@csrf
-												@method('DELETE')
-												<button type="button" class="btn btn-link text-danger e-none fs-5 p-0 actionDelete" title="{{ __('admin.delete') }}">
-													<i class="bi-trash-fill"></i>
-												</button>
-											</form>
-										</div>
+									<td>
+										<a href="{{ route('admin.manual_notifications.show', $notification) }}" 
+											class="text-reset fs-5 me-2" title="{{ __('admin.view') }}">
+											<i class="bi bi-eye"></i>
+										</a>
+										<a href="{{ route('admin.manual_notifications.edit', $notification) }}" 
+											class="text-reset fs-5 me-2" title="{{ __('admin.edit') }}">
+											<i class="far fa-edit"></i>
+										</a>
+										<form action="{{ route('admin.manual_notifications.toggle_status', $notification) }}" 
+											method="POST" class="d-inline">
+											@csrf
+											@method('PATCH')
+											<button type="submit" class="btn btn-link text-{{ $notification->is_active ? 'warning' : 'success' }} e-none fs-5 p-0" 
+												title="{{ $notification->is_active ? __('admin.deactivate') : __('admin.activate') }}">
+												<i class="bi bi-{{ $notification->is_active ? 'pause' : 'play' }}"></i>
+											</button>
+										</form>
+										<form action="{{ route('admin.manual_notifications.destroy', $notification) }}" 
+											method="POST" class="d-inline-block align-top">
+											@csrf
+											@method('DELETE')
+											<button type="button" class="btn btn-link text-danger e-none fs-5 p-0 actionDelete" title="{{ __('admin.delete') }}">
+												<i class="bi-trash-fill"></i>
+											</button>
+										</form>
 									</td>
 								</tr>
 								@endforeach
