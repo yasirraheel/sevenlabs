@@ -1,5 +1,9 @@
 @extends('admin.layout')
 
+@php
+use Illuminate\Support\Facades\Storage;
+@endphp
+
 @section('content')
 <h5 class="mb-4 fw-light">
 	<a class="text-reset" href="{{ url('panel/admin') }}">{{ __('admin.dashboard') }}</a>
@@ -33,6 +37,23 @@
 				</div>
 
 				<div class="card-body p-0">
+					<!-- Debug Info -->
+					@if($notifications->count() > 0)
+					<div class="alert alert-info">
+						<strong>Debug Info:</strong><br>
+						@foreach($notifications as $notification)
+							@if($notification->image)
+								Notification: {{ $notification->title }}<br>
+								Image: {{ $notification->image }}<br>
+								URL: {{ $notification->image_url }}<br>
+								Storage URL: {{ Storage::url('notifications/' . $notification->image) }}<br>
+								Asset URL: {{ asset('storage/notifications/' . $notification->image) }}<br>
+								<hr>
+							@endif
+						@endforeach
+					</div>
+					@endif
+					
 					@if($notifications->count() > 0)
 					<div class="table-responsive">
 						<table class="table table-hover mb-0">
@@ -52,13 +73,13 @@
 									<td>
 										@if($notification->image)
 										<img src="{{ $notification->image_url }}" alt="{{ $notification->title }}" 
-											class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
-										@else
+											class="rounded" style="width: 50px; height: 50px; object-fit: cover;"
+											onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+										@endif
 										<div class="bg-light rounded d-flex align-items-center justify-content-center" 
-											style="width: 50px; height: 50px;">
+											style="width: 50px; height: 50px; {{ $notification->image ? 'display: none;' : '' }}">
 											<i class="bi bi-image text-muted"></i>
 										</div>
-										@endif
 									</td>
 									<td>
 										<strong>{{ $notification->title }}</strong>

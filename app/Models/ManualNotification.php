@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class ManualNotification extends Model
 {
@@ -23,7 +24,7 @@ class ManualNotification extends Model
     public function getImageUrlAttribute()
     {
         if ($this->image) {
-            return asset('storage/notifications/' . $this->image);
+            return Storage::url('notifications/' . $this->image);
         }
         return null;
     }
