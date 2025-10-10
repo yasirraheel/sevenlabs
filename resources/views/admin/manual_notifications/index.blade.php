@@ -52,17 +52,7 @@
 									<td>
 										@if($notification->image)
 										<img src="{{ $notification->image_url }}" alt="{{ $notification->title }}" 
-											class="rounded" style="width: 50px; height: 50px; object-fit: cover;"
-											onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-										<div class="bg-light rounded d-flex align-items-center justify-content-center" 
-											style="width: 50px; height: 50px; display: none;">
-											<i class="bi bi-image text-muted"></i>
-										</div>
-										@else
-										<div class="bg-light rounded d-flex align-items-center justify-content-center" 
-											style="width: 50px; height: 50px;">
-											<i class="bi bi-image text-muted"></i>
-										</div>
+											class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
 										@endif
 									</td>
 									<td>
