@@ -259,5 +259,9 @@ return array(
 		'back' => 'Atrás',
 		'cancel' => 'Cancelar',
 		'created_at' => 'Creado En',
+	'min_bond_amount' => 'Monto Mínimo de Bono',
+	'max_bond_amount' => 'Monto Máximo de Bono',
+	'min_bond_amount_help' => 'Monto mínimo requerido para comprar un bono',
+	'max_bond_amount_help' => 'Monto máximo permitido para una compra de bono individual',
 
 );

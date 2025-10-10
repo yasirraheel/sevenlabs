@@ -283,6 +283,10 @@ return array(
 		'back' => 'Back',
 		'cancel' => 'Cancel',
 		'created_at' => 'Created At',
+	'min_bond_amount' => 'Minimum Bond Amount',
+	'max_bond_amount' => 'Maximum Bond Amount',
+	'min_bond_amount_help' => 'Minimum amount required to purchase a bond',
+	'max_bond_amount_help' => 'Maximum amount allowed for a single bond purchase',
 
 		// Deposits Management
 		'deposits' => 'Deposits',

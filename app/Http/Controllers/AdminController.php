@@ -682,7 +682,9 @@ class AdminController extends Controller
 			'currency_code' => 'required|alpha|max:3',
 			'currency_symbol' => 'required|max:10',
 			'currency_position' => 'required|in:left,right',
-			'decimal_format' => 'required|in:dot,comma'
+			'decimal_format' => 'required|in:dot,comma',
+			'min_bond_amount' => 'required|numeric|min:0',
+			'max_bond_amount' => 'required|numeric|min:0|gte:min_bond_amount'
 		];
 
 		$this->validate($request, $rules);
@@ -691,6 +693,8 @@ class AdminController extends Controller
 		$sql->currency_symbol = $request->currency_symbol;
 		$sql->currency_position = $request->currency_position;
 		$sql->decimal_format = $request->decimal_format;
+		$sql->min_bond_amount = $request->min_bond_amount;
+		$sql->max_bond_amount = $request->max_bond_amount;
 
 		$sql->save();
 

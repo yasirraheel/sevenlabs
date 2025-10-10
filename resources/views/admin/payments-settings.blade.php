@@ -62,6 +62,22 @@
 		          </div>
 		        </div>
 
+            <div class="row mb-3">
+		          <label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.min_bond_amount') }}</label>
+		          <div class="col-sm-10">
+		            <input value="{{ $settings->min_bond_amount ?? 0 }}" name="min_bond_amount" type="number" class="form-control" min="0" step="0.01" required>
+		            <small class="d-block text-muted">{{ __('admin.min_bond_amount_help') }}</small>
+		          </div>
+		        </div>
+
+            <div class="row mb-3">
+		          <label class="col-sm-2 col-form-label text-lg-end">{{ __('admin.max_bond_amount') }}</label>
+		          <div class="col-sm-10">
+		            <input value="{{ $settings->max_bond_amount ?? 0 }}" name="max_bond_amount" type="number" class="form-control" min="0" step="0.01" required>
+		            <small class="d-block text-muted">{{ __('admin.max_bond_amount_help') }}</small>
+		          </div>
+		        </div>
+
 						<div class="row mb-3">
 							<div class="col-sm-10 offset-sm-2">
 								<button type="submit" class="btn btn-dark mt-3 px-5">{{ __('admin.save') }}</button>
