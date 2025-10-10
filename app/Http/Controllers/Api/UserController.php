@@ -11,11 +11,20 @@ class UserController extends Controller
     {
         try {
             $user = auth()->user();
+            
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
 
+            // Get balance from user table
+            $balance = $user->balance ?? 0;
+            
             return response()->json([
                 'success' => true,
-                'user_balance' => $user->balance ?? 0,
-                'debug_user_id' => $user ? $user->id : null
+                'user_balance' => $balance
             ]);
 
         } catch (\Exception $e) {
@@ -23,7 +32,8 @@ class UserController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error loading balance: ' . $e->getMessage()
+                'message' => 'Error loading balance',
+                'user_balance' => 0
             ], 500);
         }
     }
