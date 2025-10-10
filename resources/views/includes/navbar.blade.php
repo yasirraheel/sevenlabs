@@ -4,7 +4,7 @@
             <a href="{{ url('/') }}" class="d-flex align-items-center link-dark text-decoration-none fw-bold display-6" style="padding: 0;">
               <img src="{{ url('public/img', $settings->logo) }}" class="logoMain d-none d-lg-block" style="padding: 0; height: 50px; width: auto;" />
               <img src="{{ url('public/img', $settings->logo_light) }}" class="logoLight d-none d-lg-block" style="padding: 0; height: 50px; width: auto;" />
-              <img src="{{ url('public/img', $settings->favicon) }}" class="logo d-block d-lg-none" style="padding: 0; height: 40px; width: auto;" />
+              <img src="{{ url('public/img', $settings->logo) }}" class="logo d-block d-lg-none" style="padding: 0; height: 40px; width: auto;" />
             </a>
 
           <div class="d-flex align-items-center">
