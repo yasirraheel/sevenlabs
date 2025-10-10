@@ -7,6 +7,7 @@ use App\Models\ManualNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
 
 class ManualNotificationController extends Controller
 {
@@ -43,10 +44,7 @@ class ManualNotificationController extends Controller
 
         // Handle image upload
         if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $filename = Str::random(20) . '.' . $image->getClientOriginalExtension();
-            $image->storeAs('notifications', $filename, 'public');
-            $data['image'] = $filename;
+            $data['image'] = $this->handleImageUpload($request->file('image'));
         }
 
         ManualNotification::create($data);
@@ -88,14 +86,10 @@ class ManualNotificationController extends Controller
         // Handle image upload
         if ($request->hasFile('image')) {
             // Delete old image
-            if ($manualNotification->image) {
-                Storage::disk('public')->delete('notifications/' . $manualNotification->image);
+            if ($manualNotification->image && \File::exists('public/img/' . $manualNotification->image)) {
+                \File::delete('public/img/' . $manualNotification->image);
             }
-
-            $image = $request->file('image');
-            $filename = Str::random(20) . '.' . $image->getClientOriginalExtension();
-            $image->storeAs('notifications', $filename, 'public');
-            $data['image'] = $filename;
+            $data['image'] = $this->handleImageUpload($request->file('image'));
         }
 
         $manualNotification->update($data);
@@ -110,8 +104,8 @@ class ManualNotificationController extends Controller
     public function destroy(ManualNotification $manualNotification)
     {
         // Delete image if exists
-        if ($manualNotification->image) {
-            Storage::disk('public')->delete('notifications/' . $manualNotification->image);
+        if ($manualNotification->image && \File::exists('public/img/' . $manualNotification->image)) {
+            \File::delete('public/img/' . $manualNotification->image);
         }
 
         $manualNotification->delete();
@@ -130,5 +124,41 @@ class ManualNotificationController extends Controller
         $status = $manualNotification->is_active ? 'activated' : 'deactivated';
         return redirect()->back()
             ->with('success_message', __('admin.notification_' . $status . '_successfully'));
+    }
+
+    /**
+     * Helper method for image upload
+     */
+    private function handleImageUpload($file)
+    {
+        try {
+            $temp = 'public/temp/';
+            $path = 'public/img/';
+
+            // Ensure directories exist
+            if (!File::exists($temp)) {
+                File::makeDirectory($temp, 0755, true);
+            }
+            if (!File::exists($path)) {
+                File::makeDirectory($path, 0755, true);
+            }
+
+            $extension = $file->getClientOriginalExtension();
+            $fileName = 'notification-' . time() . '-' . uniqid() . '.' . $extension;
+
+            // Move file to temp directory first
+            if ($file->move($temp, $fileName)) {
+                // Copy to final location
+                if (File::copy($temp . $fileName, $path . $fileName)) {
+                    // Delete temp file
+                    File::delete($temp . $fileName);
+                    return $fileName;
+                }
+            }
+            return null;
+        } catch (\Exception $e) {
+            \Log::error('Image upload error: ' . $e->getMessage());
+            return null;
+        }
     }
 }

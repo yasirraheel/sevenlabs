@@ -24,7 +24,7 @@ class ManualNotification extends Model
     public function getImageUrlAttribute()
     {
         if ($this->image) {
-            return Storage::url('notifications/' . $this->image);
+            return url('public/img', $this->image);
         }
         return null;
     }

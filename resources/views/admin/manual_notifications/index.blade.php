@@ -1,9 +1,5 @@
 @extends('admin.layout')
 
-@php
-use Illuminate\Support\Facades\Storage;
-@endphp
-
 @section('content')
 <h5 class="mb-4 fw-light">
 	<a class="text-reset" href="{{ url('panel/admin') }}">{{ __('admin.dashboard') }}</a>
@@ -37,23 +33,6 @@ use Illuminate\Support\Facades\Storage;
 				</div>
 
 				<div class="card-body p-0">
-					<!-- Debug Info -->
-					@if($notifications->count() > 0)
-					<div class="alert alert-info">
-						<strong>Debug Info:</strong><br>
-						@foreach($notifications as $notification)
-							@if($notification->image)
-								Notification: {{ $notification->title }}<br>
-								Image: {{ $notification->image }}<br>
-								URL: {{ $notification->image_url }}<br>
-								Storage URL: {{ Storage::url('notifications/' . $notification->image) }}<br>
-								Asset URL: {{ asset('storage/notifications/' . $notification->image) }}<br>
-								<hr>
-							@endif
-						@endforeach
-					</div>
-					@endif
-					
 					@if($notifications->count() > 0)
 					<div class="table-responsive">
 						<table class="table table-hover mb-0">
